@@ -1,0 +1,46 @@
+serverConfigs:
+ httpPort : 8081
+ httpsPort : 9443
+ adminPort : 9463
+ readTimeOut : 20
+ writeTimeOut : 20
+ certificateFile : './resources/security/server.pem'
+ keyFile : './resources/security/server.key'
+ logsDirectory : logs
+ enableAccessLogs : true
+
+redisConfigs:
+ serverUrl : localhost
+ serverPort : 6379
+ password : root
+ db : 0
+
+radiusDBConfigs:
+ username : root
+ password : root
+ DBName : radius
+ host : localhost
+ port : 3306
+
+summaryDBConfigs:
+ username : root
+ password : root
+ DBName : summary
+ host : localhost
+ port : 3306
+
+dashboardDBConfigs:
+ username : root
+ password : root
+ DBName : dashboard
+ host : localhost
+ port : 3306
+
+portalDBConfigs:
+ username : root
+ password : root
+ DBName : portal
+ host : localhost
+ port : 3306
+
+
