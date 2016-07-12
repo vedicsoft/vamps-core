@@ -1,11 +1,11 @@
 package commons
 import (
 	"net/http"
-	"wislabs.wifi.manager/utils"
 	"strconv"
 	"strings"
 	"gopkg.in/gorp.v1"
 	log "github.com/Sirupsen/logrus"
+	"github.com/vamps-core/commons/utils"
 )
 
 /**

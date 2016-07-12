@@ -1,4 +1,4 @@
-package commons
+package utils
 
 import (
 	"database/sql"
@@ -60,7 +60,6 @@ func GetDBConnection(dbname string) *gorp.DbMap {
 	}
 	dbmap := &gorp.DbMap{Db: db, Dialect:gorp.MySQLDialect{"InnoDB", "UTF8"}}
 	return dbmap
-
 }
 
 func readDBConfigs(configName string) DBConfigs {

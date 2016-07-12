@@ -12,9 +12,9 @@ import (
 	"github.com/vamps-core/commons"
 	"github.com/vamps-core/redis"
 	"strconv"
-	"github.com/vamps-core/utils"
 	"database/sql"
 	log "github.com/Sirupsen/logrus"
+	"github.com/vamps-core/commons/utils"
 )
 
 type JWTAuthenticationBackend struct {
@@ -26,6 +26,10 @@ const (
 	tokenDuration = 72
 	expireOffset = 3600
 )
+
+const JWT_PRIVATE_KEY_PATH string = "JWT_PRIVATE_KEY_PATH"
+const JWT_PUBLIC_KEY_PATH string = "JWT_PUBLIC_KEY_PATH"
+const JWT_EXPIRATION_DELTA string = "JWT_EXPIRATION_DELTA"
 
 var authBackendInstance *JWTAuthenticationBackend = nil
 
@@ -41,7 +45,7 @@ func InitJWTAuthenticationEngine() *JWTAuthenticationBackend {
 
 func (backend *JWTAuthenticationBackend) GenerateToken(user *commons.SystemUser) (string, error) {
 	token := jwt.New(jwt.SigningMethodRS512)
-	i, _ := strconv.Atoi(os.Getenv(commons.JWT_EXPIRATION_DELTA))
+	i, _ := strconv.Atoi(os.Getenv(JWT_EXPIRATION_DELTA))
 	token.Claims["exp"] = time.Now().Add(time.Hour * time.Duration(i)).Unix()
 	token.Claims["iat"] = time.Now().Unix()
 	token.Claims["sub"] = user.Username
@@ -153,7 +157,7 @@ func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
 }
 
 func getPrivateKey() *rsa.PrivateKey {
-	privateKeyFile, err := os.Open(os.Getenv(commons.JWT_PRIVATE_KEY_PATH))
+	privateKeyFile, err := os.Open(os.Getenv(JWT_PRIVATE_KEY_PATH))
 	if err != nil {
 		panic(err)
 	}
@@ -178,7 +182,7 @@ func getPrivateKey() *rsa.PrivateKey {
 }
 
 func getPublicKey() *rsa.PublicKey {
-	publicKeyFile, err := os.Open(os.Getenv(commons.JWT_PUBLIC_KEY_PATH))
+	publicKeyFile, err := os.Open(os.Getenv(JWT_PUBLIC_KEY_PATH))
 	if err != nil {
 		panic(err)
 	}

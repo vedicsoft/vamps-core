@@ -1,7 +1,7 @@
 package routes
 
 import (
-	dashboard_handlers "wislabs.wifi.manager/handlers"
+	dashboard_handlers "github.com/vamps-core/handlers"
 )
 
 var DashoardAppRoutes = Routes{

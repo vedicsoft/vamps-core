@@ -5,8 +5,8 @@ import (
 	"net/http"
 	_ "github.com/go-sql-driver/mysql"
 	log "github.com/Sirupsen/logrus"
-	"wislabs.wifi.manager/dao"
-	"wislabs.wifi.manager/controllers/dashboard"
+	"github.com/vamps-core/models"
+	"github.com/vamps-core/controllers"
 )
 
 /**
@@ -16,11 +16,11 @@ import (
 */
 func CreateDashboardApp(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	var dashboardApp dao.DashboardAppInfo
+	var dashboardApp models.DashboardAppInfo
 	err := decoder.Decode(&dashboardApp)
 	if (err != nil) {
 		log.Error("Error while decoding location json")
 	}
-	dashboard.CreateNewDashboardApp(dashboardApp)
+	controllers.CreateNewDashboardApp(dashboardApp)
 	w.WriteHeader(http.StatusOK)
 }

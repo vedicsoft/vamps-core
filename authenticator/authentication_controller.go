@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"encoding/json"
 	jwt "github.com/dgrijalva/jwt-go"
-	"wislabs.wifi.manager/utils"
 	log "github.com/Sirupsen/logrus"
 	"strconv"
+	"github.com/vamps-core/commons/utils"
 )
 
 type TokenAuthentication struct {

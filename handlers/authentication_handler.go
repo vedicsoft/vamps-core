@@ -1,8 +1,8 @@
 package handlers
 
 import (
-    "wislabs.wifi.manager/commons"
-    "wislabs.wifi.manager/authenticator"
+    "github.com/vamps-core/commons"
+    "github.com/vamps-core/authenticator"
     "encoding/json"
     "net/http"
     "github.com/Sirupsen/logrus"

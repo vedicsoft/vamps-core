@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-PROJECT_NAME='wifi-manager'
+PROJECT_NAME='vamps-core'
 PROJECT_ROOT=`pwd`
-
+export GOBIN="$PROJECT_ROOT"
 echo 'Exporting GO variables.'
 if [ -z "$GOPATH" ]; then
  echo "Build failed due to GOPATH has not been set."
@@ -11,28 +11,22 @@ if [ -z "$GOPATH" ]; then
 fi
 export GOPATH=$GOPATH:$PROJECT_ROOT
 
-echo 'Installing Gom'
-go get github.com/mattn/gom
+command -v godep >/dev/null 2>&1 || { echo >&2 "Godep required. Installing godep.";  go get github.com/tools/godep;}
 
-cd src/wislabs.wifi.manager/main
+rm -rf $PROJECT_ROOT/target
+mkdir -p $PROJECT_ROOT/target
 
 echo 'Gom install dependencies. This might take some time...'
-gom install
+godep go install ./...
 
-gom build
+#echo "Executing test"
+#godep test -v
 
-echo "Executing test"
-#gom test -v
-
-mv main $PROJECT_ROOT/server/bin/server.bin
+mv $PROJECT_NAME $PROJECT_ROOT/server/bin/server.bin
 
 echo 'GO build complete.'
 
-mkdir -p $PROJECT_ROOT/target
 cd $PROJECT_ROOT/target
-
-echo "Removing existing distribution"
-rm -rf $PROJECT_NAME.zip
 
 if [ "$1" = "--release" ];then
  echo "Writing version information to versioninfo.md"

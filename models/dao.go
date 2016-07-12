@@ -1,8 +1,8 @@
 package models
 
 import (
-    "wislabs.wifi.manager/utils"
     "net/textproto"
+	"github.com/vamps-core/commons/utils"
 )
 
 type NameValue struct {

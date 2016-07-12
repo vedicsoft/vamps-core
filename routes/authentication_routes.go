@@ -1,7 +1,7 @@
 package routes
 
 import (
-	dashboard_handlers "wislabs.wifi.manager/handlers"
+	dashboard_handlers "github.com/vamps-core/handlers"
 )
 
 var AuthenticationRoutes = Routes{
@@ -11,13 +11,6 @@ var AuthenticationRoutes = Routes{
 		"/dashboard/login",
 		false,
 		dashboard_handlers.Login,
-	},
-	Route{
-		"GetLoginPage",
-		"GET",
-		"/dashboard/login",
-		false,
-		dashboard_handlers.GetLoginPage,
 	},
 	Route{
 		"Logout",
