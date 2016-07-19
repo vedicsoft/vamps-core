@@ -1,11 +1,11 @@
-package handlers
+package api
 
 import (
     "github.com/vamps-core/commons"
     "github.com/vamps-core/authenticator"
     "encoding/json"
     "net/http"
-    "github.com/Sirupsen/logrus"
+    log "github.com/Sirupsen/logrus"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func RefreshToken(w http.ResponseWriter, r *http.Request, next http.HandlerFunc)
 func Logout(w http.ResponseWriter, r *http.Request) {
     err := authenticator.Logout(r)
     if err != nil {
-	logrus.Error(err.Error())
+	log.Error(err.Error())
 	w.WriteHeader(http.StatusInternalServerError)
     } else {
 	w.WriteHeader(http.StatusOK)

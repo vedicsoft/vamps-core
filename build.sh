@@ -5,6 +5,7 @@ PROJECT_NAME='vamps-core'
 PROJECT_ROOT=`pwd`
 export GOBIN="$PROJECT_ROOT"
 echo 'Exporting GO variables.'
+
 if [ -z "$GOPATH" ]; then
  echo "Build failed due to GOPATH has not been set."
  exit 1

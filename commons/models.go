@@ -16,3 +16,12 @@ type User struct {
 	Username string `json:"username" form:"username"`
 	Password string `json:"password" form:"password"`
 }
+
+type DBConfigs struct{
+	Username string
+	Password string
+	Dialect string
+	DBName string
+	Address string
+	Parameters string
+}

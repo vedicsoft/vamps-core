@@ -14,7 +14,6 @@ import (
 	"strconv"
 	"database/sql"
 	log "github.com/Sirupsen/logrus"
-	"github.com/vamps-core/commons/utils"
 )
 
 type JWTAuthenticationBackend struct {
@@ -23,7 +22,6 @@ type JWTAuthenticationBackend struct {
 }
 
 const (
-	tokenDuration = 72
 	expireOffset = 3600
 )
 
@@ -62,7 +60,7 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *commons.SystemUser)
 }
 
 func getUserId(user *commons.SystemUser) int64 {
-	dbMap := utils.GetDBConnection("dashboard");
+	dbMap := commons.GetDBConnection(commons.SERVER_DB);
 	defer dbMap.Db.Close()
 	var userId sql.NullInt64
 	smtOut, err := dbMap.Db.Prepare("SELECT userid FROM users WHERE username=? ANd tenantid=?")
@@ -79,7 +77,7 @@ func getUserId(user *commons.SystemUser) int64 {
 }
 
 func getUserScopes(user *commons.SystemUser) map[string][]string {
-	dbMap := utils.GetDBConnection("dashboard");
+	dbMap := commons.GetDBConnection(commons.SERVER_DB);
 	defer dbMap.Db.Close()
 	rows, err := dbMap.Db.Query("select name,action from permissions where permissionid in (select userpermissions.permissionid from userpermissions where userpermissions.userid = ?) order by name", user.UserId)
 	defer rows.Close()
@@ -108,9 +106,8 @@ func getUserScopes(user *commons.SystemUser) map[string][]string {
 }
 
 func (backend *JWTAuthenticationBackend) Authenticate(user *commons.SystemUser) bool {
-	dbMap := utils.GetDBConnection("dashboard");
+	dbMap := commons.GetDBConnection(commons.SERVER_DB);
 	defer dbMap.Db.Close()
-
 	var hashedPassword sql.NullString
 	smtOut, err := dbMap.Db.Prepare("SELECT password FROM users where username=? AND tenantid=? AND status='active'")
 	defer smtOut.Close()
@@ -124,7 +121,7 @@ func (backend *JWTAuthenticationBackend) Authenticate(user *commons.SystemUser) 
 			}
 		}
 	} else {
-		log.Debug("User authentication failed " + user.Username)
+		log.Info("User authentication failed for user " + user.Username)
 		return false
 	}
 	return false

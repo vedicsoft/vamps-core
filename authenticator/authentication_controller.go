@@ -7,7 +7,6 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	log "github.com/Sirupsen/logrus"
 	"strconv"
-	"github.com/vamps-core/commons/utils"
 )
 
 type TokenAuthentication struct {
@@ -78,7 +77,7 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 }
 
 func getTenantId(user *commons.SystemUser) int64 {
-	dbMap := utils.GetDBConnection("dashboard");
+	dbMap := commons.GetDBConnection(commons.SERVER_DB);
 	defer dbMap.Db.Close()
 
 	tenantId, err := dbMap.SelectInt("SELECT tenantid FROM tenants WHERE domain=?", user.TenantDomain)

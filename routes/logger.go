@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-	//"wislabs.wifi.manager/authenticator"
 )
 
 func Logger(inner http.Handler, name string) http.Handler {

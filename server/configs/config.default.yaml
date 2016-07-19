@@ -1,4 +1,4 @@
-serverConfigs:
+serverConfigs:logsdirectory
  httpPort : 8081
  httpsPort : 9443
  adminPort : 9463
@@ -6,7 +6,7 @@ serverConfigs:
  writeTimeOut : 20
  certificateFile : '../resources/security/server.pem'
  keyFile : '../resources/security/server.key'
- logsDirectory : logs
+ logsDirectory : '../logs'
  enableAccessLogs : true
 
 redisConfigs:
@@ -22,14 +22,14 @@ dbConfigs:
   username : root
   password : root
   dbname : dashboard
-  address : localhost:3306
-  parameters :
--
+  address : "localhost:3306"
+  parameters : ""
+ -
   name : portal
   dialect : mysql
   username : root
   password : root
   dbname : portal
-  address : localhost:3306
-  parameters :
+  address : "localhost:3306"
+  parameters : ""
 

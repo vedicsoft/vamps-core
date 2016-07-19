@@ -1,12 +1,7 @@
 package commons
 
 const SERVER_HOME string = "SERVER_HOME"
-
-
-const RADIUS_DB string    = "radius"
-const DASHBOARD_DB string = "dashboard"
-const PORTAL_DB string    = "portal"
-const SUMMARY_DB string   = "summary"
+const SERVER_DB = "vamps"
 
 const(
 	CRITERIA_SSIDS = "ssid"

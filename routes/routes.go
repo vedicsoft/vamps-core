@@ -18,7 +18,7 @@ var ApplicationRoutes Routes
 
 func init() {
 	routes := []Routes{
-		DashoardAppRoutes,
+		ConsoleRoutes,
 		AuthenticationRoutes,
 	}
 

@@ -5,7 +5,6 @@ import (
 	"strings"
 	"gopkg.in/gorp.v1"
 	log "github.com/Sirupsen/logrus"
-	"github.com/vamps-core/commons/utils"
 )
 
 /**
@@ -25,7 +24,7 @@ import (
  *  @return error if an error occurred
  */
 func Fetch(request *http.Request, database string, table string, totalRecordCountQuery string, columns []string, result interface{}) (int64, int64, error) {
-	dbMap := utils.GetDBConnection(database);
+	dbMap := GetDBConnection(database);
 	defer dbMap.Db.Close()
 	var err error
 	query := "SELECT "

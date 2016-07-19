@@ -1,14 +1,14 @@
 package routes
 
 import (
-	dashboard_handlers "github.com/vamps-core/handlers"
+	dashboard_handlers "github.com/vamps-core/api"
 )
 
-var DashoardAppRoutes = Routes{
+var ConsoleRoutes = Routes{
 	Route{
 		"Add Dashboard User App",
 		"POST",
-		"/dashboard/apps",
+		"/apps",
 		true,
 		dashboard_handlers.CreateDashboardApp,
 	},

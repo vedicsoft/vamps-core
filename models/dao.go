@@ -2,56 +2,11 @@ package models
 
 import (
     "net/textproto"
-	"github.com/vamps-core/commons/utils"
 )
 
 type NameValue struct {
     Name  string  `db:"name"json:"name"`
     Value float64  `db:"value"json:"value"`
-}
-
-type SummaryDailyAcctAll struct {
-    Tenantid             int            `db:"tenantid"json:"tenantid"`
-    Username             string            `db:"username"json:"username"`
-    Date                 utils.NullString    `db:"date"json:"date"`
-    Noofsessions         int            `db:"noofsessions"json:"noofsessions"`
-    Totalsessionduration int            `db:"totalsessionduration"json:"totalsessionduration"`
-    Sessionmaxduration   int            `db:"sessionmaxduration"json:"sessionmaxduration"`
-    Sessionminduration   int            `db:"sessionminduration"json:"sessionminduration"`
-    Sessionavgduration   int            `db:"sessionavgduration"json:"sessionavgduration"`
-    Inputoctets          int64            `db:"inputoctets"json:"inputoctets"`
-    Outputoctets         int64            `db:"outputoctets"json:"outputoctets"`
-    Nasipaddress         string            `db:"nasipaddress"json:"nasipaddress"`
-    Framedipaddress      string            `db:"framedipaddress"json:"framedipaddress"`
-    Calledstationid      string            `db:"calledstationid"json:"calledstationid"`
-    Ssid                 utils.NullString            `db:"ssid"json:"ssid"`
-    Calledstationmac     utils.NullString            `db:"calledstationmac"json:"calledstationmac"`
-    Groupname            utils.NullString            `db:"groupname"json:"groupname"`
-    Locationid           utils.NullString            `db:"locationid"json:"locationid"`
-    ACL                  utils.NullString                 `db:"acl"json:"acl"`
-}
-
-type AccessPoint struct {
-    TotalSessions         int                 `db:"totalsessions"json:"totalsessions"`
-    TotalUsers            int                     `db:"totalusers"json:"totalusers"`
-    AvgdataperUser        utils.NullString      `db:"avgdataperuser"json:"avgdataperuser"`
-    Avgdatapersessiontime utils.NullString   `db:"avgdatapersessiontime"json:"avgdatapersessiontime"`
-    Totalinputoctets      int64            `db:"totalinputoctets"json:"totalinputoctets"`
-    Totaloutputoctets     int64            `db:"totaloutputoctets"json:"totaloutputoctets"`
-    Calledstationmac      utils.NullString         `db:"calledstationmac"json:"calledstationmac"`
-    APName                utils.NullString           `db:"apname"json:"apname"`
-}
-
-type LocationAccessPoint struct {
-    AccessPointData AccessPoint
-    LongLatMacData  LongLatMac
-}
-
-type LongLatMac struct {
-    MAC       string                  `db:"mac"json:"mac"`
-    APName    utils.NullString                `db:"apname"json:"apname"`
-    Longitude utils.NullFloat64   `db:"longitude"json:"longitude"`
-    Latitude  utils.NullFloat64    `db:"latitude"json:"latitude"`
 }
 
 type Tenant struct {
@@ -96,26 +51,6 @@ type DashboardUserResetPassword struct {
     NewPassword string  `json:"newpassword"`
 }
 
-type WifiUser struct {
-    TenantId           int                    `db:"tenantid"json:"tenantid"`
-    Username           string                 `db:"username"json:"username"`
-    Password           string                 `json:"password"`
-    AcctStartTime      utils.NullString       `db:"acctstarttime"json:"acctstarttime"`
-    AcctActivationTime utils.NullString       `db:"acctactivationtime"json:"acctactivationtime"`
-    MaxSessionDuration utils.NullInt64        `db:"maxsessionduration"json:"maxsessionduration"`
-    GroupName          utils.NullString       `db:"groupname"json:"groupname"`
-    ACL                utils.NullString       `db:"acl"json:"acl"`
-    Visits             int64                  `db:"visits"json:"visits"`
-    Accounting         string                  `db:"accounting"json:"accounting"`
-}
-
-type DataTablesResponse struct {
-    Draw            int  `json:"draw"`
-    RecordsTotal    int64 `json:"recordsTotal"`
-    RecordsFiltered int64 `json:"recordsFiltered"`
-    Data            []WifiUser `json:"data"`
-    Error           string
-}
 
 type Role struct {
     Name     string `json:"name"`
@@ -144,19 +79,6 @@ type Constrains struct {
     Criteria   string            `json:"criteria"`
     GroupNames []string          `json:"groupnames"`
 	Parameters []string 		 `json:"parameters"`
-}
-
-type ApLocation struct {
-    TenantId   int                  `db:"tenantid"json:"tenantid"`
-    LocationId int64              `db:"locationid"json:"locationid"`
-    SSID       string                  `db:"ssid"json:"ssid"`
-    APName     utils.NullString                   `db:"apname"json:"apname"`
-    BSSID      string                  `db:"bssid"json:"bssid"`
-    MAC        string                  `db:"mac"json:"mac"`
-	Address	   utils.NullString		`db:"address"json:"address"`
-    Longitude  utils.NullFloat64   `db:"longitude"json:"longitude"`
-    Latitude   utils.NullFloat64    `db:"latitude"json:"latitude"`
-    GroupName  string              `db:"groupname"json:"groupname"`
 }
 
 type ApGroup struct {
@@ -228,52 +150,3 @@ type FileHeader struct {
 	// contains filtered or unexported fields
 }
 
-type RadiusServer struct {
-	InstanceId   int                `db:"InsId"json:"InsId"`
-	TenantId     int             `db:"tenantid"json:"tenantid"`
-	DBHostName   string            `db:"dbhostname"json:"dbhostname"`
-	DBHostIp     string        `db:"dbhostip"json:"dbhostip"`
-	DBSchemaName string            `db:"dbschemaname"json:"dbschemaname"`
-	DBHostPort   int            `db:"dbport"json:"dbhostport"`
-	DBUserName   string        `db:"dbusername"json:"dbusername"`
-	DBPassword   string        `db:"dbpassword"json:"dbpassword"`
-	Status       string            `db:"status"json:"status"`
-}
-
-type NasClient struct {
-	NasClientID int                    `db:"id"json:"nasid"`
-	NasName     string                `db:"nasname"json:"nasname"`
-	ShortName   string                `db:"shortname"json:"shortname"`
-	NasType     string                `db:"type"json:"nastype"`
-	NasPorts    utils.NullInt64                `db:"ports"json:"nasport"`
-	Secret      utils.NullString                `db:"secret"json:"secret"`
-}
-
-type  NasClientTestInfo struct {
-	ServerIp      string  `json:"dbhostip"`
-	NASClientName string    `json:"nasname"`
-	Secret        string  `json:"secret"`
-	AuthPort      string  `json:"authport"`
-	UserName      string    `json:"username"`
-	Password      string    `json:"password"`
-}
-
-type NASClientDBServer  struct {
-	RadiusServerInfo RadiusServer  `json:"dbServer"`
-	NASClientInfo    NasClient        `json:"nasClient"`
-}
-
-type SummaryChangePercentage struct {
-	Value 	   int64 		`json:"value"`
-	PreValue   int64		`json:"prevalue"`
-	Percentage float64	        `json:"percentage"`
-	Status 	   string		`json:"status"`
-}
-
-type AccessPointConstraints struct {
-	TenantId     	int
-	From     		string
-	To     			string
-	Threshold       int
-	Query 			string
-}

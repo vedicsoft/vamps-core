@@ -1,21 +1,21 @@
 package routes
 
 import (
-	dashboard_handlers "github.com/vamps-core/handlers"
+	dashboard_handlers "github.com/vamps-core/api"
 )
 
 var AuthenticationRoutes = Routes{
 	Route{
 		"Login",
 		"POST",
-		"/dashboard/login",
+		"/login",
 		false,
 		dashboard_handlers.Login,
 	},
 	Route{
 		"Logout",
 		"POST",
-		"/dashboard/logout",
+		"/logout",
 		true,
 		dashboard_handlers.Logout,
 	},

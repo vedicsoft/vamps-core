@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/handlers"
 	"github.com/spf13/viper"
@@ -10,8 +9,7 @@ import (
 	"strconv"
 	"time"
 	"github.com/vamps-core/routes"
-	"gopkg.in/gorp.v1"
-	"database/sql"
+	"github.com/vamps-core/commons"
 	_ "github.com/go-sql-driver/mysql"
 	"path/filepath"
 )
@@ -19,7 +17,9 @@ import (
 const SERVER_HOME string = "SERVER_HOME"
 const SERVER_LOG_FILE_NAME string = "server.log"
 const ACCESS_LOG_FILE_NAME string = "http-access.log"
-const DEFUALT_CONFIG_FILE string = "config.default.yaml"
+const DEFUALT_CONFIG_FILE_NAME string = "config.default.yaml"
+const CONFIG_FILE_NAME string = "config.yaml"
+const SERVER_CONFIGS_DIRECTORY = "configs"
 
 type ServerConfigs struct {
 	Hostname           string
@@ -53,11 +53,12 @@ func init() {
 	}
 
 	viper.New()
-	viper.AddConfigPath(ServerHome + "/configs")
+	viper.AddConfigPath(ServerHome + "/" + SERVER_CONFIGS_DIRECTORY)
 	viper.SetConfigName("config")
-	if _, err := os.Stat(ServerHome + "/configs/config.yaml"); os.IsNotExist(err) {
+	if _, err := os.Stat(ServerHome + "/" + SERVER_CONFIGS_DIRECTORY + "/" + CONFIG_FILE_NAME); os.IsNotExist(err) {
 		viper.SetConfigName("config.default")
 	}
+
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {
 		log.Error("Fatal error config file: %s \n", err)
@@ -67,7 +68,7 @@ func init() {
 	serverConfigs.HttpPort = configsMap["httpPort"].(int)
 	serverConfigs.ReadTimeOut = configsMap["readTimeOut"].(int)
 	serverConfigs.WriteTimeOut = configsMap["writeTimeOut"].(int)
-	serverConfigs.LogsDirectory = configsMap["logsdirectory"].(string)
+	serverConfigs.LogsDirectory = configsMap["logsDirectory"].(string)
 	serverConfigs.EnableAccessLogs = configsMap["enableAccessLogs"].(bool)
 	serverConfigs.SSLCertificateFile = configsMap["certificateFile"].(string)
 	serverConfigs.SSLKeyFile = configsMap["keyFile"].(string)
@@ -80,6 +81,7 @@ func init() {
 	// Log as JSON instead of the default ASCII formatter.
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(serverLogFile)
+	log.SetLevel(log.DebugLevel)
 
 	httpAccessLogFile, err := os.OpenFile(serverConfigs.LogsDirectory + "/" + ACCESS_LOG_FILE_NAME, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
 	if err != nil {
@@ -90,26 +92,22 @@ func init() {
 		logHandler = handlers.LoggingHandler(httpAccessLogFile, http.DefaultServeMux)
 	}
 
+	dbConfigs := make(map[string] commons.DBConfigs)
 	databases := viper.Get("dbConfigs").([]interface{})
 	for i, _ := range databases {
-		site := databases[i].(map[interface{}]interface{})
-		fmt.Printf("%s\n", site["name"])
-		routingmethod := site["routingmethod"].(map[interface{}]interface{})
-		fmt.Printf("  %s\n", routingmethod["method"])
-		fmt.Printf("  %s\n", routingmethod["siteid"])
-		fmt.Printf("  %s\n", routingmethod["urlpath"])
+		database := databases[i].(map[interface{}]interface{})
+		dbConfigs[database["name"].(string)] = commons.DBConfigs{
+			Dialect: database["dialect"].(string),
+			DBName: database["dbname"].(string),
+			Address: database["address"].(string),
+			Parameters: database["parameters"].(string),
+			Username: database["username"].(string),
+			Password: database["password"].(string),
+		}
 	}
+	commons.ConstructConnectionPool(dbConfigs)
 }
 
-func initDB(dialect, databseName, username, password, address, parameters string) *gorp.DbMap {
-	connectionUrl := username + ":" + password + "@tcp(" + address + ")/" + databseName + parameters
-	db, err := sql.Open(dialect, connectionUrl)
-	if err != nil {
-		log.Error(err.Error())
-	}
-	dbmap := &gorp.DbMap{Db: db, Dialect:gorp.MySQLDialect{"InnoDB", "UTF8"}}
-	return dbmap
-}
 
 func main() {
 	defer serverLogFile.Close()
