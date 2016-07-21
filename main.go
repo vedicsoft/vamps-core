@@ -108,7 +108,6 @@ func init() {
 	commons.ConstructConnectionPool(dbConfigs)
 }
 
-
 func main() {
 	defer serverLogFile.Close()
 	defer httpAccessLogFile.Close()

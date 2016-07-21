@@ -1,4 +1,4 @@
-####How to setup the  Dashboard development environment
+####How to setup vamps-core development environment
 
 * Install go-lang https://golang.org/
 * Make sure you have set GOPATH  variable. (This variable must not point to the project folder)

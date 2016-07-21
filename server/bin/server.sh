@@ -8,15 +8,25 @@ SERVER_HOME=`cd ..;pwd`
 export SERVER_HOME
 export JWT_PRIVATE_KEY_PATH=../resources/security/private.key
 export JWT_PUBLIC_KEY_PATH=../resources/security/public.key
+
+export CADDYPATH=$SERVER_HOME/configs/.caddy
+CADDY_CONF_FILE=$SERVER_HOME/webapps/Caddyfile
+
 # token expiration time in hours
 export JWT_EXPIRATION_DELTA=72
 
 function default_(){
-  echo "starting redis server..!"
+  echo "starting redis server...."
   ./redis-server ../configs/redis.conf
   echo "redis started successfully!"
-  echo "server started successfully!"
+
+  echo "Starting caddy server....."
+  nohup ./caddy --conf="$CADDY_CONF_FILE" > ../logs/nohup.log 2>&1&
+  echo "Main server started successfully...!!"
+
+  echo "Starting main server....."
   ./server.bin $SERVER_HOME
+  echo "Main server started successfully...!!"
   echo $! > server.pid
 }
 
@@ -31,6 +41,10 @@ function start_(){
     nohup ./server.bin $SERVER_HOME > ../logs/nohup.log 2>&1&
     echo $! > server.pid
     echo "server started successfully!"
+
+    echo "Starting caddy server....."
+    nohup ./caddy --conf="$CADDY_CONF_FILE" > ../logs/nohup.log 2>&1&
+    echo "Main server started successfully...!!"
 }
 
 function stop_(){

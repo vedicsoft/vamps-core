@@ -10,7 +10,7 @@ if [ -z "$GOPATH" ]; then
  echo "Build failed due to GOPATH has not been set."
  exit 1
 fi
-export GOPATH=$GOPATH:$PROJECT_ROOT
+#export GOPATH=$GOPATH:$PROJECT_ROOT
 
 command -v godep >/dev/null 2>&1 || { echo >&2 "Godep required. Installing godep.";  go get github.com/tools/godep;}
 

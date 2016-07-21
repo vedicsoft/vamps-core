@@ -1,0 +1,10 @@
+
+localhost:8082 {
+    root ../webapps/app
+    gzip
+    #browse
+    websocket /echo cat
+    ext    .html
+    log    ../logs/caddyaccess.log
+
+}
