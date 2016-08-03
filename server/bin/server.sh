@@ -48,11 +48,17 @@ function start_(){
 }
 
 function stop_(){
-    kill -9 `cat redis.pid`
-    echo "redis stoped successfully!"
-    kill -9 `cat server.pid`
-    echo "server stoped successfully!"
-    rm -rf server.pid
+    if [ -f redis.pid ]; then
+        kill -9 `cat redis.pid`
+        echo "redis stopped successfully!"
+        rm -rf redis.pid
+    fi
+
+    if [ -f server.pid ]; then
+        kill -9 `cat server.pid`
+        echo "server stopped successfully!"
+        rm -rf server.pid
+    fi
 }
 
 case "$1" in

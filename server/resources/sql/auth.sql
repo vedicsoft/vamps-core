@@ -13,10 +13,47 @@ CREATE TABLE IF NOT EXISTS `vs_tenants` (
 )
   ENGINE = InnoDB;
 
+CREATE TABLE IF NOT EXISTS `vs_users` (
+  `userid`          BIGINT NOT NULL AUTO_INCREMENT,
+  `tenantid`        INT,
+  `username`        VARCHAR(255)    DEFAULT NULL,
+  `password`        VARCHAR(255)    DEFAULT NULL,
+  `email`           VARCHAR(255)    DEFAULT NULL,
+  `status`          VARCHAR(255)    DEFAULT NULL,
+  `lastupdatedtime` TIMESTAMP,
+  PRIMARY KEY (`userid`),
+  FOREIGN KEY (tenantid) REFERENCES vs_tenants (tenantid)
+    ON DELETE CASCADE
+)
+  ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `vs_permissions` (
+  `permissionid` BIGINT NOT NULL AUTO_INCREMENT,
+  `tenantid`     INT,
+  `name`         VARCHAR(255)    DEFAULT NULL,
+  `action`       VARCHAR(255)    DEFAULT NULL,
+  PRIMARY KEY (`permissionid`),
+  FOREIGN KEY (tenantid) REFERENCES vs_tenants (tenantid)
+    ON DELETE CASCADE
+)
+  ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `vs_user_permissions` (
+  `permissionid` BIGINT,
+  `userid`       BIGINT,
+  PRIMARY KEY (`permissionid`, `userid`),
+  FOREIGN KEY (userid) REFERENCES vs_users (userid)
+    ON DELETE CASCADE,
+  FOREIGN KEY (permissionid) REFERENCES vs_permissions (permissionid)
+    ON DELETE CASCADE
+)
+  ENGINE = InnoDB;
+
+
 -- provisioned methods : socialauth, pinauth, emailauth
 CREATE TABLE IF NOT EXISTS `wf_users` (
   `tenantid`              INT(10),
-  `userid`                BIGINT          NOT NULL,
+  `userid`                INT          NOT NULL,
   `uuid`                  CHAR(16) BINARY NOT NULL,
   `email`                 VARCHAR(255) DEFAULT NULL,
   `mobilenumber`          VARCHAR(255) DEFAULT NULL,
@@ -31,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `wf_users` (
   ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `wf_user_devices` (
-  `userid`          BIGINT       NOT NULL,
+  `userid`          INT       NOT NULL,
   `mac`             VARCHAR(255) NOT NULL UNIQUE,
   `password`        VARCHAR(255) DEFAULT NULL,
   `parentalcontrol` VARCHAR(255) DEFAULT 'OFF',
@@ -81,14 +118,14 @@ CREATE TABLE IF NOT EXISTS `wf_pins` (
   UNIQUE KEY (`pin`),
   FOREIGN KEY (tenantid) REFERENCES vs_tenants (tenantid)
     ON DELETE CASCADE,
-  FOREIGN KEY (createdby) REFERENCES vs_users (userid)
+  FOREIGN KEY (createdby) REFERENCES wf_users (userid)
     ON DELETE CASCADE
 )
   ENGINE = InnoDB;
 
 
 CREATE TABLE IF NOT EXISTS `wf_user_groups` (
-  `userid`  BIGINT,
+  `userid`  INT,
   `groupid` INT(10),
   UNIQUE KEY (`userid`, `groupid`),
   FOREIGN KEY (userid) REFERENCES wf_users (userid)
@@ -124,8 +161,8 @@ CREATE TABLE IF NOT EXISTS `wf_pin_policies` (
 -- Usage
 --
 CREATE TABLE IF NOT EXISTS `wf_daily_usage` (
-  `userid`       BIGINT NOT NULL,
+  `userid`       INT NOT NULL,
   `date`         DATE   NOT NULL,
   `inputoctets`  BIGINT(20) DEFAULT 0,
-  `outputoctets` BIGINT(20) DEFAULT 0,
+  `outputoctets` BIGINT(20) DEFAULT 0
 )

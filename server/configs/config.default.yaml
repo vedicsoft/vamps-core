@@ -1,12 +1,21 @@
-serverConfigs:logsdirectory
- httpPort : 8081
- httpsPort : 9443
+serverConfigs:
+ prefix : 'CORE_'
+ isMaster : true
+ portOffset : 0
+ httpPort : 8080
+ httpsPort : 8085
  adminPort : 9463
+ caddyPort : 8082
  readTimeOut : 20
  writeTimeOut : 20
- certificateFile : '../resources/security/server.pem'
- keyFile : '../resources/security/server.key'
- logsDirectory : '../logs'
+ certificateFile : 'resources/security/server.pem'
+ keyFile : 'resources/security/server.key'
+ JWTPrivateKeyFile : 'resources/security/private.key'
+ JWTPublicKeyFile : 'resources/security/public.key'
+ JWTExpirationDelta : 72
+ caddyPath : 'webapps'
+ caddyFile : 'webapps/Caddyfile'
+ logsDirectory : 'logs'
  enableAccessLogs : true
 
 redisConfigs:
@@ -17,19 +26,19 @@ redisConfigs:
 
 dbConfigs:
  -
-  name : dashboard
+  name : vamps
   dialect : mysql
   username : root
   password : root
   dbname : dashboard
-  address : "localhost:3306"
+  address : 'localhost:3306'
   parameters : ""
  -
-  name : portal
+  name : userstore
   dialect : mysql
   username : root
   password : root
-  dbname : portal
-  address : "localhost:3306"
+  dbname : dashboard
+  address : 'localhost:3306'
   parameters : ""
 

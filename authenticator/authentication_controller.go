@@ -78,8 +78,6 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 
 func getTenantId(user *commons.SystemUser) int64 {
 	dbMap := commons.GetDBConnection(commons.SERVER_DB);
-	defer dbMap.Db.Close()
-
 	tenantId, err := dbMap.SelectInt("SELECT tenantid FROM tenants WHERE domain=?", user.TenantDomain)
 	checkErr(err, "Select failed")
 	return tenantId

@@ -25,7 +25,6 @@ import (
  */
 func Fetch(request *http.Request, database string, table string, totalRecordCountQuery string, columns []string, result interface{}) (int64, int64, error) {
 	dbMap := GetDBConnection(database);
-	defer dbMap.Db.Close()
 	var err error
 	query := "SELECT "
 

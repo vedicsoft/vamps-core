@@ -25,10 +25,6 @@ const (
 	expireOffset = 3600
 )
 
-const JWT_PRIVATE_KEY_PATH string = "JWT_PRIVATE_KEY_PATH"
-const JWT_PUBLIC_KEY_PATH string = "JWT_PUBLIC_KEY_PATH"
-const JWT_EXPIRATION_DELTA string = "JWT_EXPIRATION_DELTA"
-
 var authBackendInstance *JWTAuthenticationBackend = nil
 
 func InitJWTAuthenticationEngine() *JWTAuthenticationBackend {
@@ -43,7 +39,7 @@ func InitJWTAuthenticationEngine() *JWTAuthenticationBackend {
 
 func (backend *JWTAuthenticationBackend) GenerateToken(user *commons.SystemUser) (string, error) {
 	token := jwt.New(jwt.SigningMethodRS512)
-	i, _ := strconv.Atoi(os.Getenv(JWT_EXPIRATION_DELTA))
+	i, _ := strconv.Atoi(os.Getenv(commons.JWT_EXPIRATION_DELTA))
 	token.Claims["exp"] = time.Now().Add(time.Hour * time.Duration(i)).Unix()
 	token.Claims["iat"] = time.Now().Unix()
 	token.Claims["sub"] = user.Username
@@ -61,7 +57,6 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *commons.SystemUser)
 
 func getUserId(user *commons.SystemUser) int64 {
 	dbMap := commons.GetDBConnection(commons.SERVER_DB);
-	defer dbMap.Db.Close()
 	var userId sql.NullInt64
 	smtOut, err := dbMap.Db.Prepare("SELECT userid FROM users WHERE username=? ANd tenantid=?")
 	defer smtOut.Close()
@@ -78,7 +73,6 @@ func getUserId(user *commons.SystemUser) int64 {
 
 func getUserScopes(user *commons.SystemUser) map[string][]string {
 	dbMap := commons.GetDBConnection(commons.SERVER_DB);
-	defer dbMap.Db.Close()
 	rows, err := dbMap.Db.Query("select name,action from permissions where permissionid in (select userpermissions.permissionid from userpermissions where userpermissions.userid = ?) order by name", user.UserId)
 	defer rows.Close()
 	if err != nil {
@@ -107,10 +101,10 @@ func getUserScopes(user *commons.SystemUser) map[string][]string {
 
 func (backend *JWTAuthenticationBackend) Authenticate(user *commons.SystemUser) bool {
 	dbMap := commons.GetDBConnection(commons.SERVER_DB);
-	defer dbMap.Db.Close()
 	var hashedPassword sql.NullString
 	smtOut, err := dbMap.Db.Prepare("SELECT password FROM users where username=? AND tenantid=? AND status='active'")
 	defer smtOut.Close()
+
 	err = smtOut.QueryRow(user.Username, user.TenantId).Scan(&hashedPassword)
 	if err == nil && hashedPassword.Valid {
 		if (len(hashedPassword.String) > 0) {
@@ -154,7 +148,8 @@ func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
 }
 
 func getPrivateKey() *rsa.PrivateKey {
-	privateKeyFile, err := os.Open(os.Getenv(JWT_PRIVATE_KEY_PATH))
+
+	privateKeyFile, err := os.Open(commons.ServerConfigurations.JWTPrivateKeyFile)
 	if err != nil {
 		panic(err)
 	}
@@ -179,7 +174,7 @@ func getPrivateKey() *rsa.PrivateKey {
 }
 
 func getPublicKey() *rsa.PublicKey {
-	publicKeyFile, err := os.Open(os.Getenv(JWT_PUBLIC_KEY_PATH))
+	publicKeyFile, err := os.Open(commons.ServerConfigurations.JWTPublicKeyFile)
 	if err != nil {
 		panic(err)
 	}

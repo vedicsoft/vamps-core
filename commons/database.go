@@ -2,25 +2,23 @@ package commons
 
 import (
 	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/gorp.v1"
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
 )
 
-
-var dbConfigs map[string] DBConfigs
-var dbConnections map[string] *gorp.DbMap
+//var dbConfigs map[string]DBConfigs
+var dbConnections map[string]*gorp.DbMap
 
 func GetDBConnection(dbname string) *gorp.DbMap {
 	return dbConnections[dbname]
 }
 
-func ConstructConnectionPool(dbConfigs map[string] DBConfigs){
-	dbConnections = make(map[string] *gorp.DbMap)
+func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
+	dbConnections = make(map[string]*gorp.DbMap)
 	for dbname, dbconfig := range dbConfigs {
-		log.Info(dbconfig.Password)
-		connectionUrl := dbconfig.Username + ":" + dbconfig.Password + "@tcp("+ dbconfig.Address + ")/" + dbconfig.DBName + dbconfig.Parameters
-		log.Info(connectionUrl)
+		connectionUrl := dbconfig.Username + ":" + dbconfig.Password + "@tcp(" + dbconfig.Address + ")/" + dbconfig.DBName + dbconfig.Parameters
 		db, err := sql.Open("mysql", connectionUrl)
 		if err != nil {
 			log.Error("Error occourred while constructing a the DB connection to : " + connectionUrl)
@@ -37,7 +35,7 @@ func (r NullString) MarshalJSON() ([]byte, error) {
 	return json.Marshal(r.String)
 }
 
-func (r *NullString) UnmarshalJSON(data []byte) error{
+func (r *NullString) UnmarshalJSON(data []byte) error {
 	if string(data) == "null" {
 		return nil
 	}
@@ -54,7 +52,7 @@ func (r NullInt64) MarshalJSON() ([]byte, error) {
 	return json.Marshal(r.Int64)
 }
 
-func (r *NullInt64) UnmarshalJSON(data []byte) error{
+func (r *NullInt64) UnmarshalJSON(data []byte) error {
 	if string(data) == "null" {
 		return nil
 	}
@@ -71,7 +69,7 @@ func (r NullFloat64) MarshalJSON() ([]byte, error) {
 	return json.Marshal(r.Float64)
 }
 
-func (r *NullFloat64) UnmarshalJSON(data []byte) error{
+func (r *NullFloat64) UnmarshalJSON(data []byte) error {
 	if string(data) == "null" {
 		return nil
 	}
