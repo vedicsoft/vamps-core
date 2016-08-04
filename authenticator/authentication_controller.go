@@ -61,16 +61,17 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 		token, err := jwt.ParseFromRequest(
 			r,
 			func(token *jwt.Token) (interface{}, error) {
+				println(authBackend.PublicKey.E)
 				return authBackend.PublicKey, nil
 			})
 		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
-		}else {
+		} else {
 			sClaims, _ := json.Marshal(token.Claims["scopes"])
 			r.Header.Set("scopes", string(sClaims))
 			r.Header.Set("username", token.Claims["sub"].(string))
-			r.Header.Set("tenantid", strconv.FormatFloat((token.Claims["tenantid"]).(float64),'f',0,64))
+			r.Header.Set("tenantid", strconv.FormatFloat((token.Claims["tenantid"]).(float64), 'f', 0, 64))
 		}
 		inner.ServeHTTP(w, r)
 	})
@@ -78,7 +79,7 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 
 func getTenantId(user *commons.SystemUser) int64 {
 	dbMap := commons.GetDBConnection(commons.SERVER_DB);
-	tenantId, err := dbMap.SelectInt("SELECT tenantid FROM tenants WHERE domain=?", user.TenantDomain)
+	tenantId, err := dbMap.SelectInt("SELECT tenantid FROM vs_tenants WHERE domain=?", user.TenantDomain)
 	checkErr(err, "Select failed")
 	return tenantId
 }

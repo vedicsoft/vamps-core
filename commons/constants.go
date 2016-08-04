@@ -13,6 +13,4 @@ const JWT_PRIVATE_KEY_FILE string = "JWT_PRIVATE_KEY_PATH"
 const JWT_PUBLIC_KEY_FILE string =  "JWT_PUBLIC_KEY_PATH"
 const JWT_EXPIRATION_DELTA string = "JWT_EXPIRATION_DELTA"
 
-/* common queries */
-const GET_RECORDS_COUNT = "SELECT COUNT(*) from accounting WHERE tenantid=?"
 

@@ -11,7 +11,6 @@ import (
 	"time"
 	"github.com/vamps-core/commons"
 	"github.com/vamps-core/redis"
-	"strconv"
 	"database/sql"
 	log "github.com/Sirupsen/logrus"
 )
@@ -39,7 +38,7 @@ func InitJWTAuthenticationEngine() *JWTAuthenticationBackend {
 
 func (backend *JWTAuthenticationBackend) GenerateToken(user *commons.SystemUser) (string, error) {
 	token := jwt.New(jwt.SigningMethodRS512)
-	i, _ := strconv.Atoi(os.Getenv(commons.JWT_EXPIRATION_DELTA))
+	i := commons.ServerConfigurations.JWTExpirationDelta
 	token.Claims["exp"] = time.Now().Add(time.Hour * time.Duration(i)).Unix()
 	token.Claims["iat"] = time.Now().Unix()
 	token.Claims["sub"] = user.Username
@@ -58,7 +57,7 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *commons.SystemUser)
 func getUserId(user *commons.SystemUser) int64 {
 	dbMap := commons.GetDBConnection(commons.SERVER_DB);
 	var userId sql.NullInt64
-	smtOut, err := dbMap.Db.Prepare("SELECT userid FROM users WHERE username=? ANd tenantid=?")
+	smtOut, err := dbMap.Db.Prepare("SELECT userid FROM vs_users WHERE username=? ANd tenantid=?")
 	defer smtOut.Close()
 	err = smtOut.QueryRow(user.Username, user.TenantId).Scan(&userId)
 	if err != nil {
@@ -73,7 +72,7 @@ func getUserId(user *commons.SystemUser) int64 {
 
 func getUserScopes(user *commons.SystemUser) map[string][]string {
 	dbMap := commons.GetDBConnection(commons.SERVER_DB);
-	rows, err := dbMap.Db.Query("select name,action from permissions where permissionid in (select userpermissions.permissionid from userpermissions where userpermissions.userid = ?) order by name", user.UserId)
+	rows, err := dbMap.Db.Query("select name,action from vs_permissions where permissionid in (select vs_user_permissions.permissionid from vs_user_permissions where vs_user_permissions.userid = ?) order by name", user.UserId)
 	defer rows.Close()
 	if err != nil {
 		log.Fatal(err)
@@ -102,7 +101,7 @@ func getUserScopes(user *commons.SystemUser) map[string][]string {
 func (backend *JWTAuthenticationBackend) Authenticate(user *commons.SystemUser) bool {
 	dbMap := commons.GetDBConnection(commons.SERVER_DB);
 	var hashedPassword sql.NullString
-	smtOut, err := dbMap.Db.Prepare("SELECT password FROM users where username=? AND tenantid=? AND status='active'")
+	smtOut, err := dbMap.Db.Prepare("SELECT password FROM vs_users where username=? AND tenantid=? AND status='active'")
 	defer smtOut.Close()
 
 	err = smtOut.QueryRow(user.Username, user.TenantId).Scan(&hashedPassword)
@@ -142,8 +141,10 @@ func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
 		log.Error("Error occourred while checking for black listed jwt :" + token + " stack :" + err.Error())
 	}
 	if redisToken == nil {
+		log.Debug("Token is not in the black list")
 		return false
 	}
+	log.Debug("Found a blacklisted token")
 	return true
 }
 
