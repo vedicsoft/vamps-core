@@ -57,15 +57,15 @@ CREATE TABLE IF NOT EXISTS `wf_users` (
   `password`         VARCHAR(255),
   `email`            VARCHAR(255) NOT NULL UNIQUE,
   `account_status`   VARCHAR(255)          DEFAULT NULL,
-  `firstname`        VARCHAR(255)          DEFAULT NULL,
-  `lastname`         VARCHAR(255)          DEFAULT NULL,
+  `first_name`       VARCHAR(255)          DEFAULT NULL,
+  `last_name`        VARCHAR(255)          DEFAULT NULL,
   `gender`           VARCHAR(255)          DEFAULT NULL,
-  `birthday`         DATE DEFAULT NULL,
-  `age`              INT DEFAULT NULL,
-  `age_upper`        INT DEFAULT NULL,
-  `age_lower`        INT DEFAULT NULL,
+  `birthday`         DATE,
+  `age`              INT,
+  `age_upper`        INT,
+  `age_lower`        INT,
   `religion`         VARCHAR(255)          DEFAULT NULL,
-  `occupation`       VARCHAR(255)          DEFAULT NULL,
+  `occupation`        VARCHAR(255)          DEFAULT NULL,
   `marital_status`   VARCHAR(255)          DEFAULT NULL,
   `profile_image`    VARCHAR(255)          DEFAULT NULL,
   `mobile_number`    VARCHAR(255)          DEFAULT NULL,
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS `wf_pin_policies` (
 -- Usage
 --
 CREATE TABLE IF NOT EXISTS `wf_daily_usage` (
-  `userid`       INT  NOT NULL,
+  `userid`       BIGINT,
   `date`         DATE NOT NULL,
   `inputoctets`  BIGINT(20) DEFAULT 0,
   `outputoctets` BIGINT(20) DEFAULT 0
@@ -187,3 +187,26 @@ VALUES ('super.com', 'active');
 
 INSERT IGNORE INTO vs_users (tenantid, username, password, email, status)
 VALUES (1, 'admin', '$2a$10$FesfnIBKqhH2MuF1hmss0umXNrrx28AW1E4re9OCAwib3cIOKBz3C', 'admin@vedicsoft.com', 'active');
+
+INSERT IGNORE INTO vs_permissions (permissionid, tenantid, name, action)
+VALUES
+  (1, 1, 'wifi_location', 'read'),
+  (2, 1, 'wifi_location', 'write'),
+  (3, 1, 'wifi_location', 'execute'),
+  (4, 1, 'wifi_users', 'read'),
+  (5, 1, 'wifi_users', 'write'),
+  (6, 1, 'wifi_users', 'execute'),
+  (7, 1, 'dashboard_users', 'read'),
+  (8, 1, 'dashboard_users', 'write'),
+  (9, 1, 'dashboard_users', 'execute');
+
+INSERT IGNORE INTO vs_user_permissions (userid, permissionid)
+VALUES (1, 1),
+  (1, 2),
+  (1, 3),
+  (1, 4),
+  (1, 5),
+  (1, 6),
+  (1, 7),
+  (1, 8),
+  (1, 9);

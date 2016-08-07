@@ -58,7 +58,7 @@ func Fetch(request *http.Request, database string, table string, totalRecordCoun
  *  @return string SQL limit clause
  */
 func limit(request *http.Request) string {
-	limit := "LIMIT 1,100" // default limit
+	limit := "LIMIT 0,100" // default limit
 	if (len(request.FormValue("start")) > 0 && len(request.FormValue("length")) > 0) {
 		start := request.FormValue("start")
 		length := request.FormValue("length")
