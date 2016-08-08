@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	_ "github.com/go-sql-driver/mysql"
 	log "github.com/Sirupsen/logrus"
 	"github.com/vedicsoft/vamps-core/models"
 	"github.com/vedicsoft/vamps-core/controllers"
