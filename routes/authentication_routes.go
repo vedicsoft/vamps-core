@@ -1,7 +1,7 @@
 package routes
 
 import (
-	dashboard_handlers "github.com/vamps-core/api"
+	dashboard_handlers "github.com/vedicsoft/vamps-core/api"
 )
 
 var AuthenticationRoutes = Routes{

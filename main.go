@@ -8,8 +8,8 @@ import (
 	"os"
 	"strconv"
 	"time"
-	"github.com/vamps-core/routes"
-	"github.com/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/routes"
+	"github.com/vedicsoft/vamps-core/commons"
 	_ "github.com/go-sql-driver/mysql"
 	"path/filepath"
 )

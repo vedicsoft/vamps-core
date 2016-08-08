@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/vamps-core/commons"
-	"github.com/vamps-core/authenticator"
+	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/authenticator"
 	"encoding/json"
 	"net/http"
 	log "github.com/Sirupsen/logrus"

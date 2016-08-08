@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 	"github.com/gorilla/mux"
-	"github.com/vamps-core/authenticator"
+	"github.com/vedicsoft/vamps-core/authenticator"
 )
 
 func NewRouter() *mux.Router {

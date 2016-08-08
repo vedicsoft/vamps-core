@@ -9,8 +9,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"os"
 	"time"
-	"github.com/vamps-core/commons"
-	"github.com/vamps-core/redis"
+	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/redis"
 	"database/sql"
 	log "github.com/Sirupsen/logrus"
 )

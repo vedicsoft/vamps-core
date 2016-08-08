@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/vamps-core/models"
+	"github.com/vedicsoft/vamps-core/models"
 )
 
 func CreateNewDashboardApp(dashboardAppInfo models.DashboardAppInfo) {

@@ -1,7 +1,7 @@
 package authenticator
 
 import (
-	"github.com/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/commons"
 	"net/http"
 	"encoding/json"
 	jwt "github.com/dgrijalva/jwt-go"

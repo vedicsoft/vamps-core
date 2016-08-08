@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/vamps-core",
+	"ImportPath": "github.com/vedicsoft/vamps-core",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v62",
 	"Packages": [
@@ -55,6 +55,10 @@
 			"ImportPath": "github.com/kr/pretty",
 			"Comment": "go.weekly.2011-12-22-27-ge6ac2fc",
 			"Rev": "e6ac2fc51e89a3249e82157fa0bb7a18ef9dd5bb"
+		},
+		{
+			"ImportPath": "github.com/kr/text",
+			"Rev": "e373e137fafd8abd480af49182dea0513914adb4"
 		},
 		{
 			"ImportPath": "github.com/magiconair/properties",

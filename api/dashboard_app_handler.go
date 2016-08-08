@@ -5,8 +5,8 @@ import (
 	"net/http"
 	_ "github.com/go-sql-driver/mysql"
 	log "github.com/Sirupsen/logrus"
-	"github.com/vamps-core/models"
-	"github.com/vamps-core/controllers"
+	"github.com/vedicsoft/vamps-core/models"
+	"github.com/vedicsoft/vamps-core/controllers"
 )
 
 /**
