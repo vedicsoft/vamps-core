@@ -8,14 +8,14 @@ var AuthenticationRoutes = Routes{
 	Route{
 		"Login",
 		"POST",
-		"/login",
+		"/api/login",
 		false,
 		dashboard_handlers.Login,
 	},
 	Route{
 		"Logout",
 		"POST",
-		"/logout",
+		"/api/logout",
 		true,
 		dashboard_handlers.Logout,
 	},

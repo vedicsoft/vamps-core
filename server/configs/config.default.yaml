@@ -30,7 +30,7 @@ dbConfigs:
   dialect : mysql
   username : root
   password : root
-  dbname : dashboard
+  dbname : vamps
   address : 'localhost:3306'
   parameters : ""
  -
@@ -38,7 +38,7 @@ dbConfigs:
   dialect : mysql
   username : root
   password : root
-  dbname : dashboard
+  dbname : vamps
   address : 'localhost:3306'
   parameters : ""
 

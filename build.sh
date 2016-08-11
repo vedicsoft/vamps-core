@@ -4,13 +4,18 @@ set -e
 PROJECT_NAME='vamps-core'
 PROJECT_ROOT=`pwd`
 export GOBIN="$PROJECT_ROOT"
+
+# setting SERVER_HOME for test cases
+HOME=`cd server;pwd`
+echo $HOME
+export SERVER_HOME=$HOME
+
 echo 'Exporting GO variables.'
 
 if [ -z "$GOPATH" ]; then
  echo "Build failed due to GOPATH has not been set."
  exit 1
 fi
-#export GOPATH=$GOPATH:$PROJECT_ROOT
 
 command -v godep >/dev/null 2>&1 || { echo >&2 "Godep required. Installing godep.";  go get github.com/tools/godep;}
 
@@ -20,8 +25,8 @@ mkdir -p $PROJECT_ROOT/target
 echo 'Gom install dependencies. This might take some time...'
 godep go install ./...
 
-#echo "Executing test"
-#godep test -v
+echo "Executing test"
+godep go test -v ./...
 
 mv $PROJECT_NAME $PROJECT_ROOT/server/bin/server.bin
 

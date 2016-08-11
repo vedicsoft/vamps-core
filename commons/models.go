@@ -1,5 +1,17 @@
 package commons
 
+import "net/http"
+
+type Route struct {
+	Name        string
+	Method      string
+	Pattern     string
+	Secured     bool
+	HandlerFunc http.HandlerFunc
+}
+
+type Routes []Route
+
 type SystemUser struct {
 	UserId int64 `db:"userid"json:"userid"`
 	TenantId int64 `db:"tenantid"json:"tenantid"`
