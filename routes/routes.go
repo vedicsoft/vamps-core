@@ -1,23 +1,13 @@
 package routes
 
 import (
-	"net/http"
+	"github.com/vedicsoft/vamps-core/commons"
 )
 
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	Secured     bool
-	HandlerFunc http.HandlerFunc
-}
-
-type Routes []Route
-
-var ApplicationRoutes Routes
+var ApplicationRoutes commons.Routes
 
 func init() {
-	routes := []Routes{
+	routes := []commons.Routes{
 		ConsoleRoutes,
 		AuthenticationRoutes,
 	}
