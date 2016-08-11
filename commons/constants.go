@@ -2,6 +2,8 @@ package commons
 
 
 const SERVER_HOME string = "SERVER_HOME"
+const SERVER_LOG_FILE_NAME string = "server.log"
+const ACCESS_LOG_FILE_NAME string = "api-access.log"
 const DEFUALT_CONFIG_FILE_NAME string = "config.default.yaml"
 const CONFIG_FILE_NAME string = "config.yaml"
 const SERVER_CONFIGS_DIRECTORY = "configs"
