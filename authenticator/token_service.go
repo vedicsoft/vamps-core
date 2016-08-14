@@ -56,7 +56,7 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *commons.SystemUser)
 func getUserId(user *commons.SystemUser) int64 {
 	dbMap := commons.GetDBConnection(commons.USER_STORE_DB)
 	var userId sql.NullInt64
-	smtOut, err := dbMap.Db.Prepare("SELECT userid FROM vs_users WHERE username=? ANd tenantid=?")
+	smtOut, err := dbMap.Db.Prepare("SELECT userid FROM vs_users WHERE username=? AND tenantid=?")
 	defer smtOut.Close()
 	err = smtOut.QueryRow(user.Username, user.TenantId).Scan(&userId)
 	if err != nil {

@@ -5,17 +5,6 @@ import (
 	"net/http"
 )
 
-/*Permission Constant*/
-const CSV_DOWNLOAD = "csv_download"
-const WIFI_LOCATION = "wifi_location"
-const WIFI_USERS = "wifi_users"
-const DASHBOARD_USERS = "dashboard_users"
-const ADMIN = "admin"
-
-const ACTION_EXECUTE string = "execute"
-const ACTION_WRITE string = "write"
-const ACTION_READ string = "read"
-
 type Permission struct {
 	permission string
 }

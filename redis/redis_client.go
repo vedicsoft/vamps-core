@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"flag"
 	"github.com/apremalal/redigo/redis"
 	"time"
 )
@@ -12,13 +11,12 @@ type RedisCli struct {
 
 var (
 	pool          *redis.Pool
-	redisServer   = flag.String("redisServer", ":6379", "")
-	redisPassword = flag.String("redisPassword", "foo123", "")
+	redisServer   = ":6379"
+	redisPassword = "foo123"
 )
 
 func init() {
-	flag.Parse()
-	pool = newPool(*redisServer, *redisPassword)
+	pool = newPool(redisServer, redisPassword)
 }
 
 func newPool(server, password string) *redis.Pool {

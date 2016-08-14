@@ -16,10 +16,12 @@ import (
 var logHandler http.Handler
 
 func main() {
-	configFile := flag.String("flagname", "", "serverconfiguration file")
-	commons.InitConfigurations(*configFile)
+	confFile := flag.String("conf", "", "path to configuration file")
+	flag.Parse()
+	commons.InitConfigurations(*confFile)
 	os.Chdir(commons.ServerConfigurations.Home)
-	serverLogFile, err := os.OpenFile(commons.ServerConfigurations.LogsDirectory+"/"+commons.SERVER_LOG_FILE_NAME, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	serverLogFile, err := os.OpenFile(commons.ServerConfigurations.LogsDirectory+"/"+commons.SERVER_LOG_FILE_NAME,
+		os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("Error while opening server log file: %v", err)
 	}
@@ -29,7 +31,8 @@ func main() {
 	log.SetOutput(serverLogFile)
 	log.SetLevel(log.DebugLevel)
 
-	httpAccessLogFile, err := os.OpenFile(commons.ServerConfigurations.LogsDirectory+"/"+commons.ACCESS_LOG_FILE_NAME, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	httpAccessLogFile, err := os.OpenFile(commons.ServerConfigurations.LogsDirectory+"/"+commons.ACCESS_LOG_FILE_NAME,
+		os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("Error while trying to open the access log file: %v", err)
 	}
@@ -43,6 +46,7 @@ func main() {
 
 	commons.ConstructConnectionPool(commons.ServerConfigurations.DBConfigMap)
 
+	// Starting caddy server to server static files
 	args := []string{"bin/caddy", "--conf=" + commons.ServerConfigurations.CaddyFile, "-pidfile=bin/caddy.pid"}
 
 	if err := exec.Command("nohup", args...).Start(); err != nil {
@@ -55,12 +59,15 @@ func main() {
 	http.Handle("/", router)
 
 	httpsServer := &http.Server{
-		Addr:           ":" + strconv.Itoa(commons.ServerConfigurations.HttpsPort+commons.ServerConfigurations.PortOffset),
+		Addr: ":" + strconv.Itoa(commons.ServerConfigurations.HttpsPort+
+			commons.ServerConfigurations.PortOffset),
 		Handler:        logHandler,
 		ReadTimeout:    time.Duration(commons.ServerConfigurations.ReadTimeOut) * time.Second,
 		WriteTimeout:   time.Duration(commons.ServerConfigurations.WriteTimeOut) * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	log.Info("Starting server on port : " + strconv.Itoa(commons.ServerConfigurations.HttpsPort+commons.ServerConfigurations.PortOffset))
-	log.Fatal("HTTP Server error: ", httpsServer.ListenAndServeTLS(commons.ServerConfigurations.SSLCertificateFile, commons.ServerConfigurations.SSLKeyFile))
+	log.Info("Starting server on port : " + strconv.Itoa(commons.ServerConfigurations.HttpsPort+
+		commons.ServerConfigurations.PortOffset))
+	log.Fatal("HTTP Server error: ", httpsServer.ListenAndServeTLS(commons.ServerConfigurations.SSLCertificateFile,
+		commons.ServerConfigurations.SSLKeyFile))
 }

@@ -8,13 +8,13 @@ serverConfigs:
  caddyPort : 8082
  readTimeOut : 20
  writeTimeOut : 20
- certificateFile : 'resources/security/server.pem'
- keyFile : 'resources/security/server.key'
- JWTPrivateKeyFile : 'resources/security/private.key'
- JWTPublicKeyFile : 'resources/security/public.key'
+ certificateFile : '{{.ServerHome}}/resources/security/server.pem'
+ keyFile : '{{.ServerHome}}/resources/security/server.key'
+ JWTPrivateKeyFile : '{{.ServerHome}}/resources/security/private.key'
+ JWTPublicKeyFile : '{{.ServerHome}}/resources/security/public.key'
  JWTExpirationDelta : 72
- caddyPath : 'webapps'
- caddyFile : 'webapps/Caddyfile'
+ caddyPath : '{{.ServerHome}}/webapps'
+ caddyFile : '{{.ServerHome}}/webapps/Caddyfile'
  logsDirectory : 'logs'
  enableAccessLogs : true
 
