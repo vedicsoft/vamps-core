@@ -66,6 +66,11 @@
 			"Rev": "337395e44efb4affc8bf11971e22acbd4e27a32d"
 		},
 		{
+			"ImportPath": "github.com/mattn/go-sqlite3",
+			"Comment": "v1.1.0-76-gc3e9588",
+			"Rev": "c3e9588849195eefa783417c3a53d092f6e93526"
+		},
+		{
 			"ImportPath": "github.com/mitchellh/mapstructure",
 			"Rev": "281073eb9eb092240d33ef253c404f1cca550309"
 		},

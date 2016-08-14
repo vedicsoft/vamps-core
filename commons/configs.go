@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 	log "github.com/Sirupsen/logrus"
 	"strconv"
+	"text/template"
 )
 
 type serverConfigs struct {
@@ -44,27 +45,21 @@ type DBConfigs struct {
 
 var ServerConfigurations serverConfigs
 
-func init() {
-	ServerConfigurations.Home = os.Getenv(SERVER_HOME)
-	if ( len(ServerConfigurations.Home) <= 0 ) {
-		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-		if err != nil {
-			log.Fatal("Error while determining the server home. Please set the SERVER_HOME varaible and restart.")
+func InitConfigurations(configFileUrl string) serverConfigs {
+	ServerConfigurations.Home = GetServerHome()
+	//read the configurations from the file url instead of searching through the paths
+	if (len(configFileUrl) <= 0) {
+		if _, err := os.Stat(ServerConfigurations.Home + FILE_PATH_SEPARATOR + SERVER_CONFIGS_DIRECTORY + FILE_PATH_SEPARATOR + CONFIG_FILE_NAME); os.IsNotExist(err) {
+			configFileUrl = ServerConfigurations.Home + FILE_PATH_SEPARATOR + "configs" + FILE_PATH_SEPARATOR + DEFAULT_CONFIG_FILE_NAME
+		} else {
+			configFileUrl = ServerConfigurations.Home + FILE_PATH_SEPARATOR + "configs" + FILE_PATH_SEPARATOR + CONFIG_FILE_NAME
 		}
-		ServerConfigurations.Home = dir
-		os.Setenv(SERVER_HOME, dir)
 	}
-
 	viper.New()
-	viper.AddConfigPath(ServerConfigurations.Home + "/" + SERVER_CONFIGS_DIRECTORY)
-	viper.SetConfigName("config")
-	if _, err := os.Stat(ServerConfigurations.Home + "/" + SERVER_CONFIGS_DIRECTORY + "/" + CONFIG_FILE_NAME); os.IsNotExist(err) {
-		viper.SetConfigName("config.default")
-	}
-
+	viper.SetConfigFile(parseConfigTemplate(configFileUrl, ServerConfigurations.Home))
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {
-		log.Error("Fatal error config file: %s \n", err)
+		log.Error("Error while reading server configuration file: %s \n", err)
 	}
 
 	configsMap := viper.GetStringMap("serverConfigs")
@@ -111,4 +106,40 @@ func init() {
 			Password: database["password"].(string),
 		}
 	}
+	return ServerConfigurations;
+}
+
+//fill the configuration file template with the the template parameters
+func parseConfigTemplate(configFileUrl, serverHome string) string {
+	parsedConfigFile := filepath.FromSlash(ServerConfigurations.Home + FILE_PATH_SEPARATOR + "configs" + FILE_PATH_SEPARATOR + ".tmp" + FILE_PATH_SEPARATOR + CONFIG_FILE_NAME)
+	template, err := template.ParseFiles(filepath.FromSlash(configFileUrl))
+	if err != nil {
+		log.Errorln("Unable to parse the config file template url" + parsedConfigFile , err.Error() )
+	}
+	paresedFile, err := os.Create(parsedConfigFile)
+	if err != nil {
+		log.Errorln("Unable to create the parsed configuration file in path : " + parsedConfigFile, err)
+	}
+	data := struct {
+		ServerHome string
+	}{serverHome, }
+	err = template.Execute(paresedFile, data)
+	if err != nil {
+		log.Errorln("Unable to execute the parsed object", err)
+	}
+	paresedFile.Close()
+	return parsedConfigFile
+}
+
+func GetServerHome() string{
+	var home string
+	home = os.Getenv(SERVER_HOME)
+	if ( len(home) <= 0 ) {
+		home, err := filepath.Abs(filepath.Dir(os.Args[0]))
+		if err != nil {
+			log.Fatal("Error while determining the server home. Please set the SERVER_HOME varaible and restart.")
+		}
+		os.Setenv(SERVER_HOME, home)
+	}
+	return home
 }
