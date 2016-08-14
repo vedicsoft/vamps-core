@@ -55,6 +55,6 @@ fi
 echo "Start creating new distribution"
 mkdir $PROJECT_NAME
 cp -r ../server/* $PROJECT_NAME/
-zip -rq $PROJECT_NAME.zip ./$PROJECT_NAME/* -x *.log -x *.out
+zip -rq $PROJECT_NAME.zip ./$PROJECT_NAME/* -x *.log -x *.out -x *.tmp* -x *.test*
 rm -rf $PROJECT_NAME
 echo "Distribution creation complete."
