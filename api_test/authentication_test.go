@@ -104,8 +104,6 @@ func startRedis(serverHome string) *exec.Cmd {
 		fmt.Println("Error occourred while starting redis server : ", err.Error())
 		os.Exit(1)
 	}
-
-	fmt.Println(cmd.Process.Pid)
 	return cmd
 }
 

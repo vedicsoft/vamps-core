@@ -2,6 +2,7 @@ package redis
 
 import (
 	"github.com/apremalal/redigo/redis"
+	"github.com/vedicsoft/vamps-core/commons"
 	"time"
 )
 
@@ -10,13 +11,11 @@ type RedisCli struct {
 }
 
 var (
-	pool          *redis.Pool
-	redisServer   = ":6379"
-	redisPassword = "foo123"
+	pool *redis.Pool
 )
 
 func init() {
-	pool = newPool(redisServer, redisPassword)
+	pool = newPool(commons.ServerConfigurations.RedisConfigs.Address, commons.ServerConfigurations.RedisConfigs.Password)
 }
 
 func newPool(server, password string) *redis.Pool {

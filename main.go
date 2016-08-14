@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/handlers"
 	"github.com/vedicsoft/vamps-core/commons"
@@ -16,9 +15,6 @@ import (
 var logHandler http.Handler
 
 func main() {
-	confFile := flag.String("conf", "", "path to configuration file")
-	flag.Parse()
-	commons.InitConfigurations(*confFile)
 	os.Chdir(commons.ServerConfigurations.Home)
 	serverLogFile, err := os.OpenFile(commons.ServerConfigurations.LogsDirectory+"/"+commons.SERVER_LOG_FILE_NAME,
 		os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)

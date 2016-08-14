@@ -19,10 +19,8 @@ serverConfigs:
  enableAccessLogs : true
 
 redisConfigs:
- serverUrl : localhost
- serverPort : 6379
- password : root
- db : 0
+ address : "localhost:6379"
+ password : vampspass
 
 dbConfigs:
  -

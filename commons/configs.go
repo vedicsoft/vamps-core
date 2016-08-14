@@ -32,6 +32,7 @@ type serverConfigs struct {
 	EnableAccessLogs   bool
 	LogsDirectory      string
 	DBConfigMap        map[string]DBConfigs
+	RedisConfigs       RedisConfigs
 }
 
 type DBConfigs struct {
@@ -43,7 +44,16 @@ type DBConfigs struct {
 	Parameters string
 }
 
+type RedisConfigs struct {
+	Address  string
+	Password string
+}
+
 var ServerConfigurations serverConfigs
+
+func init() {
+	InitConfigurations(os.Getenv(CONFIG_FILE))
+}
 
 func InitConfigurations(configFileUrl string) serverConfigs {
 	ServerConfigurations.Home = GetServerHome()
@@ -106,6 +116,10 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 			Password:   database["password"].(string),
 		}
 	}
+
+	redisConfigsMap := viper.GetStringMap("redisConfigs")
+	ServerConfigurations.RedisConfigs.Address = redisConfigsMap["address"].(string)
+	ServerConfigurations.RedisConfigs.Password = redisConfigsMap["password"].(string)
 	return ServerConfigurations
 }
 
