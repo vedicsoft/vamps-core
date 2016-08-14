@@ -1,10 +1,11 @@
 package commons
+
 import (
+	log "github.com/Sirupsen/logrus"
+	"gopkg.in/gorp.v1"
 	"net/http"
 	"strconv"
 	"strings"
-	"gopkg.in/gorp.v1"
-	log "github.com/Sirupsen/logrus"
 )
 
 /**
@@ -24,13 +25,13 @@ import (
  *  @return error if an error occurred
  */
 func Fetch(request *http.Request, database string, table string, totalRecordCountQuery string, columns []string, result interface{}) (int64, int64, error) {
-	dbMap := GetDBConnection(database);
+	dbMap := GetDBConnection(database)
 	var err error
 	query := "SELECT "
 
 	for index, element := range columns {
 		query += element
-		if (index + 1 != len(columns)) {
+		if index+1 != len(columns) {
 			query += ","
 		}
 	}
@@ -43,7 +44,7 @@ func Fetch(request *http.Request, database string, table string, totalRecordCoun
 
 	_, err = dbMap.Select(result, query)
 
-	filteredRecordCount, _ := getRecordCount(dbMap, "SELECT COUNT(*) " + constructedFilterQuery)
+	filteredRecordCount, _ := getRecordCount(dbMap, "SELECT COUNT(*) "+constructedFilterQuery)
 	totalRecordsCount, _ := getRecordCount(dbMap, totalRecordCountQuery)
 	return filteredRecordCount, totalRecordsCount, err
 }
@@ -59,7 +60,7 @@ func Fetch(request *http.Request, database string, table string, totalRecordCoun
  */
 func limit(request *http.Request) string {
 	limit := "LIMIT 0,100" // default limit
-	if (len(request.FormValue("start")) > 0 && len(request.FormValue("length")) > 0) {
+	if len(request.FormValue("start")) > 0 && len(request.FormValue("length")) > 0 {
 		start := request.FormValue("start")
 		length := request.FormValue("length")
 		limit = " LIMIT " + start + "," + length
@@ -76,12 +77,12 @@ func limit(request *http.Request) string {
  *  @param  columns array, elements in the order it appears in DataTables
  *  @return string SQL order by clause
  */
-func order(request *http.Request, columns[]string) string {
+func order(request *http.Request, columns []string) string {
 	orderingColumn := request.FormValue("order[0][column]")
 	orderingDirection := request.FormValue("order[0][dir]")
 
 	order := " ORDER BY " + columns[0] + " ASC "
-	if (len(orderingColumn) > 0 && len(orderingDirection) > 0) {
+	if len(orderingColumn) > 0 && len(orderingDirection) > 0 {
 		oc, _ := strconv.Atoi(orderingColumn)
 		order = " ORDER BY " + columns[oc] + " " + strings.ToUpper(orderingDirection) + " "
 	}
@@ -101,23 +102,23 @@ func order(request *http.Request, columns[]string) string {
  *  @param  columns array, elements in the order it appears in DataTables
  *  @return string SQL where clause
  */
-func filter(request *http.Request, columns[]string) string {
+func filter(request *http.Request, columns []string) string {
 	filter := " WHERE "
 	var filters []string
 	for i := 0; i < len(columns); i++ {
 		columnSearchValue := request.FormValue("columns[" + strconv.Itoa(i) + "][search][value]")
 		columnData := request.FormValue("columns[" + strconv.Itoa(i) + "][data]")
-		if (len(columnSearchValue) > 0) {
-			filters = append(filters, columnData + " LIKE '" + columnSearchValue + "%' ")
+		if len(columnSearchValue) > 0 {
+			filters = append(filters, columnData+" LIKE '"+columnSearchValue+"%' ")
 		}
 	}
 	for index, element := range filters {
 		filter += element
-		if (index + 1 != len(filters)) {
+		if index+1 != len(filters) {
 			filter += " AND "
 		}
 	}
-	if (filter != " WHERE ") {
+	if filter != " WHERE " {
 		return filter
 	}
 	return "" //return an empty filter if no [search][value] present

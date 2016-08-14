@@ -1,10 +1,10 @@
 package commons
 
 import (
+	log "github.com/Sirupsen/logrus"
+	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
-	"github.com/spf13/viper"
-	log "github.com/Sirupsen/logrus"
 	"strconv"
 	"text/template"
 )
@@ -48,7 +48,7 @@ var ServerConfigurations serverConfigs
 func InitConfigurations(configFileUrl string) serverConfigs {
 	ServerConfigurations.Home = GetServerHome()
 	//read the configurations from the file url instead of searching through the paths
-	if (len(configFileUrl) <= 0) {
+	if len(configFileUrl) <= 0 {
 		if _, err := os.Stat(ServerConfigurations.Home + FILE_PATH_SEPARATOR + SERVER_CONFIGS_DIRECTORY + FILE_PATH_SEPARATOR + CONFIG_FILE_NAME); os.IsNotExist(err) {
 			configFileUrl = ServerConfigurations.Home + FILE_PATH_SEPARATOR + "configs" + FILE_PATH_SEPARATOR + DEFAULT_CONFIG_FILE_NAME
 		} else {
@@ -83,30 +83,30 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 	ServerConfigurations.SSLKeyFile = configsMap["keyFile"].(string)
 
 	//Exporting variables for other services (Caddy)
-	os.Setenv("PATH", os.Getenv("PATH") + ":" + ServerConfigurations.Home + "/bin")
+	os.Setenv("PATH", os.Getenv("PATH")+":"+ServerConfigurations.Home+"/bin")
 	os.Setenv("CADDYPATH", ServerConfigurations.CaddyPath)
-	os.Setenv(SERVER_PREFIX + "CADDY_PORT", strconv.Itoa(ServerConfigurations.CaddyPort + ServerConfigurations.PortOffset))
-	os.Setenv(SERVER_PREFIX + "HTTPS_PORT", strconv.Itoa(ServerConfigurations.HttpsPort + ServerConfigurations.PortOffset))
-	os.Setenv(SERVER_PREFIX + "CERTIFICATE_FILE", ServerConfigurations.SSLCertificateFile)
-	os.Setenv(SERVER_PREFIX + "KEY_FILE", ServerConfigurations.SSLKeyFile)
-	os.Setenv(SERVER_PREFIX + JWT_PRIVATE_KEY_FILE, ServerConfigurations.JWTPrivateKeyFile)
-	os.Setenv(SERVER_PREFIX + JWT_PUBLIC_KEY_FILE, ServerConfigurations.JWTPublicKeyFile)
-	os.Setenv(SERVER_PREFIX + JWT_EXPIRATION_DELTA, strconv.Itoa(ServerConfigurations.JWTExpirationDelta))
+	os.Setenv(SERVER_PREFIX+"CADDY_PORT", strconv.Itoa(ServerConfigurations.CaddyPort+ServerConfigurations.PortOffset))
+	os.Setenv(SERVER_PREFIX+"HTTPS_PORT", strconv.Itoa(ServerConfigurations.HttpsPort+ServerConfigurations.PortOffset))
+	os.Setenv(SERVER_PREFIX+"CERTIFICATE_FILE", ServerConfigurations.SSLCertificateFile)
+	os.Setenv(SERVER_PREFIX+"KEY_FILE", ServerConfigurations.SSLKeyFile)
+	os.Setenv(SERVER_PREFIX+JWT_PRIVATE_KEY_FILE, ServerConfigurations.JWTPrivateKeyFile)
+	os.Setenv(SERVER_PREFIX+JWT_PUBLIC_KEY_FILE, ServerConfigurations.JWTPublicKeyFile)
+	os.Setenv(SERVER_PREFIX+JWT_EXPIRATION_DELTA, strconv.Itoa(ServerConfigurations.JWTExpirationDelta))
 
 	ServerConfigurations.DBConfigMap = make(map[string]DBConfigs)
 	databases := viper.Get("dbConfigs").([]interface{})
 	for i, _ := range databases {
 		database := databases[i].(map[interface{}]interface{})
 		ServerConfigurations.DBConfigMap[database["name"].(string)] = DBConfigs{
-			Dialect: database["dialect"].(string),
-			DBName: database["dbname"].(string),
-			Address: database["address"].(string),
+			Dialect:    database["dialect"].(string),
+			DBName:     database["dbname"].(string),
+			Address:    database["address"].(string),
 			Parameters: database["parameters"].(string),
-			Username: database["username"].(string),
-			Password: database["password"].(string),
+			Username:   database["username"].(string),
+			Password:   database["password"].(string),
 		}
 	}
-	return ServerConfigurations;
+	return ServerConfigurations
 }
 
 //fill the configuration file template with the the template parameters
@@ -114,15 +114,15 @@ func parseConfigTemplate(configFileUrl, serverHome string) string {
 	parsedConfigFile := filepath.FromSlash(ServerConfigurations.Home + FILE_PATH_SEPARATOR + "configs" + FILE_PATH_SEPARATOR + ".tmp" + FILE_PATH_SEPARATOR + CONFIG_FILE_NAME)
 	template, err := template.ParseFiles(filepath.FromSlash(configFileUrl))
 	if err != nil {
-		log.Errorln("Unable to parse the config file template url" + parsedConfigFile , err.Error() )
+		log.Errorln("Unable to parse the config file template url"+parsedConfigFile, err.Error())
 	}
 	paresedFile, err := os.Create(parsedConfigFile)
 	if err != nil {
-		log.Errorln("Unable to create the parsed configuration file in path : " + parsedConfigFile, err)
+		log.Errorln("Unable to create the parsed configuration file in path : "+parsedConfigFile, err)
 	}
 	data := struct {
 		ServerHome string
-	}{serverHome, }
+	}{serverHome}
 	err = template.Execute(paresedFile, data)
 	if err != nil {
 		log.Errorln("Unable to execute the parsed object", err)
@@ -131,10 +131,10 @@ func parseConfigTemplate(configFileUrl, serverHome string) string {
 	return parsedConfigFile
 }
 
-func GetServerHome() string{
+func GetServerHome() string {
 	var home string
 	home = os.Getenv(SERVER_HOME)
-	if ( len(home) <= 0 ) {
+	if len(home) <= 0 {
 		home, err := filepath.Abs(filepath.Dir(os.Args[0]))
 		if err != nil {
 			log.Fatal("Error while determining the server home. Please set the SERVER_HOME varaible and restart.")

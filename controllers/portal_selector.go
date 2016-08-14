@@ -48,24 +48,24 @@ func sortMapByValue(m map[string]float64) PairList {
 
 func main() {
 	referenceTuple1 :=
-	Bucket{
-		id : "abc",
-		tuples: []Tuple{
-			Tuple{key :"location", value: "A", weight: 100},
-			Tuple{key :"age", value:"55", weight: 75},
-			Tuple{key :"gender", value:"m", weight: 75},
-		},
-	}
+		Bucket{
+			id: "abc",
+			tuples: []Tuple{
+				Tuple{key: "location", value: "A", weight: 100},
+				Tuple{key: "age", value: "55", weight: 75},
+				Tuple{key: "gender", value: "m", weight: 75},
+			},
+		}
 
 	referenceTuple2 :=
-	Bucket{
-		id : "pqr",
-		tuples: []Tuple{
-			Tuple{key :"location", value: "B", weight: 100},
-			Tuple{key :"age", value:"45", weight: 75},
-			Tuple{key :"gender", value:"f", weight: 25},
-		},
-	}
+		Bucket{
+			id: "pqr",
+			tuples: []Tuple{
+				Tuple{key: "location", value: "B", weight: 100},
+				Tuple{key: "age", value: "45", weight: 75},
+				Tuple{key: "gender", value: "f", weight: 25},
+			},
+		}
 
 	buckets := []Bucket{
 		referenceTuple1,
@@ -73,9 +73,9 @@ func main() {
 	}
 
 	inputTuples := []Tuple{
-		Tuple{key :"location", value: "A"},
-		Tuple{key :"age", value:"45"},
-		Tuple{key :"gender", value:"f"},
+		Tuple{key: "location", value: "A"},
+		Tuple{key: "age", value: "45"},
+		Tuple{key: "gender", value: "f"},
 	}
 
 	scores := make(map[string]float64, len(buckets))
@@ -86,18 +86,18 @@ func main() {
 	sortMapByValue(scores)
 
 	for k, v := range scores {
-		println(k  + " " + strconv.FormatFloat(v, 'f', 6, 64))
+		println(k + " " + strconv.FormatFloat(v, 'f', 6, 64))
 	}
 
 }
 
-func getWeightedAverage(bucket Bucket, inputTuples []Tuple) (float64) {
+func getWeightedAverage(bucket Bucket, inputTuples []Tuple) float64 {
 	var score float64
 	var devider float64
 	for _, tuple := range bucket.tuples {
 		for _, inputTuple := range inputTuples {
-			if (inputTuple.key == tuple.key) {
-				if (inputTuple.value == tuple.value) {
+			if inputTuple.key == tuple.key {
+				if inputTuple.value == tuple.value {
 					score += tuple.weight
 				}
 			}

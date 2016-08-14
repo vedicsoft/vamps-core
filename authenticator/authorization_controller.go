@@ -1,15 +1,16 @@
 package authenticator
+
 import (
-	"net/http"
 	"encoding/json"
+	"net/http"
 )
 
 /*Permission Constant*/
-const CSV_DOWNLOAD  = "csv_download"
+const CSV_DOWNLOAD = "csv_download"
 const WIFI_LOCATION = "wifi_location"
-const WIFI_USERS  =  "wifi_users"
-const DASHBOARD_USERS =  "dashboard_users"
-const ADMIN =  "admin"
+const WIFI_USERS = "wifi_users"
+const DASHBOARD_USERS = "dashboard_users"
+const ADMIN = "admin"
 
 const ACTION_EXECUTE string = "execute"
 const ACTION_WRITE string = "write"
@@ -18,6 +19,7 @@ const ACTION_READ string = "read"
 type Permission struct {
 	permission string
 }
+
 /**
 * get scope from jwt and check for permission
 * "scopes": {
@@ -27,7 +29,7 @@ type Permission struct {
 *      "execute"
 *    ]
 *  }
-*/
+ */
 func IsAuthorized(resourceId string, permission string, r *http.Request) bool {
 	m1 := make(map[string][]string)
 	json.Unmarshal([]byte(r.Header.Get("scopes")), &m1)
@@ -47,7 +49,7 @@ func IsUserAuthorized(username string, resourceId string, permission string, r *
 	json.Unmarshal([]byte(r.Header.Get("scopes")), &m1)
 
 	m2 := m1[resourceId]
-	if m2 != nil && username == r.Header.Get("username"){
+	if m2 != nil && username == r.Header.Get("username") {
 		for _, element := range m2 {
 			if element == permission {
 				return true

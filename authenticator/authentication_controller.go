@@ -1,17 +1,17 @@
 package authenticator
 
 import (
+	"encoding/json"
+	log "github.com/Sirupsen/logrus"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/vedicsoft/vamps-core/commons"
 	"net/http"
-	"encoding/json"
-	jwt "github.com/dgrijalva/jwt-go"
-	log "github.com/Sirupsen/logrus"
 	"strconv"
 )
 
 type TokenAuthentication struct {
 	Token    string `json:"token" form:"token"`
-	TenantId int64 `json:"tenantid" form:"tenantid"`
+	TenantId int64  `json:"tenantid" form:"tenantid"`
 }
 
 func Login(requestUser *commons.SystemUser) (int, []byte) {
@@ -78,7 +78,7 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 }
 
 func getTenantId(user *commons.SystemUser) int64 {
-	dbMap := commons.GetDBConnection(commons.USER_STORE_DB);
+	dbMap := commons.GetDBConnection(commons.USER_STORE_DB)
 	tenantId, err := dbMap.SelectInt("SELECT tenantid FROM vs_tenants WHERE domain=?", user.TenantDomain)
 	checkErr(err, "Select failed")
 	return tenantId

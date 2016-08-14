@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/vedicsoft/vamps-core/authenticator"
+	"net/http"
 )
 
 func NewRouter() *mux.Router {
@@ -13,14 +13,14 @@ func NewRouter() *mux.Router {
 		var handler http.Handler
 		handler = route.HandlerFunc
 		handler = Logger(handler, route.Name)
-        if(route.Secured) {
+		if route.Secured {
 			handler = authenticator.RequireTokenAuthentication(handler)
 		}
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-		 	Handler(handler)
+			Handler(handler)
 	}
 
 	return router

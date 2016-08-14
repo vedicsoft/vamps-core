@@ -1,9 +1,8 @@
 package commons
 
-import (
-)
+import ()
 
-func GetLogger(className string){
+func GetLogger(className string) {
 
-//github.com/vamps-core/main
+	//github.com/vamps-core/main
 }

@@ -22,11 +22,17 @@ command -v godep >/dev/null 2>&1 || { echo >&2 "Godep required. Installing godep
 rm -rf $PROJECT_ROOT/target
 mkdir -p $PROJECT_ROOT/target
 
-echo 'Gom install dependencies. This might take some time...'
-godep go install ./...
+echo 'Formatting the code base...'
+godep go fmt $(go list ./... | grep -v /vendor/)
+
+echo 'Running go vet'
+#godep go vet $(go list ./... | grep -v /vendor/)
+
+echo 'Gom installing dependencies. This might take some time...'
+godep go install $(go list ./... | grep -v /vendor/)
 
 echo "Executing test"
-godep go test -v ./...
+godep go test -v $(go list ./... | grep -v /vendor/)
 
 mv $PROJECT_NAME $PROJECT_ROOT/server/bin/server.bin
 

@@ -16,4 +16,3 @@ func init() {
 		ApplicationRoutes = append(ApplicationRoutes, r...)
 	}
 }
-

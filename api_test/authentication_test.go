@@ -1,20 +1,21 @@
 //+build ignore
+
 package api_test
 
 import (
-	"os"
-	"testing"
-	"github.com/vedicsoft/vamps-core/commons"
-	"net/http"
-	"strings"
-	"net/http/httptest"
-	"github.com/gorilla/mux"
-	"github.com/vedicsoft/vamps-core/routes"
-	"encoding/json"
-	"os/exec"
 	"bytes"
-	"io"
+	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/routes"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"os/exec"
+	"strings"
+	"testing"
 )
 
 var m *mux.Router
@@ -49,8 +50,8 @@ func setup() {
 	respRec = httptest.NewRecorder()
 }
 
-func shutdown(){
- //deleting sqlite database
+func shutdown() {
+	//deleting sqlite database
 	err := os.Remove(commons.GetServerHome() + "/resources/.test/vampstest.db")
 	if err != nil {
 		fmt.Println("Unable to remove the test databsae stack:" + err.Error())
@@ -58,10 +59,10 @@ func shutdown(){
 }
 
 //takes the sqlite database descriptor and create a new one
-func constructTestDB(serverHome string){
+func constructTestDB(serverHome string) {
 	os.Chdir(serverHome + "/resources/.test")
 	c1 := exec.Command("cat", "sqlite_serverdb.sql")
-	c2 := exec.Command("./sqlite3","vampstest.db")
+	c2 := exec.Command("./sqlite3", "vampstest.db")
 	r, w := io.Pipe()
 	c1.Stdout = w
 	c2.Stdin = r
@@ -101,13 +102,13 @@ func TestLogin(t *testing.T) {
 }
 
 func TestLogout(t *testing.T) {
-	user := commons.SystemUser{Username:"admin", Password:"admin", TenantDomain:"super.com"}
+	user := commons.SystemUser{Username: "admin", Password: "admin", TenantDomain: "super.com"}
 	b, err := json.Marshal(user)
 	req, err = http.NewRequest("POST", "/api/logout", strings.NewReader(string(b)))
 	if err != nil {
 		t.Fatal("Creating 'POST /questions/1/SC' request failed!")
 	}
-	req.Header.Set("Authorization", "Bearer " + jwtResponse.Token)
+	req.Header.Set("Authorization", "Bearer "+jwtResponse.Token)
 	respRec = httptest.NewRecorder()
 	m.ServeHTTP(respRec, req)
 	if respRec.Code != http.StatusOK {

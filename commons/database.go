@@ -2,11 +2,11 @@ package commons
 
 import (
 	"database/sql"
+	"encoding/json"
+	log "github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 	"gopkg.in/gorp.v1"
-	"encoding/json"
-	log "github.com/Sirupsen/logrus"
 )
 
 const DIALECT_MYSQL string = "mysql"
@@ -20,18 +20,18 @@ func GetDBConnection(dbName string) *gorp.DbMap {
 
 func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
 	dbConnections = make(map[string]*gorp.DbMap)
-	var connectionUrl string;
-	var dialect gorp.Dialect;
+	var connectionUrl string
+	var dialect gorp.Dialect
 	for dbName, dbConfig := range dbConfigs {
-		switch(dbConfig.Dialect){
+		switch dbConfig.Dialect {
 		case DIALECT_MYSQL:
 			connectionUrl = dbConfig.Username + ":" + dbConfig.Password + "@tcp(" + dbConfig.Address + ")/" + dbConfig.DBName + dbConfig.Parameters
 			dialect = gorp.MySQLDialect{"InnoDB", "UTF8"}
-			break;
+			break
 		case DIALECT_SQLITE3:
 			connectionUrl = dbConfig.Address
 			dialect = gorp.SqliteDialect{}
-			break;
+			break
 		}
 		db, err := sql.Open(dbConfig.Dialect, connectionUrl)
 		if err != nil {

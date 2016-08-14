@@ -7,10 +7,10 @@ import (
 
 var ConsoleRoutes = commons.Routes{
 	commons.Route{
-		"Add Dashboard User App",
-		"POST",
-		"/apps",
-		true,
-		dashboard_handlers.CreateDashboardApp,
+		Name:        "Add Dashboard User App",
+		Method:      "POST",
+		Pattern:     "/apps",
+		Secured:     true,
+		HandlerFunc: dashboard_handlers.CreateDashboardApp,
 	},
 }

@@ -2,16 +2,16 @@ package models
 
 type UserAgent struct {
 	Browser Browser `json:"browser"`
-	Cpu CPU         `json:"cpu"`
-	Device Device   `json:"device"`
-	Engine Engine   `json:"engine"`
-	Os OS           `json:"os"`
-	Ua string       `json:"ua"`
+	Cpu     CPU     `json:"cpu"`
+	Device  Device  `json:"device"`
+	Engine  Engine  `json:"engine"`
+	Os      OS      `json:"os"`
+	Ua      string  `json:"ua"`
 }
 
 type Browser struct {
-	Major string   `json:"major"`
-	Name string    `json:"name"`
+	Major   string `json:"major"`
+	Name    string `json:"name"`
 	Version string `json:"version"`
 }
 
@@ -20,17 +20,17 @@ type CPU struct {
 }
 
 type Device struct {
-	Model string `json:"model"`
-	Type string `json:"type"`
+	Model  string `json:"model"`
+	Type   string `json:"type"`
 	Vendor string `json:"vendor"`
 }
 
 type Engine struct {
-	Name string     `json:"name"`
-	Version string  `json:"version"`
+	Name    string `json:"name"`
+	Version string `json:"version"`
 }
 
 type OS struct {
-	Name string     `json:"name"`
-	Version string  `json:"version"`
+	Name    string `json:"name"`
+	Version string `json:"version"`
 }

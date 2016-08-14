@@ -7,17 +7,17 @@ import (
 
 var AuthenticationRoutes = commons.Routes{
 	commons.Route{
-		"Login",
-		"POST",
-		"/api/login",
-		false,
-		dashboard_handlers.Login,
+		Name:        "Login",
+		Method:      "POST",
+		Pattern:     "/api/login",
+		Secured:     false,
+		HandlerFunc: dashboard_handlers.Login,
 	},
 	commons.Route{
-		"Logout",
-		"POST",
-		"/api/logout",
-		true,
-		dashboard_handlers.Logout,
+		Name:        "Logout",
+		Method:      "POST",
+		Pattern:     "/api/logout",
+		Secured:     true,
+		HandlerFunc: dashboard_handlers.Logout,
 	},
 }
