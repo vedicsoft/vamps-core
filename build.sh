@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-PROJECT_NAME='vamps-core'
+PROJECT_NAME=${PWD##*/} #set current folder name as the project name
 PROJECT_ROOT=`pwd`
 export GOBIN="$PROJECT_ROOT"
 
@@ -12,15 +12,15 @@ export SERVER_HOME=$HOME
 
 echo 'Exporting GO variables.'
 
-if [ -z "$GOPATH" ]; then
+if [ -z "${GOPATH}" ]; then
  echo "Build failed due to GOPATH has not been set."
  exit 1
 fi
 
 command -v godep >/dev/null 2>&1 || { echo >&2 "Godep required. Installing godep.";  go get github.com/tools/godep;}
 
-rm -rf $PROJECT_ROOT/target
-mkdir -p $PROJECT_ROOT/target
+rm -rf ${PROJECT_ROOT}/target
+mkdir -p ${PROJECT_ROOT}/target
 
 echo 'Formatting the code base...'
 godep go fmt $(go list ./... | grep -v /vendor/)
@@ -34,11 +34,11 @@ godep go install $(go list ./... | grep -v /vendor/)
 echo "Executing test"
 godep go test -v $(go list ./... | grep -v /vendor/)
 
-mv $PROJECT_NAME $PROJECT_ROOT/server/bin/server.bin
+mv ${PROJECT_NAME} ${PROJECT_ROOT}/server/bin/server.bin
 
 echo 'GO build complete.'
 
-cd $PROJECT_ROOT/target
+cd ${PROJECT_ROOT}/target
 
 if [ "$1" = "--release" ];then
  echo "Writing version information to versioninfo.md"
@@ -53,8 +53,8 @@ if [ "$1" = "--release" ];then
 fi
 
 echo "Start creating new distribution"
-mkdir $PROJECT_NAME
-cp -r ../server/* $PROJECT_NAME/
-zip -rq $PROJECT_NAME.zip ./$PROJECT_NAME/* -x *.log -x *.out -x *.tmp* -x *.test*
-rm -rf $PROJECT_NAME
+mkdir ${PROJECT_NAME}
+cp -r ../server/* ${PROJECT_NAME}/
+zip -rq ${PROJECT_NAME}.zip ./${PROJECT_NAME}/* -x *.log -x *.out -x *.tmp* -x *.test*
+rm -rf ${PROJECT_NAME}
 echo "Distribution creation complete."
