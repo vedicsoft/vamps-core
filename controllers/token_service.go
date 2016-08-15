@@ -1,4 +1,4 @@
-package authenticator
+package controllers
 
 import (
 	"bufio"
@@ -9,6 +9,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/models"
 	"github.com/vedicsoft/vamps-core/redis"
 	"golang.org/x/crypto/bcrypt"
 	"os"
@@ -36,7 +37,7 @@ func InitJWTAuthenticationEngine() *JWTAuthenticationBackend {
 	return authBackendInstance
 }
 
-func (backend *JWTAuthenticationBackend) GenerateToken(user *commons.SystemUser) (string, error) {
+func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser) (string, error) {
 	token := jwt.New(jwt.SigningMethodRS512)
 	i := commons.ServerConfigurations.JWTExpirationDelta
 	token.Claims["exp"] = time.Now().Add(time.Hour * time.Duration(i)).Unix()
@@ -53,7 +54,7 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *commons.SystemUser)
 	return tokenString, nil
 }
 
-func getUserId(user *commons.SystemUser) int64 {
+func getUserId(user *models.SystemUser) int64 {
 	dbMap := commons.GetDBConnection(commons.USER_STORE_DB)
 	var userId sql.NullInt64
 	smtOut, err := dbMap.Db.Prepare("SELECT userid FROM vs_users WHERE username=? AND tenantid=?")
@@ -68,7 +69,7 @@ func getUserId(user *commons.SystemUser) int64 {
 	}
 }
 
-func getUserScopes(user *commons.SystemUser) map[string][]string {
+func getUserScopes(user *models.SystemUser) map[string][]string {
 	dbMap := commons.GetDBConnection(commons.USER_STORE_DB)
 	rows, err := dbMap.Db.Query("select name,action from vs_permissions where permissionid in (select vs_user_permissions.permissionid from vs_user_permissions where vs_user_permissions.userid = ?) order by name", user.UserId)
 	defer rows.Close()
@@ -96,7 +97,7 @@ func getUserScopes(user *commons.SystemUser) map[string][]string {
 	return scopes
 }
 
-func (backend *JWTAuthenticationBackend) Authenticate(user *commons.SystemUser) bool {
+func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) bool {
 	dbMap := commons.GetDBConnection(commons.USER_STORE_DB)
 	var hashedPassword sql.NullString
 	smtOut, err := dbMap.Db.Prepare("SELECT password FROM vs_users where username=? AND tenantid=? AND status='active'")

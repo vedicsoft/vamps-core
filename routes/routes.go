@@ -1,14 +1,13 @@
 package routes
 
 import (
-	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/models"
 )
 
-var ApplicationRoutes commons.Routes
+var ApplicationRoutes models.Routes
 
 func init() {
-	routes := []commons.Routes{
-		ConsoleRoutes,
+	routes := []models.Routes{
 		AuthenticationRoutes,
 	}
 

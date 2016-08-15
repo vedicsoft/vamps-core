@@ -3,14 +3,14 @@ package api
 import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
-	"github.com/vedicsoft/vamps-core/authenticator"
-	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/controllers"
+	"github.com/vedicsoft/vamps-core/models"
 	"net/http"
 	"strings"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	requestUser := new(commons.SystemUser)
+	requestUser := new(models.SystemUser)
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&requestUser)
 
@@ -23,23 +23,23 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		requestUser.TenantDomain = "super.com"
 	}
 
-	responseStatus, token := authenticator.Login(requestUser)
+	responseStatus, token := controllers.Login(requestUser)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(responseStatus)
 	w.Write(token)
 }
 
 func RefreshToken(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	requestUser := new(commons.SystemUser)
+	requestUser := new(models.SystemUser)
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&requestUser)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(authenticator.RefreshToken(requestUser))
+	w.Write(controllers.RefreshToken(requestUser))
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
-	err := authenticator.Logout(r)
+	err := controllers.Logout(r)
 	if err != nil {
 		log.Error(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

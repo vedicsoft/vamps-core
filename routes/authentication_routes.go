@@ -2,18 +2,18 @@ package routes
 
 import (
 	dashboard_handlers "github.com/vedicsoft/vamps-core/api"
-	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/models"
 )
 
-var AuthenticationRoutes = commons.Routes{
-	commons.Route{
+var AuthenticationRoutes = models.Routes{
+	models.Route{
 		Name:        "Login",
 		Method:      "POST",
 		Pattern:     "/api/login",
 		Secured:     false,
 		HandlerFunc: dashboard_handlers.Login,
 	},
-	commons.Route{
+	models.Route{
 		Name:        "Logout",
 		Method:      "POST",
 		Pattern:     "/api/logout",

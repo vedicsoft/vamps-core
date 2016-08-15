@@ -1,10 +1,11 @@
-package authenticator
+package controllers
 
 import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/models"
 	"net/http"
 	"strconv"
 )
@@ -14,7 +15,7 @@ type TokenAuthentication struct {
 	TenantId int64  `json:"tenantid" form:"tenantid"`
 }
 
-func Login(requestUser *commons.SystemUser) (int, []byte) {
+func Login(requestUser *models.SystemUser) (int, []byte) {
 	authEngine := InitJWTAuthenticationEngine()
 	requestUser.TenantId = getTenantId(requestUser)
 	if authEngine.Authenticate(requestUser) {
@@ -29,7 +30,7 @@ func Login(requestUser *commons.SystemUser) (int, []byte) {
 	return http.StatusUnauthorized, []byte("")
 }
 
-func RefreshToken(requestUser *commons.SystemUser) []byte {
+func RefreshToken(requestUser *models.SystemUser) []byte {
 	authEngine := InitJWTAuthenticationEngine()
 	token, err := authEngine.GenerateToken(requestUser)
 	if err != nil {
@@ -77,7 +78,7 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 	})
 }
 
-func getTenantId(user *commons.SystemUser) int64 {
+func getTenantId(user *models.SystemUser) int64 {
 	dbMap := commons.GetDBConnection(commons.USER_STORE_DB)
 	tenantId, err := dbMap.SelectInt("SELECT tenantid FROM vs_tenants WHERE domain=?", user.TenantDomain)
 	checkErr(err, "Select failed")

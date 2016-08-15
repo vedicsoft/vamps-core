@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/models"
 	"github.com/vedicsoft/vamps-core/routes"
 	"io"
 	"io/ioutil"
@@ -108,7 +109,7 @@ func startRedis(serverHome string) *exec.Cmd {
 }
 
 func TestLogin(t *testing.T) {
-	user := commons.SystemUser{Username: "admin@super.com", Password: "admin"}
+	user := models.SystemUser{Username: "admin@super.com", Password: "admin"}
 	b, err := json.Marshal(user)
 	req, err = http.NewRequest("POST", "/api/login", strings.NewReader(string(b)))
 	if err != nil {
@@ -131,7 +132,7 @@ func TestLogin(t *testing.T) {
 }
 
 func TestLogout(t *testing.T) {
-	user := commons.SystemUser{Username: "admin", Password: "admin", TenantDomain: "super.com"}
+	user := models.SystemUser{Username: "admin", Password: "admin", TenantDomain: "super.com"}
 	b, err := json.Marshal(user)
 	req, err = http.NewRequest("POST", "/api/logout", strings.NewReader(string(b)))
 	if err != nil {

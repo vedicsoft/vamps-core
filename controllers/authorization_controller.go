@@ -1,4 +1,4 @@
-package authenticator
+package controllers
 
 import (
 	"encoding/json"
