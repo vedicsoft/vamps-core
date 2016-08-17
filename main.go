@@ -1,15 +1,16 @@
 package main
 
 import (
-	log "github.com/Sirupsen/logrus"
-	"github.com/gorilla/handlers"
-	"github.com/vedicsoft/vamps-core/commons"
-	"github.com/vedicsoft/vamps-core/routes"
 	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/gorilla/handlers"
+	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/routes"
 )
 
 var logHandler http.Handler

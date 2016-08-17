@@ -1,12 +1,13 @@
 package commons
 
 import (
-	log "github.com/Sirupsen/logrus"
-	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 	"strconv"
 	"text/template"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type serverConfigs struct {

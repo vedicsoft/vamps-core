@@ -4,10 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/vedicsoft/vamps-core/commons"
-	"github.com/vedicsoft/vamps-core/models"
-	"github.com/vedicsoft/vamps-core/routes"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -17,6 +13,11 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/gorilla/mux"
+	"github.com/vedicsoft/vamps-core/commons"
+	"github.com/vedicsoft/vamps-core/models"
+	"github.com/vedicsoft/vamps-core/routes"
 )
 
 var m *mux.Router

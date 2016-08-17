@@ -1,9 +1,10 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/vedicsoft/vamps-core/controllers"
-	"net/http"
 )
 
 func NewRouter() *mux.Router {

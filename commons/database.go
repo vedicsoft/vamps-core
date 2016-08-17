@@ -3,6 +3,7 @@ package commons
 import (
 	"database/sql"
 	"encoding/json"
+
 	log "github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"

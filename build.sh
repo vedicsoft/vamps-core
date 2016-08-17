@@ -17,7 +17,9 @@ if [ -z "${GOPATH}" ]; then
  exit 1
 fi
 
-command -v godep >/dev/null 2>&1 || { echo >&2 "Godep required. Installing godep.";  go get github.com/tools/godep;}
+command -v godep >/dev/null 2>&1 || { echo >&2 "godep required. Installing godep.";  go get github.com/tools/godep;}
+command -v goimports >/dev/null 2>&1 || { echo >&2 "goimports required. Installing goimports."; \
+go get golang.org/x/tools/cmd/goimports;}
 
 rm -rf ${PROJECT_ROOT}/target
 mkdir -p ${PROJECT_ROOT}/target
@@ -25,10 +27,13 @@ mkdir -p ${PROJECT_ROOT}/target
 echo 'Formatting the code base...'
 godep go fmt $(go list ./... | grep -v /vendor/)
 
+echo 'Optimizing the imports...'
+goimports -w $(go list -f {{.Dir}} ./... | grep -v /vendor/)
+
 echo 'Running go vet'
 #godep go vet $(go list ./... | grep -v /vendor/)
 
-echo 'Gom installing dependencies. This might take some time...'
+echo 'Installing dependencies. This might take some time...'
 godep go install $(go list ./... | grep -v /vendor/)
 
 echo "Executing test"

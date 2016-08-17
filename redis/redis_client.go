@@ -1,9 +1,10 @@
 package redis
 
 import (
+	"time"
+
 	"github.com/apremalal/redigo/redis"
 	"github.com/vedicsoft/vamps-core/commons"
-	"time"
 )
 
 type RedisCli struct {

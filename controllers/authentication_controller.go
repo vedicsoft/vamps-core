@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/models"
-	"net/http"
-	"strconv"
 )
 
 type TokenAuthentication struct {

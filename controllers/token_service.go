@@ -6,14 +6,15 @@ import (
 	"crypto/x509"
 	"database/sql"
 	"encoding/pem"
+	"os"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/models"
 	"github.com/vedicsoft/vamps-core/redis"
 	"golang.org/x/crypto/bcrypt"
-	"os"
-	"time"
 )
 
 type JWTAuthenticationBackend struct {

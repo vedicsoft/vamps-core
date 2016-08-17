@@ -2,11 +2,12 @@ package api
 
 import (
 	"encoding/json"
+	"net/http"
+	"strings"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/vedicsoft/vamps-core/controllers"
 	"github.com/vedicsoft/vamps-core/models"
-	"net/http"
-	"strings"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {

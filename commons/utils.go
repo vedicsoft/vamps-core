@@ -1,9 +1,10 @@
 package commons
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strconv"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 func GetTenantId(r *http.Request) int {

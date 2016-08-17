@@ -1,11 +1,12 @@
 package commons
 
 import (
-	log "github.com/Sirupsen/logrus"
-	"gopkg.in/gorp.v1"
 	"net/http"
 	"strconv"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
+	"gopkg.in/gorp.v1"
 )
 
 /**
