@@ -9,14 +9,14 @@ var AuthenticationRoutes = models.Routes{
 	models.Route{
 		Name:        "Login",
 		Method:      "POST",
-		Pattern:     "/api/login",
+		Pattern:     "/login",
 		Secured:     false,
 		HandlerFunc: dashboard_handlers.Login,
 	},
 	models.Route{
 		Name:        "Logout",
 		Method:      "POST",
-		Pattern:     "/api/logout",
+		Pattern:     "/logout",
 		Secured:     true,
 		HandlerFunc: dashboard_handlers.Logout,
 	},

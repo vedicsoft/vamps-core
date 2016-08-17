@@ -112,9 +112,9 @@ func startRedis(serverHome string) *exec.Cmd {
 func TestLogin(t *testing.T) {
 	user := models.SystemUser{Username: "admin@super.com", Password: "admin"}
 	b, err := json.Marshal(user)
-	req, err = http.NewRequest("POST", "/api/login", strings.NewReader(string(b)))
+	req, err = http.NewRequest("POST", "/login", strings.NewReader(string(b)))
 	if err != nil {
-		t.Fatal("Creating 'POST /api/login' request failed!")
+		t.Fatal("Creating 'POST /login' request failed!")
 	}
 	//The response recorder used to record HTTP responses
 	respRec = httptest.NewRecorder()
@@ -135,9 +135,9 @@ func TestLogin(t *testing.T) {
 func TestLogout(t *testing.T) {
 	user := models.SystemUser{Username: "admin", Password: "admin", TenantDomain: "super.com"}
 	b, err := json.Marshal(user)
-	req, err = http.NewRequest("POST", "/api/logout", strings.NewReader(string(b)))
+	req, err = http.NewRequest("POST", "/logout", strings.NewReader(string(b)))
 	if err != nil {
-		t.Fatal("Creating 'POST /questions/1/SC' request failed!")
+		t.Fatal("Creating 'POST /logout' request failed!")
 	}
 	req.Header.Set("Authorization", "Bearer "+jwtResponse.Token)
 	respRec = httptest.NewRecorder()
