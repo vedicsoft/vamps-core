@@ -43,6 +43,9 @@ func main() {
 
 	commons.ConstructConnectionPool(commons.ServerConfigurations.DBConfigMap)
 
+	// perform database migrations if any
+	commons.UpgradeDBSchema(commons.PLATFORM_DB)
+
 	// Starting caddy server to server static files
 	args := []string{"bin/caddy", "--conf=" + commons.ServerConfigurations.CaddyFile, "-pidfile=bin/caddy.pid"}
 

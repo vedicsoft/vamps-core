@@ -6,7 +6,7 @@ const ACCESS_LOG_FILE_NAME string = "api-access.log"
 const DEFAULT_CONFIG_FILE_NAME string = "config.default.yaml"
 const CONFIG_FILE_NAME string = "config.yaml"
 const SERVER_CONFIGS_DIRECTORY = "configs"
-const SERVER_DB string = "vamps"
+const PLATFORM_DB string = "platform"
 const USER_STORE_DB string = "userstore"
 
 const JWT_PRIVATE_KEY_FILE string = "JWT_PRIVATE_KEY_PATH"

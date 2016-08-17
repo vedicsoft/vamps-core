@@ -24,7 +24,7 @@ redisConfigs:
 
 dbConfigs:
  -
-  name : vamps
+  name : platform
   dialect : mysql
   username : root
   password : root

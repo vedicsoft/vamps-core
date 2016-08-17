@@ -24,7 +24,7 @@ redisConfigs:
 
 dbConfigs:
  -
-  name : vamps
+  name : platform
   dialect : sqlite3
   username : root
   password : root

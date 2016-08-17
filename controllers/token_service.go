@@ -56,7 +56,7 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser) 
 }
 
 func getUserId(user *models.SystemUser) int64 {
-	dbMap := commons.GetDBConnection(commons.USER_STORE_DB)
+	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
 	var userId sql.NullInt64
 	smtOut, err := dbMap.Db.Prepare("SELECT userid FROM vs_users WHERE username=? AND tenantid=?")
 	defer smtOut.Close()
@@ -71,7 +71,7 @@ func getUserId(user *models.SystemUser) int64 {
 }
 
 func getUserScopes(user *models.SystemUser) map[string][]string {
-	dbMap := commons.GetDBConnection(commons.USER_STORE_DB)
+	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
 	rows, err := dbMap.Db.Query("select name,action from vs_permissions where permissionid in (select vs_user_permissions.permissionid from vs_user_permissions where vs_user_permissions.userid = ?) order by name", user.UserId)
 	defer rows.Close()
 	if err != nil {
@@ -99,7 +99,7 @@ func getUserScopes(user *models.SystemUser) map[string][]string {
 }
 
 func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) bool {
-	dbMap := commons.GetDBConnection(commons.USER_STORE_DB)
+	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
 	var hashedPassword sql.NullString
 	smtOut, err := dbMap.Db.Prepare("SELECT password FROM vs_users where username=? AND tenantid=? AND status='active'")
 	defer smtOut.Close()

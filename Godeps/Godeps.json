@@ -66,6 +66,36 @@
 			"Rev": "337395e44efb4affc8bf11971e22acbd4e27a32d"
 		},
 		{
+			"ImportPath": "github.com/mattes/migrate/driver",
+			"Comment": "v1.2.0-70-gce1b59b",
+			"Rev": "ce1b59bb819416ca67422929b1cb48bb342720b6"
+		},
+		{
+			"ImportPath": "github.com/mattes/migrate/driver/mysql",
+			"Comment": "v1.2.0-70-gce1b59b",
+			"Rev": "ce1b59bb819416ca67422929b1cb48bb342720b6"
+		},
+		{
+			"ImportPath": "github.com/mattes/migrate/file",
+			"Comment": "v1.2.0-70-gce1b59b",
+			"Rev": "ce1b59bb819416ca67422929b1cb48bb342720b6"
+		},
+		{
+			"ImportPath": "github.com/mattes/migrate/migrate",
+			"Comment": "v1.2.0-70-gce1b59b",
+			"Rev": "ce1b59bb819416ca67422929b1cb48bb342720b6"
+		},
+		{
+			"ImportPath": "github.com/mattes/migrate/migrate/direction",
+			"Comment": "v1.2.0-70-gce1b59b",
+			"Rev": "ce1b59bb819416ca67422929b1cb48bb342720b6"
+		},
+		{
+			"ImportPath": "github.com/mattes/migrate/pipe",
+			"Comment": "v1.2.0-70-gce1b59b",
+			"Rev": "ce1b59bb819416ca67422929b1cb48bb342720b6"
+		},
+		{
 			"ImportPath": "github.com/mattn/go-sqlite3",
 			"Comment": "v1.1.0-76-gc3e9588",
 			"Rev": "c3e9588849195eefa783417c3a53d092f6e93526"

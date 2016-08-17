@@ -5,40 +5,72 @@ import (
 	"encoding/json"
 
 	log "github.com/Sirupsen/logrus"
-	_ "github.com/go-sql-driver/mysql"
+	//_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 	"gopkg.in/gorp.v1"
+
+	_ "github.com/mattes/migrate/driver/mysql"
+	"github.com/mattes/migrate/migrate"
 )
 
 const DIALECT_MYSQL string = "mysql"
 const DIALECT_SQLITE3 string = "sqlite3"
 
-var dbConnections map[string]*gorp.DbMap
+type DBConnection struct {
+	connectionURL string
+	dbMap         *gorp.DbMap
+}
 
-func GetDBConnection(dbName string) *gorp.DbMap {
+var dbConnections map[string]DBConnection
+
+func GetDBConnection(dbIdentifier string) *gorp.DbMap {
+	return dbConnections[dbIdentifier].dbMap
+}
+
+func GetDBDetailedConnection(dbName string) DBConnection {
 	return dbConnections[dbName]
 }
 
 func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
-	dbConnections = make(map[string]*gorp.DbMap)
-	var connectionUrl string
+	dbConnections = make(map[string]DBConnection)
+	var connectionURL string
 	var dialect gorp.Dialect
 	for dbName, dbConfig := range dbConfigs {
 		switch dbConfig.Dialect {
 		case DIALECT_MYSQL:
-			connectionUrl = dbConfig.Username + ":" + dbConfig.Password + "@tcp(" + dbConfig.Address + ")/" + dbConfig.DBName + dbConfig.Parameters
+			connectionURL = dbConfig.Username + ":" + dbConfig.Password + "@tcp(" + dbConfig.Address + ")/" +
+				dbConfig.DBName + dbConfig.Parameters
 			dialect = gorp.MySQLDialect{"InnoDB", "UTF8"}
 			break
 		case DIALECT_SQLITE3:
-			connectionUrl = dbConfig.Address
+			connectionURL = dbConfig.Address
 			dialect = gorp.SqliteDialect{}
 			break
 		}
-		db, err := sql.Open(dbConfig.Dialect, connectionUrl)
+		db, err := sql.Open(dbConfig.Dialect, connectionURL)
 		if err != nil {
-			log.Error("Error occourred while constructing a the DB connection to : " + connectionUrl + " with dialect:" + dbConfig.Dialect + " stack:" + err.Error())
+			log.Error("Error occurred while constructing a the DB connection to : " + connectionURL +
+				" with dialect:" + dbConfig.Dialect + " stack:" + err.Error())
 		}
-		dbConnections[dbName] = &gorp.DbMap{Db: db, Dialect: dialect}
+		dbConnections[dbName] = DBConnection{connectionURL, &gorp.DbMap{Db: db, Dialect: dialect}}
+	}
+}
+
+func UpgradeDBSchema(dbIdentifier string) {
+	connection := GetDBDetailedConnection(dbIdentifier)
+	allErrors, ok := migrate.UpSync("mysql://"+connection.connectionURL, GetServerHome()+"/resources/sql/"+
+		dbIdentifier)
+	if !ok {
+		log.Fatal("Error occurred while migrating the database :"+dbIdentifier, allErrors)
+	}
+}
+
+func DowngradeDBSchema(dbIdentifier string) {
+	connection := GetDBDetailedConnection(dbIdentifier)
+	allErrors, ok := migrate.DownSync("mysql://"+connection.connectionURL, GetServerHome()+"/resources/sql/"+
+		dbIdentifier)
+	if !ok {
+		log.Fatal("Error occurred while migrating the database :"+dbIdentifier, allErrors)
 	}
 }
 

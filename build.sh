@@ -33,6 +33,9 @@ goimports -w $(go list -f {{.Dir}} ./... | grep -v /vendor/)
 echo 'Running go vet'
 #godep go vet $(go list ./... | grep -v /vendor/)
 
+echo 'Discovering new dependencies'
+godep save ./...
+
 echo 'Installing dependencies. This might take some time...'
 godep go install $(go list ./... | grep -v /vendor/)
 
