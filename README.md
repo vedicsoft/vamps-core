@@ -1,42 +1,67 @@
-####How to setup vamps-core development environment
+##Development environment  setup
 
-* Install go-lang https://golang.org/
-* Make sure you have set GOPATH  variable. (This variable must not point to the project folder)
-* checkout the source code available at https://apremalal@bitbucket.org/apremalal/wifi-manager.git	
-* Execute wifi-manager/build.sh 
-    * This will create a distribution pack (wifi-manager.zip)
-* Installing the DataBase
-    * Create a database with name ‘dashboard’
-    * Update the wifi-manager/server/resources/scripts/setup_config.sh with your mysql server configurations
-    * Execute wifi-manager/server/resources/scripts/setup.sh
-* Default configuration files are config.default.yaml and redis.default.conf, to change and override the defaults, simply
-create new files config.yaml and redis.conf respectively and have your preferred configs. Do not change the default configuration files.
+* Install go-lang 1.6+ (https://golang.org/)
+* Make sure you have set GOPATH  variable.
+* Add GOPATH/bin to PATH variable
+* Clone the source code (https://github.com/vedicsoft/vamps-{component_name}.git) to {GOPATH}/src/github.com/vedicsoft/
 
-* To run the server execute wifi-manager/server/server.sh
-* To run the server in daemon mode run server.sh start
+## Configuring the DataBase
+* Create a database with name ‘vamps’ - change the `{PROJECT_ROOT}/server/configs/config.yaml` if you want to use a
+different database name
+* Default configuration file is `{PROJECT_ROOT}/server/configs/config.default.yaml` to change and override the
+defaults, simply create a new file called `config.yaml` at the same location and have your preferred configs. Do
+not change the default configuration file as it's being tracked by the git version control
 
-* Point your browser to https://localhost:8081/dashboard/
-* Username : admin@isl.com Password: admin
+## Configuring Redis
+* [Redis](http://redis.io/) is an open source (BSD licensed), in-memory data structure store, used as database, cache
+and message broker. This app use redis primarily as a JWT token storage.
+* Configure the `address` and `password` for redis in `config.yaml` file
+* This distribution contains an embedded redis instance(`{PROJECT_ROOT}/server/resources/.test/redis-server`) compiled
+for Ubuntu 64 bit 16.04 LTS. This is used for integration tests. You have to replace the `redis-server` binary with
+the matching redis server for the OS inorder to build the project with test cases.
+* To run in development mode you have to configure an external redis instance or use vamps-lb which has an embedded
+version of caddy
 
-#### Adding  a dummy data set
+## Configuring sqlite3 (needed only for the test cases)
+* This project use sqlite3 in-memory database to support integration tests
+* If you are running a different OS, you have to replace `{PROJECT_ROOT}/server/resources/.test/sqlite3` binary with
+the OS compatible version.
 
-* A dummy data set is located under wifi-manager/server/resources/sql/dummydata folder
+## Configuring Caddy web server
+* Caddy is a web server like Apache, nginx, or lighttpd, but with different goals, features, and advantages.
+* [Caddy](https://caddyserver.com/) is being used to serve the static files of this server.
+* We have embedded caddy with this distribution at `{PROJECT_ROOT}/server/webapps/caddy`
+* You must replace the binary with the compatible OS version.
 
-1. unzip portaldump.sql.zip and source the file to portal database
- > source portaldump.sql
-2. unzip sumarydump.sql.zip and source the file to portal database
- > source sumarydump.sql
+## Building the project
+* Make sure build.sh file have execute permission.
+    * If not provide it the execute permission `chmod +x build.sh`
+* Execute build.sh located at the project root directory.
+* Build project artifact can be found under {PROJECT_ROOT}/target folder
 
-#### IDE support for go-lang
+## Launching the product
+* After a successful build a static binary will be placed under {PROJECT_ROOT}/server/bin
+* To run the server execute `{PROJECT_ROOT}/server/bin/server.sh start`
+* Point your browser to https://localhost:{caddyPort}/{webappname}/
+* Default admin credentials
+ `Username : admin@super.com Password: admin`
 
-* https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins
+## IDE support for go-lang
+* [IDEs and Text editor plugins](https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins)
 
-#### Git & BitBucket
-* Please refer https://bitbucket.org/apremalal/wifi-manager/wiki/Home
-#### Configure Redis
-* Redis[1] is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker. This 
- app use redis primarily as a JWT token storage. 
-* This distribution contains an embedded redis instance compiled for Ubuntu 14.04 LTS. You have to replace thse redis-server 
-with the matching redis server for the OS.
+## Code review comments
+* build.sh script does the following for you
+1. `go fmt` - automatically fix the majority of mechanical style issues
+2. `goimport` -  a superset of gofmt which additionally adds (and removes) import lines as necessary
 
-[1] http://redis.io/
+The rest of [this document](https://github.com/golang/go/wiki/CodeReviewComments) addresses non-mechanical style points.
+This document has been prepared by the golang engineering team and it's a must to follow the comments much as possible.
+
+## Platform wiki and other resources
+* Please refer [platform wiki](https://github.com/vedicsoft/wiki)
+
+
+## API development
+* Every api should have a swagger definition - developer has to update {SERVER_HOME}/webapps/apieditor/api.yaml file
+with the new api.
+* Every api should have integration test covering api scenarios.
