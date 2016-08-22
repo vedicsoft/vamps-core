@@ -63,11 +63,10 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 		token, err := jwt.ParseFromRequest(
 			r,
 			func(token *jwt.Token) (interface{}, error) {
-				println(authBackend.PublicKey.E)
 				return authBackend.PublicKey, nil
 			})
 		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
-			w.WriteHeader(http.StatusUnauthorized)
+			w.WriteHeader(http.StatusForbidden)
 			return
 		} else {
 			sClaims, _ := json.Marshal(token.Claims["scopes"])

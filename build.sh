@@ -3,7 +3,6 @@ set -e
 
 PROJECT_NAME=${PWD##*/} #set current folder name as the project name
 PROJECT_ROOT=`pwd`
-export GOBIN="$PROJECT_ROOT"
 
 # setting SERVER_HOME for test cases
 HOME=`cd server;pwd`
@@ -21,6 +20,8 @@ command -v godep >/dev/null 2>&1 || { echo >&2 "godep required. Installing godep
 command -v goimports >/dev/null 2>&1 || { echo >&2 "goimports required. Installing goimports."; \
 go get golang.org/x/tools/cmd/goimports;}
 
+export GOBIN="$PROJECT_ROOT"
+
 rm -rf ${PROJECT_ROOT}/target
 mkdir -p ${PROJECT_ROOT}/target
 
@@ -34,7 +35,7 @@ echo 'Running go vet'
 #godep go vet $(go list ./... | grep -v /vendor/)
 
 echo 'Discovering new dependencies'
-godep save ./...
+godep save $(go list ./... | grep -v /vendor/)
 
 echo 'Installing dependencies. This might take some time...'
 godep go install $(go list ./... | grep -v /vendor/)

@@ -27,6 +27,55 @@ CREATE TABLE IF NOT EXISTS `vs_users` (
 )
   ENGINE = InnoDB;
 
+CREATE TABLE IF NOT EXISTS `vs_groups` (
+  `groupid`         INT          NOT NULL AUTO_INCREMENT,
+  `tenantid`        INT,
+  `name`            VARCHAR(255) NOT NULL,
+  `description`     VARCHAR(255)          DEFAULT NULL,
+  `createdon`       DATE,
+  `lastupdatedtime` TIMESTAMP,
+  PRIMARY KEY (`groupid`),
+  UNIQUE (`tenantid`, `name`),
+  FOREIGN KEY (tenantid) REFERENCES vs_tenants (tenantid)
+    ON DELETE CASCADE
+)
+  ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `vs_policies` (
+  `policyid`        INT          NOT NULL AUTO_INCREMENT,
+  `tenantid`        INT,
+  `name`            VARCHAR(255) NOT NULL,
+  `description`     VARCHAR(255)          DEFAULT NULL,
+  `createdon`       DATE,
+  `lastupdatedtime` TIMESTAMP,
+  PRIMARY KEY (`policyid`),
+  UNIQUE (`tenantid`, `name`),
+  FOREIGN KEY (tenantid) REFERENCES vs_tenants (tenantid)
+    ON DELETE CASCADE
+)
+  ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `vs_user_groups` (
+  `groupid` INT,
+  `userid`       INT,
+  FOREIGN KEY (userid) REFERENCES vs_users (userid)
+    ON DELETE CASCADE,
+  FOREIGN KEY (groupid) REFERENCES vs_groups (groupid)
+    ON DELETE CASCADE
+)
+  ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `vs_user_policies` (
+  `policyid` INT,
+  `userid`       INT,
+  FOREIGN KEY (userid) REFERENCES vs_users (userid)
+    ON DELETE CASCADE,
+  FOREIGN KEY (policyid) REFERENCES vs_policies (ploicyid)
+    ON DELETE CASCADE
+)
+  ENGINE = InnoDB;
+
+
 CREATE TABLE IF NOT EXISTS `vs_permissions` (
   `permissionid` INT NOT NULL AUTO_INCREMENT,
   `tenantid`     INT,

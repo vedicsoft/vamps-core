@@ -3,7 +3,14 @@
 	"GoVersion": "go1.6",
 	"GodepVersion": "v62",
 	"Packages": [
-		"./..."
+		"github.com/vedicsoft/vamps-core",
+		"github.com/vedicsoft/vamps-core/api",
+		"github.com/vedicsoft/vamps-core/api_test",
+		"github.com/vedicsoft/vamps-core/commons",
+		"github.com/vedicsoft/vamps-core/controllers",
+		"github.com/vedicsoft/vamps-core/models",
+		"github.com/vedicsoft/vamps-core/redis",
+		"github.com/vedicsoft/vamps-core/routes"
 	],
 	"Deps": [
 		{

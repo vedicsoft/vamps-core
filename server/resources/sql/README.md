@@ -2,7 +2,7 @@
 Note : applied only for sql schemas. Internally we make use of [mattes/migrate](https://github.com/mattes/migrate)
 library, and the migration code is in commons/database.go
 
-## Introduce new schema changes to sql database
+## Introducing schema changes to sql database
 
 1. create a new file 00n_platform.up.sql where n is the latest file number
 2. Add the schema changes to that
