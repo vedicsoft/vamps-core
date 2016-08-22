@@ -1,8 +1,6 @@
 package routes
 
-import (
-	"github.com/vedicsoft/vamps-core/models"
-)
+import "github.com/vedicsoft/vamps-core/models"
 
 var ApplicationRoutes models.Routes
 
