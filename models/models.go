@@ -32,10 +32,10 @@ type SystemUser struct {
 type WifiUser struct {
 	UserId          int64              `db:"userid"json:"user_id"`
 	TenantId        int                `db:"tenantid"`
-	Username        commons.NullString `db:"username"json:"username"`
-	Password        commons.NullString `db:"password"json:"password"`
-	Email           commons.NullString `db:"email"json:"email"`
-	AccountStatus   commons.NullString `db:"account_status"json:"account_status"`
+	Username        string             `db:"username"json:"username"`
+	Password        string             `db:"password"json:"password"`
+	Email           string             `db:"email"json:"email"`
+	AccountStatus   string             `db:"account_status"json:"account_status"`
 	FirstName       commons.NullString `db:"first_name"json:"first_name"`
 	LastName        commons.NullString `db:"last_name"json:"last_name"`
 	Gender          commons.NullString `db:"gender"json:"gender"`

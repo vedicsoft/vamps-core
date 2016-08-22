@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `wf_users` (
   `username`         VARCHAR(255),
   `password`         VARCHAR(255),
   `email`            VARCHAR(255) NOT NULL UNIQUE,
-  `account_status`   VARCHAR(255)          DEFAULT NULL,
+  `account_status`   VARCHAR(255)          DEFAULT 'inactive',
   `first_name`       VARCHAR(255)          DEFAULT NULL,
   `last_name`        VARCHAR(255)          DEFAULT NULL,
   `gender`           VARCHAR(255)          DEFAULT NULL,
