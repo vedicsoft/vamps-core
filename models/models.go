@@ -40,9 +40,9 @@ type WifiUser struct {
 	LastName        commons.NullString `db:"last_name"json:"last_name"`
 	Gender          commons.NullString `db:"gender"json:"gender"`
 	BirthDay        commons.NullString `db:"birthday"json:"birthday"`
-	Age             int                `db:"age"json:"age"`
-	AgeUpper        int                `db:"age_upper"json:"age_upper"`
-	AgeLower        int                `db:"age_lower"json:"age_lower"`
+	Age             commons.NullInt64  `db:"age"json:"age"`
+	AgeUpper        commons.NullInt64  `db:"age_upper"json:"age_upper"`
+	AgeLower        commons.NullInt64  `db:"age_lower"json:"age_lower"`
 	Religion        commons.NullString `db:"religion"json:"religion"`
 	Occupation      commons.NullString `db:"occupation"json:"occupation"`
 	MaritalStatus   commons.NullString `db:"marital_status"json:"marital_status"`
