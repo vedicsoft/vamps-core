@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS `vs_user_policies` (
   `userid`       INT,
   FOREIGN KEY (userid) REFERENCES vs_users (userid)
     ON DELETE CASCADE,
-  FOREIGN KEY (policyid) REFERENCES vs_policies (ploicyid)
+  FOREIGN KEY (policyid) REFERENCES vs_policies (policyid)
     ON DELETE CASCADE
 )
   ENGINE = InnoDB;
