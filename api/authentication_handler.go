@@ -6,14 +6,19 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/controllers"
 	"github.com/vedicsoft/vamps-core/models"
 )
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) *commons.AppError {
 	requestUser := new(models.SystemUser)
 	decoder := json.NewDecoder(r.Body)
-	decoder.Decode(&requestUser)
+	err := decoder.Decode(&requestUser)
+
+	if err != nil {
+		return &commons.AppError{err, "Can't display record", 500}
+	}
 
 	results := strings.Split(requestUser.Username, "@")
 	if len(results) > 1 {
@@ -28,6 +33,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(responseStatus)
 	w.Write(token)
+	return &commons.AppError{err, "Can't display record", 500}
 }
 
 func RefreshToken(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {

@@ -1,0 +1,29 @@
+{
+  "id": "as34er4f",
+  "statements": [{
+    "effect": "allow",
+    "actions": [
+      "policy.users.get",
+      "policy.*.put",
+      "policy.policies.get"
+    ],
+    "resources": ["*"],
+    "conditions": [{
+      "source": "request.body",
+      "StringEquals": {
+        "ssids": ["development", "test"]
+      },
+      "DateGreaterThan": {
+        "To": "2014/05/12"
+      }
+    }]
+  }, {
+    "effect": "denied",
+    "actions": [
+      "policy.users.get",
+      "policy.*.put",
+      "policy.policies.get"
+    ],
+    "resources": ["*"]
+  }]
+}

@@ -13,11 +13,11 @@ var AuthenticationRoutes = models.Routes{
 		Secured:     false,
 		HandlerFunc: dashboard_handlers.Login,
 	},
-	models.Route{
-		Name:        "Logout",
-		Method:      "POST",
-		Pattern:     "/logout",
-		Secured:     true,
-		HandlerFunc: dashboard_handlers.Logout,
-	},
+	//models.Route{
+	//	Name:        "Logout",
+	//	Method:      "POST",
+	//	Pattern:     "/logout",
+	//	Secured:     true,
+	//	HandlerFunc: dashboard_handlers.Logout,
+	//},
 }

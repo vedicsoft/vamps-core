@@ -1,8 +1,6 @@
 package models
 
 import (
-	"net/http"
-
 	"github.com/vedicsoft/vamps-core/commons"
 )
 
@@ -77,7 +75,7 @@ type Route struct {
 	Method      string
 	Pattern     string
 	Secured     bool
-	HandlerFunc http.HandlerFunc
+	HandlerFunc commons.ErrorHandler
 }
 
 type Routes []Route

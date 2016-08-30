@@ -8,7 +8,6 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/gorilla/handlers"
 	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/routes"
 )
@@ -34,9 +33,9 @@ func main() {
 		log.Fatalf("Error while trying to open the access log file: %v", err)
 	}
 
-	if commons.ServerConfigurations.EnableAccessLogs {
-		logHandler = handlers.LoggingHandler(httpAccessLogFile, http.DefaultServeMux)
-	}
+	//if commons.ServerConfigurations.EnableAccessLogs {
+	//	logHandler = handlers.LoggingHandler(httpAccessLogFile, http.DefaultServeMux)
+	//}
 
 	defer serverLogFile.Close()
 	defer httpAccessLogFile.Close()
@@ -53,12 +52,12 @@ func main() {
 
 	//Starting the API server
 	router := routes.NewRouter()
-	http.Handle("/", router)
+	//http.Handle("/", router)
 
 	httpsServer := &http.Server{
 		Addr: ":" + strconv.Itoa(commons.ServerConfigurations.HttpsPort+
 			commons.ServerConfigurations.PortOffset),
-		Handler:        logHandler,
+		Handler:        router,
 		ReadTimeout:    time.Duration(commons.ServerConfigurations.ReadTimeOut) * time.Second,
 		WriteTimeout:   time.Duration(commons.ServerConfigurations.WriteTimeOut) * time.Second,
 		MaxHeaderBytes: 1 << 20,
