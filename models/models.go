@@ -75,7 +75,7 @@ type Route struct {
 	Method      string
 	Pattern     string
 	Secured     bool
-	HandlerFunc commons.ErrorHandler
+	HandlerFunc commons.AppHandler
 }
 
 type Routes []Route

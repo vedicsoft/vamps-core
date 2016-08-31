@@ -23,22 +23,11 @@ func main() {
 	}
 
 	// Log as JSON instead of the default ASCII formatter.
-	log.SetFormatter(&log.JSONFormatter{})
+	log.SetFormatter(&log.TextFormatter{})
 	log.SetOutput(serverLogFile)
 	log.SetLevel(log.DebugLevel)
 
-	httpAccessLogFile, err := os.OpenFile(commons.ServerConfigurations.LogsDirectory+"/"+commons.ACCESS_LOG_FILE_NAME,
-		os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("Error while trying to open the access log file: %v", err)
-	}
-
-	//if commons.ServerConfigurations.EnableAccessLogs {
-	//	logHandler = handlers.LoggingHandler(httpAccessLogFile, http.DefaultServeMux)
-	//}
-
 	defer serverLogFile.Close()
-	defer httpAccessLogFile.Close()
 
 	commons.ConstructConnectionPool(commons.ServerConfigurations.DBConfigMap)
 
@@ -52,7 +41,6 @@ func main() {
 
 	//Starting the API server
 	router := routes.NewRouter()
-	//http.Handle("/", router)
 
 	httpsServer := &http.Server{
 		Addr: ":" + strconv.Itoa(commons.ServerConfigurations.HttpsPort+

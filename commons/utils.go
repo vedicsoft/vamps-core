@@ -3,14 +3,9 @@ package commons
 import (
 	"net/http"
 	"strconv"
-
-	log "github.com/Sirupsen/logrus"
 )
 
-func GetTenantId(r *http.Request) int {
+func GetTenantId(r *http.Request) (int, error) {
 	tenantId, err := strconv.Atoi(r.Header.Get("tenantid"))
-	if err != nil {
-		log.Error("Error while reading tenantid from request header", err)
-	}
-	return tenantId
+	return tenantId, err
 }

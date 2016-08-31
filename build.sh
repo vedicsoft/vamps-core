@@ -40,8 +40,23 @@ godep save $(go list ./... | grep -v /vendor/)
 echo 'Installing dependencies. This might take some time...'
 godep go install $(go list ./... | grep -v /vendor/)
 
+RUN_TEST=1
+while getopts ":t" opt; do
+  case $opt in
+    t)
+      echo "Skipping test cases" >&2
+      RUN_TEST=0
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+
+if [ ${RUN_TEST} = 1 ]; then
 echo "Executing test"
-godep go test -v $(go list ./... | grep -v /vendor/)
+     godep go test -v $(go list ./... | grep -v /vendor/)
+fi
 
 mv ${PROJECT_NAME} ${PROJECT_ROOT}/server/bin/server.bin
 

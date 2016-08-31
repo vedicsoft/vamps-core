@@ -1,8 +1,10 @@
 package commons
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type AppError struct {
@@ -11,11 +13,16 @@ type AppError struct {
 	Code    int
 }
 
-type ErrorHandler func(http.ResponseWriter, *http.Request) *AppError
+func (z AppError) String() string {
+	b, _ := json.Marshal(z)
+	return string(b)
+}
 
-func (fn ErrorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if e := fn(w, r); e != nil { // e is *appError, not os.Error.
-		fmt.Println(">>>>>>>>>>>>>>>>>")
+type AppHandler func(http.ResponseWriter, *http.Request) *AppError
+
+func (fn AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if e := fn(w, r); e != nil {
+		log.Error(e.String())
 		http.Error(w, e.Message, e.Code)
 	}
 }

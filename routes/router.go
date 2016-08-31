@@ -1,8 +1,6 @@
 package routes
 
 import (
-	//"net/http"
-
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -15,6 +13,7 @@ func NewRouter() *mux.Router {
 	for _, route := range ApplicationRoutes {
 		var handler http.Handler
 		handler = route.HandlerFunc
+		// caddy is logging the access
 		//handler = Logger(handler, route.Name)
 		if route.Secured {
 			handler = controllers.RequireTokenAuthentication(handler)

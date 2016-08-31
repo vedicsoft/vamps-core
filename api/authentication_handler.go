@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/controllers"
 	"github.com/vedicsoft/vamps-core/models"
@@ -15,11 +14,9 @@ func Login(w http.ResponseWriter, r *http.Request) *commons.AppError {
 	requestUser := new(models.SystemUser)
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&requestUser)
-
 	if err != nil {
-		return &commons.AppError{err, "Can't display record", 500}
+		return &commons.AppError{err, "Unable to decode the json request body", 500}
 	}
-
 	results := strings.Split(requestUser.Username, "@")
 	if len(results) > 1 {
 		requestUser.Username = results[0]
@@ -28,29 +25,31 @@ func Login(w http.ResponseWriter, r *http.Request) *commons.AppError {
 		//setting default
 		requestUser.TenantDomain = "super.com"
 	}
-
 	responseStatus, token := controllers.Login(requestUser)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(responseStatus)
 	w.Write(token)
-	return &commons.AppError{err, "Can't display record", 500}
+	return nil
 }
 
-func RefreshToken(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func RefreshToken(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) *commons.AppError {
 	requestUser := new(models.SystemUser)
 	decoder := json.NewDecoder(r.Body)
-	decoder.Decode(&requestUser)
-
+	err := decoder.Decode(&requestUser)
+	if err != nil {
+		return &commons.AppError{err, "Unable to decode the json request body", 500}
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(controllers.RefreshToken(requestUser))
+	return nil
 }
 
-func Logout(w http.ResponseWriter, r *http.Request) {
+func Logout(w http.ResponseWriter, r *http.Request) *commons.AppError {
 	err := controllers.Logout(r)
 	if err != nil {
-		log.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		return &commons.AppError{err, "Unable to logout", 500}
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
+	return nil
 }
