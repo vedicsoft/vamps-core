@@ -5,7 +5,6 @@ DATE_COMMAND=$(which date)
 TIME_STAMP=`${DATE_COMMAND} '+%Y-%m-%d.%H:%M:%S'`
 CURRENT_DIR=`pwd`
 SERVER_HOME=`cd ..;pwd`
-export CONF_FILE="fgfg"
 export SERVER_HOME
 
 function default_(){
@@ -24,9 +23,16 @@ function start_(){
 
 function stop_(){
     if [ -f server.pid ]; then
-        kill -9 `cat server.pid`
-        echo "server stopped successfully!"
-        rm -rf server.pid
+       if  kill -9 `cat server.pid` ; then
+            echo "server stopped successfully!"
+       fi
+       rm -rf server.pid
+    fi
+    if [ -f caddy.pid ]; then
+        if kill -9 `cat caddy.pid`; then
+            echo "caddy stopped successfully!"
+        fi
+        rm -rf caddy.pid
     fi
 }
 
