@@ -66,6 +66,7 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 				return authBackend.PublicKey, nil
 			})
 		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
+			log.Debug("Authentication failed " + err.Error())
 			w.WriteHeader(http.StatusForbidden)
 			return
 		} else {
