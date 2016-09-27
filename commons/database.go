@@ -11,10 +11,12 @@ import (
 
 	_ "github.com/mattes/migrate/driver/mysql"
 	"github.com/mattes/migrate/migrate"
+	"gopkg.in/mgo.v2"
 )
 
 const DIALECT_MYSQL string = "mysql"
 const DIALECT_SQLITE3 string = "sqlite3"
+const DIALECT_MONGO  string = "mongodb"
 
 type DBConnection struct {
 	connectionURL string
@@ -22,6 +24,8 @@ type DBConnection struct {
 }
 
 var dbConnections map[string]DBConnection
+var mongoConnectionUrl string;
+var mgoSession   *mgo.Session;
 
 func GetDBConnection(dbIdentifier string) *gorp.DbMap {
 	return dbConnections[dbIdentifier].dbMap
@@ -29,6 +33,17 @@ func GetDBConnection(dbIdentifier string) *gorp.DbMap {
 
 func GetDBDetailedConnection(dbName string) DBConnection {
 	return dbConnections[dbName]
+}
+
+func GetMongoSession() *mgo.Session {
+	if mgoSession == nil {
+		var err error
+		mgoSession, err = mgo.Dial(mongoConnectionUrl)
+		if err != nil {
+			log.Fatal("Failed to start the Mongo session")
+		}
+	}
+	return mgoSession.Clone()
 }
 
 func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
@@ -46,6 +61,10 @@ func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
 			connectionURL = dbConfig.Address
 			dialect = gorp.SqliteDialect{}
 			break
+		case DIALECT_MONGO:
+			//mongoConnectionUrl = "mongodb://"+ dbConfig.Username+":"+ dbConfig.Password+"@"+dbConfig.Address
+			mongoConnectionUrl = "mongodb://"+dbConfig.Address
+			continue;
 		}
 		db, err := sql.Open(dbConfig.Dialect, connectionURL)
 		if err != nil {
