@@ -16,7 +16,7 @@ import (
 
 const DIALECT_MYSQL string = "mysql"
 const DIALECT_SQLITE3 string = "sqlite3"
-const DIALECT_MONGO  string = "mongodb"
+const DIALECT_MONGO string = "mongodb"
 
 type DBConnection struct {
 	connectionURL string
@@ -24,8 +24,8 @@ type DBConnection struct {
 }
 
 var dbConnections map[string]DBConnection
-var mongoConnectionUrl string;
-var mgoSession   *mgo.Session;
+var mongoConnectionUrl string
+var mgoSession *mgo.Session
 
 func GetDBConnection(dbIdentifier string) *gorp.DbMap {
 	return dbConnections[dbIdentifier].dbMap
@@ -63,8 +63,8 @@ func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
 			break
 		case DIALECT_MONGO:
 			//mongoConnectionUrl = "mongodb://"+ dbConfig.Username+":"+ dbConfig.Password+"@"+dbConfig.Address
-			mongoConnectionUrl = "mongodb://"+dbConfig.Address
-			continue;
+			mongoConnectionUrl = "mongodb://" + dbConfig.Address
+			continue
 		}
 		db, err := sql.Open(dbConfig.Dialect, connectionURL)
 		if err != nil {
