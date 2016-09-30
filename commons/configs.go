@@ -70,7 +70,7 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 	viper.SetConfigFile(parseConfigTemplate(configFileUrl, ServerConfigurations.Home))
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {
-		log.Error("Error while reading server configuration file: %s \n", err)
+		log.Error("Error while reading server configuration file: %s err: %s \n", configFileUrl, err)
 	}
 
 	configsMap := viper.GetStringMap("serverConfigs")
