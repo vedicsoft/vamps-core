@@ -27,34 +27,35 @@ type SystemUser struct {
 	Roles        []string `json:"roles"`
 }
 
-type WifiUser struct {
-	UserId          int64              `db:"userid"json:"user_id"`
-	TenantId        int                `db:"tenantid"`
-	Username        string             `db:"username"json:"username"`
-	Password        string             `db:"password"json:"password"`
-	Email           string             `db:"email"json:"email"`
-	AccountStatus   string             `db:"account_status"json:"account_status"`
-	FirstName       commons.NullString `db:"first_name"json:"first_name"`
-	LastName        commons.NullString `db:"last_name"json:"last_name"`
-	Gender          commons.NullString `db:"gender"json:"gender"`
-	BirthDay        commons.NullString `db:"birthday"json:"birthday"`
-	Age             commons.NullInt64  `db:"age"json:"age"`
-	AgeUpper        commons.NullInt64  `db:"age_upper"json:"age_upper"`
-	AgeLower        commons.NullInt64  `db:"age_lower"json:"age_lower"`
-	Religion        commons.NullString `db:"religion"json:"religion"`
-	Occupation      commons.NullString `db:"occupation"json:"occupation"`
-	MaritalStatus   commons.NullString `db:"marital_status"json:"marital_status"`
-	ProfileImage    commons.NullString `db:"profile_image"json:"profile_image"`
-	MobileNUmber    commons.NullString `db:"mobile_number"json:"mobile_number"`
-	AdminNotes      commons.NullString `db:"admin_notes"json:"admin_notes"`
-	LastUpdatedTime commons.NullString `db:"last_updatedtime"json:"last_updated_time"`
+type Subscriber struct {
+	UserId        int64              `db:"userid"json:"user_id"`
+	TenantId      int                `db:"tenantid"`
+	Username      string             `db:"username"json:"username"`
+	Password      string             `db:"password"json:"password"`
+	Email         string             `db:"email"json:"email"`
+	AccountStatus string             `db:"account_status"json:"accountStatus"`
+	FirstName     commons.NullString `db:"first_name"json:"firstName"`
+	LastName      commons.NullString `db:"last_name"json:"lastName"`
+	Gender        commons.NullString `db:"gender"json:"gender"`
+	BirthDay      commons.NullString `db:"birthday"json:"birthday"`
+	Age           commons.NullInt64  `db:"age"json:"age"`
+	AgeUpper      commons.NullInt64  `db:"age_upper"json:"ageUpper"`
+	AgeLower      commons.NullInt64  `db:"age_lower"json:"ageLower"`
+	Religion      commons.NullString `db:"religion"json:"religion"`
+	Occupation    commons.NullString `db:"occupation"json:"occupation"`
+	MaritalStatus commons.NullString `db:"marital_status"json:"maritalStatus"`
+	ProfileImage  commons.NullString `db:"profile_image"json:"profileImage"`
+	MobileNUmber  commons.NullString `db:"mobile_number"json:"mobileNumber"`
+	AdminNotes    commons.NullString `db:"admin_notes"json:"adminNotes"`
+	Created       commons.NullString `db:"created"json:"created"`
+	Updated       commons.NullString `db:"updated"json:"updated"`
 }
 
 type DataTablesResponse struct {
-	Draw            int        `json:"draw"`
-	RecordsTotal    int64      `json:"recordsTotal"`
-	RecordsFiltered int64      `json:"recordsFiltered"`
-	Data            []WifiUser `json:"data"`
+	Draw            int          `json:"draw"`
+	RecordsTotal    int64        `json:"recordsTotal"`
+	RecordsFiltered int64        `json:"recordsFiltered"`
+	Data            []Subscriber `json:"data"`
 	Error           string
 }
 
