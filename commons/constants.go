@@ -8,6 +8,7 @@ const CONFIG_FILE_NAME string = "config.yaml"
 const SERVER_CONFIGS_DIRECTORY = "configs"
 const PLATFORM_DB string = "platform"
 const USER_STORE_DB string = "userstore"
+const USAGE_DB string = "usage"
 
 const JWT_PRIVATE_KEY_FILE string = "JWT_PRIVATE_KEY_PATH"
 const JWT_PUBLIC_KEY_FILE string = "JWT_PUBLIC_KEY_PATH"
