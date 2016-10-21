@@ -28,7 +28,7 @@ type SystemUser struct {
 }
 
 type Subscriber struct {
-	SubscriberID  int64              `db:"userid"json:"user_id"`
+	SubscriberID  int64              `db:"subscriberid"json:"subscriberid"`
 	TenantID      int                `db:"tenantid"`
 	Username      string             `db:"username"json:"username"`
 	Password      string             `db:"password"json:"password"`
