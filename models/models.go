@@ -28,28 +28,28 @@ type SystemUser struct {
 }
 
 type Subscriber struct {
-	SubscriberID  int64                `db:"userid"json:"user_id"`
-	TenantID      int                  `db:"tenantid"`
-	Username      string               `db:"username"json:"username"`
-	Password      string               `db:"password"json:"password"`
-	Email         string               `db:"email"json:"email"`
-	AccountStatus string               `db:"account_status"json:"accountStatus"`
-	FirstName     commons.NullString   `db:"first_name"json:"firstName"`
-	LastName      commons.NullString   `db:"last_name"json:"lastName"`
-	Gender        commons.NullString   `db:"gender"json:"gender"`
-	BirthDay      commons.NullString   `db:"birthday"json:"birthday"`
-	Age           commons.NullInt64    `db:"age"json:"age"`
-	AgeUpper      commons.NullInt64    `db:"age_upper"json:"ageUpper"`
-	AgeLower      commons.NullInt64    `db:"age_lower"json:"ageLower"`
-	Religion      commons.NullString   `db:"religion"json:"religion"`
-	Occupation    commons.NullString   `db:"occupation"json:"occupation"`
-	MaritalStatus commons.NullString   `db:"marital_status"json:"maritalStatus"`
-	ProfileImage  commons.NullString   `db:"profile_image"json:"profileImage"`
-	MobileNUmber  commons.NullString   `db:"mobile_number"json:"mobileNumber"`
-	AdminNotes    commons.NullString   `db:"admin_notes"json:"adminNotes"`
-	Groups        []commons.NullString `json:"groups"`
-	Created       commons.NullString   `db:"created"json:"created"`
-	Updated       commons.NullString   `db:"updated"json:"updated"`
+	SubscriberID  int64              `db:"userid"json:"user_id"`
+	TenantID      int                `db:"tenantid"`
+	Username      string             `db:"username"json:"username"`
+	Password      string             `db:"password"json:"password"`
+	Email         string             `db:"email"json:"email"`
+	AccountStatus string             `db:"account_status"json:"accountStatus"`
+	FirstName     commons.NullString `db:"first_name"json:"firstName"`
+	LastName      commons.NullString `db:"last_name"json:"lastName"`
+	Gender        commons.NullString `db:"gender"json:"gender"`
+	BirthDay      commons.NullString `db:"birthday"json:"birthday"`
+	Age           commons.NullInt64  `db:"age"json:"age"`
+	AgeUpper      commons.NullInt64  `db:"age_upper"json:"ageUpper"`
+	AgeLower      commons.NullInt64  `db:"age_lower"json:"ageLower"`
+	Religion      commons.NullString `db:"religion"json:"religion"`
+	Occupation    commons.NullString `db:"occupation"json:"occupation"`
+	MaritalStatus commons.NullString `db:"marital_status"json:"maritalStatus"`
+	ProfileImage  commons.NullString `db:"profile_image"json:"profileImage"`
+	MobileNUmber  commons.NullString `db:"mobile_number"json:"mobileNumber"`
+	AdminNotes    commons.NullString `db:"admin_notes"json:"adminNotes"`
+	Groups        []string           `json:"groups"`
+	Created       commons.NullString `db:"created"json:"created"`
+	Updated       commons.NullString `db:"updated"json:"updated"`
 }
 
 type DataTablesResponse struct {
