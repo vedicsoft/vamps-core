@@ -29,7 +29,7 @@ type SystemUser struct {
 
 type Subscriber struct {
 	UserId        int64              `db:"userid"json:"user_id"`
-	TenantId      int                `db:"tenantid"`
+	TenantID      int                `db:"tenantid"`
 	Username      string             `db:"username"json:"username"`
 	Password      string             `db:"password"json:"password"`
 	Email         string             `db:"email"json:"email"`
@@ -47,8 +47,9 @@ type Subscriber struct {
 	ProfileImage  commons.NullString `db:"profile_image"json:"profileImage"`
 	MobileNUmber  commons.NullString `db:"mobile_number"json:"mobileNumber"`
 	AdminNotes    commons.NullString `db:"admin_notes"json:"adminNotes"`
-	Created       commons.NullString `db:"created"json:"created"`
-	Updated       commons.NullString `db:"updated"json:"updated"`
+
+	Created commons.NullString `db:"created"json:"created"`
+	Updated commons.NullString `db:"updated"json:"updated"`
 }
 
 type DataTablesResponse struct {
