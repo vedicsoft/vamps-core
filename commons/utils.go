@@ -46,6 +46,6 @@ func NormalizeMAC(mac string) (string, error) {
 }
 
 func IsValidMAC(mac string) (bool, error) {
-	match, err := regexp.MatchString("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", "aa-11-bb-ee-cc-23")
+	match, err := regexp.MatchString("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", mac)
 	return match, err
 }
