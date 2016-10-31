@@ -8,6 +8,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/viper"
+	"gopkg.in/gorp.v1"
 )
 
 type serverConfigs struct {
@@ -54,6 +55,10 @@ var ServerConfigurations serverConfigs
 
 func init() {
 	InitConfigurations(os.Getenv(CONFIG_FILE))
+}
+
+func GetDBConnection(dbIdentifier string) *gorp.DbMap {
+	return dbConnections[dbIdentifier].dbMap
 }
 
 func InitConfigurations(configFileUrl string) serverConfigs {
