@@ -5,12 +5,9 @@ import (
 	"encoding/json"
 
 	log "github.com/Sirupsen/logrus"
-	//_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 	"gopkg.in/gorp.v1"
-
-	_ "github.com/mattes/migrate/driver/mysql"
-	"github.com/mattes/migrate/migrate"
 	"gopkg.in/mgo.v2"
 )
 
@@ -26,10 +23,6 @@ type DBConnection struct {
 var dbConnections map[string]DBConnection
 var mongoConnectionUrl string
 var mgoSession *mgo.Session
-
-func GetDBConnection(dbIdentifier string) *gorp.DbMap {
-	return dbConnections[dbIdentifier].dbMap
-}
 
 func GetDBDetailedConnection(dbName string) DBConnection {
 	return dbConnections[dbName]
@@ -72,24 +65,6 @@ func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
 				" with dialect:" + dbConfig.Dialect + " stack:" + err.Error())
 		}
 		dbConnections[dbName] = DBConnection{connectionURL, &gorp.DbMap{Db: db, Dialect: dialect}}
-	}
-}
-
-func UpgradeDBSchema(dbIdentifier string) {
-	connection := GetDBDetailedConnection(dbIdentifier)
-	allErrors, ok := migrate.UpSync("mysql://"+connection.connectionURL, GetServerHome()+"/resources/sql/"+
-		dbIdentifier)
-	if !ok {
-		log.Fatal("Error occurred while migrating the database :"+dbIdentifier, allErrors)
-	}
-}
-
-func DowngradeDBSchema(dbIdentifier string) {
-	connection := GetDBDetailedConnection(dbIdentifier)
-	allErrors, ok := migrate.DownSync("mysql://"+connection.connectionURL, GetServerHome()+"/resources/sql/"+
-		dbIdentifier)
-	if !ok {
-		log.Fatal("Error occurred while migrating the database :"+dbIdentifier, allErrors)
 	}
 }
 
