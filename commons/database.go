@@ -28,15 +28,15 @@ func GetDBDetailedConnection(dbName string) DBConnection {
 	return dbConnections[dbName]
 }
 
-func GetMongoSession() *mgo.Session {
+func GetMongoSession() (*mgo.Session, error) {
 	if mgoSession == nil {
 		var err error
 		mgoSession, err = mgo.Dial(mongoConnectionUrl)
 		if err != nil {
-			log.Fatal("Failed to start the Mongo session")
+			return nil, err
 		}
 	}
-	return mgoSession.Clone()
+	return mgoSession.Clone(), nil
 }
 
 func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
@@ -56,7 +56,7 @@ func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
 			break
 		case DIALECT_MONGO:
 			//mongoConnectionUrl = "mongodb://"+ dbConfig.Username+":"+ dbConfig.Password+"@"+dbConfig.Address
-			mongoConnectionUrl = "mongodb://" + dbConfig.Address
+			mongoConnectionUrl = "mongodb://" + dbConfig.Username + ":" + dbConfig.Password + "@" + dbConfig.Address
 			continue
 		}
 		db, err := sql.Open(dbConfig.Dialect, connectionURL)
