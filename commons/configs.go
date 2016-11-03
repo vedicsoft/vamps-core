@@ -34,6 +34,7 @@ type serverConfigs struct {
 	EnableAccessLogs   bool
 	LogsDirectory      string
 	DBConfigMap        map[string]DBConfigs
+	ConfigMap          map[string]interface{}
 	RedisConfigs       RedisConfigs
 }
 
@@ -61,6 +62,10 @@ func GetDBConnection(dbIdentifier string) *gorp.DbMap {
 	return dbConnections[dbIdentifier].dbMap
 }
 
+func (config *serverConfigs) GetString(identifier string) string {
+	return (*config).ConfigMap[identifier].(string)
+}
+
 func InitConfigurations(configFileUrl string) serverConfigs {
 	ServerConfigurations.Home = GetServerHome()
 	//read the configurations from the file url instead of searching through the paths
@@ -79,6 +84,7 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 	}
 
 	configsMap := viper.GetStringMap("serverConfigs")
+	ServerConfigurations.ConfigMap = configsMap
 	ServerConfigurations.Prefix = configsMap["prefix"].(string)
 	SERVER_PREFIX := ServerConfigurations.Prefix
 	ServerConfigurations.IsMaster = configsMap["isMaster"].(bool)
