@@ -131,10 +131,15 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 
 //fill the configuration file template with the the template parameters
 func parseConfigTemplate(configFileUrl, serverHome string) string {
-	parsedConfigFile := filepath.FromSlash(ServerConfigurations.Home + FILE_PATH_SEPARATOR + "configs" + FILE_PATH_SEPARATOR + ".tmp" + FILE_PATH_SEPARATOR + CONFIG_FILE_NAME)
+	parsedConfigFolder := filepath.FromSlash(ServerConfigurations.Home + FILE_PATH_SEPARATOR + "configs" +
+		FILE_PATH_SEPARATOR + ".tmp")
+	parsedConfigFile := filepath.FromSlash(parsedConfigFolder + FILE_PATH_SEPARATOR + CONFIG_FILE_NAME)
 	template, err := template.ParseFiles(filepath.FromSlash(configFileUrl))
 	if err != nil {
 		log.Errorln("Unable to parse the config file template url :"+configFileUrl, err.Error())
+	}
+	if _, err := os.Stat(parsedConfigFolder); os.IsNotExist(err) {
+		os.Mkdir(parsedConfigFolder, os.ModePerm)
 	}
 	parsedFile, err := os.Create(parsedConfigFile)
 	if err != nil {

@@ -8,3 +8,4 @@ server/bin/*.pid
 server/bin/*.rdb
 server/configs/config.yaml
 server/configs/redis.conf
+server/configs/.tmp
