@@ -114,7 +114,7 @@ func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) b
 			}
 		}
 	} else {
-		log.Info("User authentication failed for user " + user.Username)
+		log.Debug("User authentication failed for user " + user.Username)
 		return false
 	}
 	return false

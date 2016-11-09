@@ -88,6 +88,6 @@ func getTenantId(user *models.SystemUser) int64 {
 
 func checkErr(err error, msg string) {
 	if err != nil {
-		log.Fatalln(msg, err)
+		log.Error(msg, err)
 	}
 }

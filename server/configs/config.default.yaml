@@ -16,6 +16,7 @@ serverConfigs:
  caddyPath : '{{.ServerHome}}/webapps'
  caddyFile : '{{.ServerHome}}/webapps/Caddyfile'
  logsDirectory : 'logs'
+ logLevel : 'info'
  enableAccessLogs : true
 
 redisConfigs:

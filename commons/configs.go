@@ -33,6 +33,7 @@ type serverConfigs struct {
 	EnableTrace        bool
 	EnableAccessLogs   bool
 	LogsDirectory      string
+	LogLevel           string
 	DBConfigMap        map[string]DBConfigs
 	ConfigMap          map[string]interface{}
 	RedisConfigs       RedisConfigs
@@ -95,6 +96,7 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 	ServerConfigurations.ReadTimeOut = configsMap["readTimeOut"].(int)
 	ServerConfigurations.WriteTimeOut = configsMap["writeTimeOut"].(int)
 	ServerConfigurations.LogsDirectory = configsMap["logsDirectory"].(string)
+	ServerConfigurations.LogLevel = configsMap["logLevel"].(string)
 	ServerConfigurations.EnableAccessLogs = configsMap["enableAccessLogs"].(bool)
 	ServerConfigurations.CaddyPath = configsMap["caddyPath"].(string)
 	ServerConfigurations.CaddyFile = configsMap["caddyFile"].(string)

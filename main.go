@@ -25,7 +25,17 @@ func main() {
 	// Log as JSON instead of the default ASCII formatter.
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(serverLogFile)
-	log.SetLevel(log.DebugLevel)
+
+	switch commons.ServerConfigurations.LogLevel {
+	case "debug":
+		log.SetLevel(log.DebugLevel)
+	case "info":
+		log.SetLevel(log.InfoLevel)
+	case "error":
+		log.SetLevel(log.ErrorLevel)
+	default:
+		log.SetLevel(log.InfoLevel)
+	}
 
 	defer serverLogFile.Close()
 
