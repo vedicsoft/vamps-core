@@ -34,6 +34,7 @@ type Subscriber struct {
 	Password      string             `db:"password"json:"password"`
 	Email         string             `db:"email"json:"email"`
 	AccountStatus string             `db:"account_status"json:"accountStatus"`
+	SocialID      commons.NullString `db:"social_id"json:"socialID"`
 	FirstName     commons.NullString `db:"first_name"json:"firstName"`
 	LastName      commons.NullString `db:"last_name"json:"lastName"`
 	Gender        commons.NullString `db:"gender"json:"gender"`
@@ -45,6 +46,12 @@ type Subscriber struct {
 	Occupation    commons.NullString `db:"occupation"json:"occupation"`
 	MaritalStatus commons.NullString `db:"marital_status"json:"maritalStatus"`
 	ProfileImage  commons.NullString `db:"profile_image"json:"profileImage"`
+	AddressLine1  commons.NullString `db:"address_line_1"json:"addressLine1"`
+	AddressLine2  commons.NullString `db:"address_line_1"json:"addressLine2"`
+	City          commons.NullString `db:"city"json:"city"`
+	State         commons.NullString `db:"state"json:"state"`
+	ZIP           commons.NullString `db:"zip"json:"zip"`
+	Country       commons.NullString `db:"country"json:"country"`
 	MobileNUmber  commons.NullString `db:"mobile_number"json:"mobileNumber"`
 	AdminNotes    commons.NullString `db:"admin_notes"json:"adminNotes"`
 	Groups        []string           `json:"groups"`
