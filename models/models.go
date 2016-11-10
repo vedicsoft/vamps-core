@@ -47,7 +47,7 @@ type Subscriber struct {
 	MaritalStatus commons.NullString `db:"marital_status"json:"maritalStatus"`
 	ProfileImage  commons.NullString `db:"profile_image"json:"profileImage"`
 	AddressLine1  commons.NullString `db:"address_line_1"json:"addressLine1"`
-	AddressLine2  commons.NullString `db:"address_line_1"json:"addressLine2"`
+	AddressLine2  commons.NullString `db:"address_line_2"json:"addressLine2"`
 	City          commons.NullString `db:"city"json:"city"`
 	State         commons.NullString `db:"state"json:"state"`
 	ZIP           commons.NullString `db:"zip"json:"zip"`
