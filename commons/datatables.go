@@ -25,7 +25,8 @@ import (
  *  @return totalRecordsCount  total number of records which the filtering applied
  *  @return error if an error occurred
  */
-func Fetch(request *http.Request, database string, table string, totalRecordCountQuery string, columns []string, result interface{}) (int64, int64, error) {
+func Fetch(request *http.Request, database string, table string, totalRecordCountQuery string, columns []string,
+	result interface{}, tenantID int) (int64, int64, error) {
 	dbMap := GetDBConnection(database)
 	var err error
 	query := "SELECT "
@@ -38,7 +39,16 @@ func Fetch(request *http.Request, database string, table string, totalRecordCoun
 	}
 	constructedFilterQuery := ""
 	constructedFilterQuery += " FROM " + table
-	constructedFilterQuery += filter(request, columns)
+	filter := filter(request, columns)
+
+	if tenantID > 0 {
+		if len(filter) > 0 {
+			filter += " AND tenantid=" + strconv.Itoa(tenantID)
+		} else {
+			filter += " WHERE tenantid=" + strconv.Itoa(tenantID)
+		}
+	}
+	constructedFilterQuery += filter
 	query += constructedFilterQuery
 	query += order(request, columns)
 	query += limit(request)
