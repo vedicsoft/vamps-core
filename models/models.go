@@ -60,10 +60,10 @@ type Subscriber struct {
 }
 
 type DataTablesResponse struct {
-	Draw            int          `json:"draw"`
-	RecordsTotal    int64        `json:"recordsTotal"`
-	RecordsFiltered int64        `json:"recordsFiltered"`
-	Data            []Subscriber `json:"data"`
+	Draw            int         `json:"draw"`
+	RecordsTotal    int64       `json:"recordsTotal"`
+	RecordsFiltered int64       `json:"recordsFiltered"`
+	Data            interface{} `json:"data"`
 	Error           string
 }
 
