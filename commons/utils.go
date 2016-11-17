@@ -16,6 +16,11 @@ func GetTenantId(r *http.Request) (int, error) {
 	return tenantId, err
 }
 
+func GetUserID(r *http.Request) (int, error) {
+	userID, err := strconv.Atoi(r.Header.Get("userid"))
+	return userID, err
+}
+
 func GetTenantIDFromDomain(tenantDomain string) (int, error) {
 	dbMap := GetDBConnection(PLATFORM_DB)
 	tenantID, err := dbMap.SelectNullInt(GET_TENANT_ID_FROM_DOMAIN, tenantDomain)
