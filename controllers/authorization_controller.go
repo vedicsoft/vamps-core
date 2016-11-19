@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ROLE_LOCATION_MANAGER string = "venue_manager"
+	ROLE_LOCATION_MANAGER string = "location_manager"
 	ROLE_CAPTIVE_MANAGER  string = "captive_manager"
 	ROLE_ADVERT_MANAGER   string = "advert_manager"
 	ROLE_POLICY_MANAGER   string = "policy_manager"
@@ -59,7 +59,7 @@ func IsUserAuthorized(username string, resourceId string, permission string, r *
 }
 
 func HasRole(userID int, role string) (bool, error) {
-	const GET_USER_ROLE string = `SELECT vs_roles.name from vs_roles INNER JOIN vs_user_roles ON
+	const GET_USER_ROLE string = `SELECT vs_roles.roleid from vs_roles INNER JOIN vs_user_roles ON
 									 vs_roles.roleid IN (SELECT vs_user_roles.roleid WHERE
 									 vs_user_roles.userid=?) AND vs_roles.name =?`
 	var roles []int

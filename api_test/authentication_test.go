@@ -133,7 +133,7 @@ func TestLogin(t *testing.T) {
 }
 
 func TestLogout(t *testing.T) {
-	user := models.SystemUser{Username: "admin", Password: "admin", TenantDomain: "super.com"}
+	user := models.SystemUser{Username: "admin@super.com", Password: "admin"}
 	b, err := json.Marshal(user)
 	req, err = http.NewRequest("POST", "/logout", strings.NewReader(string(b)))
 	if err != nil {
