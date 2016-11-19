@@ -20,7 +20,7 @@ type Statement struct {
 }
 
 type Policy struct {
-	Id         string      `json:"id"`
+	PolicyID   string      `json:"id"`
 	Statements []Statement `json:"statements"`
 }
 
@@ -68,24 +68,28 @@ func assertAction(policyActions []string, requestedAction string) bool {
 
 func assertResource(policyResources []string, requestedResource string) bool {
 	k := strings.Split(requestedResource, SPLIT_SYMBOL)
-	i := len(k)
-	for _, action := range policyResources {
-		checkLength := i
-		p := strings.Split(action, SPLIT_SYMBOL)
-		if len(p) < i && p[len(p)-1] == ALL_SYMBOL {
-			checkLength = len(p)
-		}
+	checkLength := len(k)
+	for _, resource := range policyResources {
 		var matches int
-		for j := 0; j < checkLength; j++ {
-			if k[j] != p[j] && p[j] != ALL_SYMBOL {
-				break
-			} else if p[j] == ALL_SYMBOL || k[j] == p[j] {
-				matches++
-				continue
+		p := strings.Split(resource, SPLIT_SYMBOL)
+		n := len(p)
+		if n < checkLength && p[n-1] == ALL_SYMBOL {
+			checkLength = n
+		} else if n == checkLength {
+			for j := 0; j < checkLength; j++ {
+				if k[j] != p[j] && p[j] != ALL_SYMBOL {
+					break
+				} else if p[j] == ALL_SYMBOL || k[j] == p[j] {
+					matches++
+					continue
+				}
 			}
+		} else {
+			continue
 		}
+		fmt.Println(matches)
 		if matches > 0 && matches == checkLength {
-			fmt.Printf("requested resource: %s matched with policy resource: %s \n", requestedResource, action)
+			fmt.Printf("requested resource: %s matched with policy resource: %s \n", requestedResource, resource)
 			return true
 		}
 	}

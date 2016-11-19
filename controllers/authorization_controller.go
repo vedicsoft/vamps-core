@@ -4,6 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"github.com/vedicsoft/vamps-core/commons"
+)
+
+const (
+	ROLE_LOCATION_MANAGER string = "venue_manager"
+	ROLE_CAPTIVE_MANAGER  string = "captive_manager"
+	ROLE_ADVERT_MANAGER   string = "advert_manager"
+	ROLE_POLICY_MANAGER   string = "policy_manager"
 )
 
 type Permission struct {
@@ -49,24 +58,25 @@ func IsUserAuthorized(username string, resourceId string, permission string, r *
 	return false
 }
 
+func HasRole(userID int, role string) (bool, error) {
+	const GET_USER_ROLE string = `SELECT vs_roles.name from vs_roles INNER JOIN vs_user_roles ON
+									 vs_roles.roleid IN (SELECT vs_user_roles.roleid WHERE
+									 vs_user_roles.userid=?) AND vs_roles.name =?`
+	var roles []int
+	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
+	var err error
+	_, err = dbMap.Select(&roles, GET_USER_ROLE, userID, role)
+	if err != nil {
+		return false, err
+	}
+	if len(roles) > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
 func RequireResourceAuthorization(inner http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//authBackend := InitJWTAuthenticationEngine()
-		//token, err := jwt.ParseFromRequest(
-		//	r,
-		//	func(token *jwt.Token) (interface{}, error) {
-		//		return authBackend.PublicKey, nil
-		//	})
-		//if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
-		//	w.WriteHeader(http.StatusForbidden)
-		//	return
-		//} else {
-		//	sClaims, _ := json.Marshal(token.Claims["scopes"])
-		//	r.Header.Set("scopes", string(sClaims))
-		//	r.Header.Set("username", token.Claims["sub"].(string))
-		//	r.Header.Set("tenantid", strconv.FormatFloat((token.Claims["tenantid"]).(float64), 'f', 0, 64))
-		//}
-
 		username := r.Header.Get("username")
 		tenantID, _ := strconv.Atoi(r.Header.Get("tenanid"))
 		if !isAuthorized2(tenantID, username, r) {

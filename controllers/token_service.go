@@ -9,6 +9,8 @@ import (
 	"os"
 	"time"
 
+	"errors"
+
 	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/vedicsoft/vamps-core/commons"
@@ -46,11 +48,14 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser) 
 	token.Claims["sub"] = user.Username
 	token.Claims["tenantid"] = user.TenantId
 	token.Claims["userid"] = getUserId(user)
-	sample := getUserScopes(user)
-	token.Claims["scopes"] = sample
+	scopes, err := getUserScopes(user)
+	if err != nil {
+		return "", errors.New("could not load user scopes stack trace: " + err.Error())
+	}
+	token.Claims["scopes"] = scopes
 	tokenString, err := token.SignedString(backend.privateKey)
 	if err != nil {
-		return "", err
+		return "", errors.New("unable to sign the jwt stack trace: " + err.Error())
 	}
 	return tokenString, nil
 }
@@ -70,32 +75,18 @@ func getUserId(user *models.SystemUser) int64 {
 	}
 }
 
-func getUserScopes(user *models.SystemUser) map[string][]string {
+func getUserScopes(user *models.SystemUser) ([]string, error) {
+	const GET_USER_ROLES string = `SELECT vs_roles.name from vs_roles INNER JOIN vs_user_roles ON
+									 vs_roles.roleid IN (SELECT vs_user_roles.roleid WHERE
+									 vs_user_roles.userid=?) AND vs_roles.type='system'`
+	var roles []string
 	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
-	rows, err := dbMap.Db.Query("select name,action from vs_permissions where permissionid in (select vs_user_permissions.permissionid from vs_user_permissions where vs_user_permissions.userid = ?) order by name", user.UserId)
-	defer rows.Close()
+	var err error
+	_, err = dbMap.Select(&roles, GET_USER_ROLES, user.UserId)
 	if err != nil {
-		log.Fatal(err)
+		return roles, err
 	}
-	defer rows.Close()
-	var (
-		name   string
-		action string
-	)
-
-	scopes := make(map[string][]string)
-	for rows.Next() {
-		err := rows.Scan(&name, &action)
-		if err != nil {
-			log.Fatal(err)
-		}
-		scopes[name] = append(scopes[name], action)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return scopes
+	return roles, err
 }
 
 func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) bool {

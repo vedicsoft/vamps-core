@@ -17,7 +17,7 @@ func NewRouter() *mux.Router {
 		//handler = Logger(handler, route.Name)
 		if route.Secured {
 			handler = controllers.RequireTokenAuthentication(handler)
-			//handler = controllers.RequireResourceAuthorization(handler)
+			handler = controllers.RequireResourceAuthorization(handler)
 		}
 		router.
 			Methods(route.Method).
