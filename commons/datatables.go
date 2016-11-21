@@ -25,7 +25,7 @@ import (
  *  @return totalRecordsCount  total number of records which the filtering applied
  *  @return error if an error occurred
  */
-func Fetch(request *http.Request, database string, table string, totalRecordCountQuery string, columns []string,
+func Fetch(request *http.Request, database string, table string, totalRecordCountQuery string, columns []string, columnsMap map[string]string,
 	result interface{}, tenantID int) (int64, int64, error) {
 	dbMap := GetDBConnection(database)
 	var err error
@@ -39,7 +39,7 @@ func Fetch(request *http.Request, database string, table string, totalRecordCoun
 	}
 	constructedFilterQuery := ""
 	constructedFilterQuery += " FROM " + table
-	filter := filter(request, columns)
+	filter := filter(request, columns, columnsMap)
 
 	if tenantID > 0 {
 		if len(filter) > 0 {
@@ -113,14 +113,14 @@ func order(request *http.Request, columns []string) string {
  *  @param  columns array, elements in the order it appears in DataTables
  *  @return string SQL where clause
  */
-func filter(request *http.Request, columns []string) string {
+func filter(request *http.Request, columns []string, columnsMap map[string]string) string {
 	filter := " WHERE "
 	var filters []string
 	for i := 0; i < len(columns); i++ {
 		columnSearchValue := request.FormValue("columns[" + strconv.Itoa(i) + "][search][value]")
 		columnData := request.FormValue("columns[" + strconv.Itoa(i) + "][data]")
 		if len(columnSearchValue) > 0 {
-			filters = append(filters, columnData+" LIKE '"+columnSearchValue+"%' ")
+			filters = append(filters, columnsMap[columnData]+" LIKE '"+columnSearchValue+"%' ")
 		}
 	}
 	for index, element := range filters {
