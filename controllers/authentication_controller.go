@@ -16,19 +16,19 @@ type TokenAuthentication struct {
 	TenantId int64  `json:"tenantid" form:"tenantid"`
 }
 
-func Login(requestUser *models.SystemUser) (int, []byte) {
+func Login(requestUser *models.SystemUser) (int, []byte, error) {
 	authEngine := InitJWTAuthenticationEngine()
 	requestUser.TenantId = getTenantId(requestUser)
 	if authEngine.Authenticate(requestUser) {
 		token, err := authEngine.GenerateToken(requestUser)
 		if err != nil {
-			return http.StatusInternalServerError, []byte("")
+			return http.StatusInternalServerError, []byte(""), err
 		} else {
 			response, _ := json.Marshal(TokenAuthentication{token, requestUser.TenantId})
-			return http.StatusOK, response
+			return http.StatusOK, response, nil
 		}
 	}
-	return http.StatusUnauthorized, []byte("")
+	return http.StatusUnauthorized, []byte(""), nil
 }
 
 func RefreshToken(requestUser *models.SystemUser) []byte {

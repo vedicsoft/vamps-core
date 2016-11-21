@@ -77,7 +77,7 @@ func getUserId(user *models.SystemUser) int64 {
 
 func getUserScopes(user *models.SystemUser) ([]string, error) {
 	const GET_USER_ROLES string = `SELECT vs_roles.name from vs_roles INNER JOIN vs_user_roles ON
-									 vs_roles.roleid IN (SELECT vs_user_roles.roleid WHERE
+									 vs_roles.roleid IN (SELECT vs_user_roles.roleid FROM vs_user_roles WHERE
 									 vs_user_roles.userid=?) AND vs_roles.type='system'`
 	var roles []string
 	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)

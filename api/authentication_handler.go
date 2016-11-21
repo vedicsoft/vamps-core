@@ -25,10 +25,14 @@ func Login(w http.ResponseWriter, r *http.Request) *commons.AppError {
 		//setting default
 		requestUser.TenantDomain = "super.com"
 	}
-	responseStatus, token := controllers.Login(requestUser)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(responseStatus)
-	w.Write(token)
+	responseStatus, token, err := controllers.Login(requestUser)
+	if err != nil {
+		return &commons.AppError{err, "error while authenticating user", 500}
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(responseStatus)
+		w.Write(token)
+	}
 	return nil
 }
 
