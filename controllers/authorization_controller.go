@@ -60,7 +60,7 @@ func IsUserAuthorized(username string, resourceId string, permission string, r *
 
 func HasRole(userID int, role string) (bool, error) {
 	const GET_USER_ROLE string = `SELECT vs_roles.roleid from vs_roles INNER JOIN vs_user_roles ON
-									 vs_roles.roleid IN (SELECT vs_user_roles.roleid WHERE
+									 vs_roles.roleid IN (SELECT vs_user_roles.roleid FROM vs_user_roles WHERE
 									 vs_user_roles.userid=?) AND vs_roles.name =?`
 	var roles []int
 	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
