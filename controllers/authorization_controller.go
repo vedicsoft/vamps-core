@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/vedicsoft/vamps-core/commons"
 )
@@ -77,12 +76,5 @@ func HasRole(userID int, role string) (bool, error) {
 
 func RequireResourceAuthorization(inner http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		username := r.Header.Get("username")
-		tenantID, _ := strconv.Atoi(r.Header.Get("tenanid"))
-		if !isAuthorized2(tenantID, username, r) {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		inner.ServeHTTP(w, r)
 	})
 }

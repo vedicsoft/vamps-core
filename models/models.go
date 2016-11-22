@@ -84,6 +84,7 @@ type Route struct {
 	Method      string
 	Pattern     string
 	Secured     bool
+	CheckAuth   bool
 	HandlerFunc commons.AppHandler
 }
 
