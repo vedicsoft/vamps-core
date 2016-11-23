@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	ROLE_LOCATION_MANAGER string = "location_manager"
-	ROLE_CAPTIVE_MANAGER  string = "captive_manager"
-	ROLE_ADVERT_MANAGER   string = "advert_manager"
-	ROLE_POLICY_MANAGER   string = "policy_manager"
+	ROLE_LOCATION_MANAGER  string = "location_manager"
+	ROLE_CAPTIVE_MANAGER   string = "captive_manager"
+	ROLE_ADVERT_MANAGER    string = "advert_manager"
+	ROLE_POLICY_MANAGER    string = "policy_manager"
+	ROLE_ANALYTICS_MANAGER string = "analytics_manager"
 )
 
 type Permission struct {
