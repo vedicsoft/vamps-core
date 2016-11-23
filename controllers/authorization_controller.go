@@ -13,6 +13,8 @@ const (
 	ROLE_ADVERT_MANAGER    string = "advert_manager"
 	ROLE_POLICY_MANAGER    string = "policy_manager"
 	ROLE_ANALYTICS_MANAGER string = "analytics_manager"
+	ROLE_TENANT_ADMIN string = "tenant_admin"
+	ROLE_SUPER_ADMIN string = "super_admin"
 )
 
 type Permission struct {
