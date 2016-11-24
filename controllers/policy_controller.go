@@ -143,9 +143,9 @@ func getUserPolicies(userID int) ([]VAMPSPolicy, error) {
 }
 
 func isAuthorized2(tenantID int, userID int, r *http.Request) (bool, error) {
-	resourcePrefix := commons.ServerConfigurations.Prefix
+	//resourcePrefix := commons.ServerConfigurations.Prefix
 
-	requestedResource := strings.ToLower(resourcePrefix + strings.Replace(r.URL.Path, "/", ".", -1))
+	requestedResource := strings.ToLower(strings.TrimPrefix(strings.Replace(r.URL.Path, "/", ".", -1), "."))
 	requestedAction := strings.ToLower(requestedResource + SPLIT_SYMBOL + r.Method)
 
 	userPolicies, err := getUserPolicies(userID)
@@ -156,10 +156,17 @@ func isAuthorized2(tenantID int, userID int, r *http.Request) (bool, error) {
 	for _, userPolicy := range userPolicies {
 		result := userPolicy.evaluate(requestedAction, requestedResource)
 		if result == FAIL {
+			log.Debugf("authorization failed for policy %s for action %s and resource %s", userPolicy.Name,
+				requestedAction, requestedResource)
 			isAuthorized = false
 			break
 		} else if result == PASS {
+			log.Debugf("authorization passed for policy %s for action %s and resource %s", userPolicy.Name,
+				requestedAction, requestedResource)
 			isAuthorized = true
+		} else {
+			log.Debugf("authorization nutral for policy %s for action %s and resource %s", userPolicy.Name,
+				requestedAction, requestedResource)
 		}
 	}
 	return isAuthorized, nil
