@@ -1,5 +1,5 @@
 serverConfigs:
- prefix : 'CORE_'
+ prefix : 'CORE'
  isMaster : true
  portOffset : 0
  httpPort : 8080

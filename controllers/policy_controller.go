@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -9,6 +8,7 @@ import (
 	"errors"
 	"strconv"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/vedicsoft/vamps-core/commons"
 )
 
@@ -18,6 +18,11 @@ const GET_USER_POLICIES = `SELECT policy FROM vs_policies WHERE policyid IN( SEL
 const SPLIT_SYMBOL string = "."
 const ALL_SYMBOL string = "*"
 const ALL_ALL_SYMBOL string = "**"
+const (
+	FAIL        int = 2
+	PASS        int = 1
+	NO_DECISION     = 0
+)
 
 type Statement struct {
 	Effect    string   `json:"effect"`
@@ -31,15 +36,17 @@ type VAMPSPolicy struct {
 	Statements []Statement `json:"statements"`
 }
 
-func (policy *VAMPSPolicy) evaluate(requestedAction, requestedResource string) bool {
-	decision := false
+func (policy *VAMPSPolicy) evaluate(requestedAction, requestedResource string) int {
+	log.Debugf("starting policy %s evaluation for action %s and resource %s", policy.Name, requestedAction,
+		requestedResource)
+	decision := NO_DECISION
 	for _, statement := range policy.Statements {
-		if assertAction(statement.Actions, requestedAction) {
-			if assertResource(statement.Resources, requestedResource) {
+		if assertAction(statement.Actions, requestedAction) == PASS {
+			if assertResource(statement.Resources, requestedResource) == PASS {
 				if statement.Effect == "denied" {
-					return false
+					return FAIL
 				} else {
-					decision = true
+					decision = PASS
 				}
 			}
 		}
@@ -47,7 +54,7 @@ func (policy *VAMPSPolicy) evaluate(requestedAction, requestedResource string) b
 	return decision
 }
 
-func assertAction(policyActions []string, requestedAction string) bool {
+func assertAction(policyActions []string, requestedAction string) int {
 	k := strings.Split(requestedAction, SPLIT_SYMBOL)
 	for _, policyItem := range policyActions {
 		checkLength := len(k)
@@ -64,20 +71,20 @@ func assertAction(policyActions []string, requestedAction string) bool {
 			} else if p[j] == ALL_SYMBOL || k[j] == p[j] {
 				matches++
 				continue
-			} else if p[j] == ALL_ALL_SYMBOL && k[len(k)-1] == p[n-1] {
-				fmt.Printf("requested action: %s matched with policy action: %s \n", requestedAction, policyItem)
-				return true
+			} else if p[j] == ALL_ALL_SYMBOL && (k[len(k)-1] == p[n-1] || p[n-1] == ALL_ALL_SYMBOL) {
+				log.Debugf("requested action: %s matched with policy action: %s \n", requestedAction, policyItem)
+				return PASS
 			}
 		}
 		if matches > 0 && matches == checkLength {
-			fmt.Printf("requested action: %s matched with policy action: %s \n", requestedAction, policyItem)
-			return true
+			log.Debugf("requested action: %s matched with policy action: %s \n", requestedAction, policyItem)
+			return PASS
 		}
 	}
-	return false
+	return NO_DECISION
 }
 
-func assertResource(policyItems []string, requestedItem string) bool {
+func assertResource(policyItems []string, requestedItem string) int {
 	k := strings.Split(requestedItem, SPLIT_SYMBOL)
 	for _, policyItem := range policyItems {
 		checkLength := len(k)
@@ -95,17 +102,17 @@ func assertResource(policyItems []string, requestedItem string) bool {
 				matches++
 				continue
 			} else if p[j] == ALL_ALL_SYMBOL {
-				fmt.Printf("requested resource: %s matched with policy resource: %s \n", requestedItem, policyItem)
-				return true
+				log.Debugf("requested resource: %s matched with policy resource: %s \n", requestedItem, policyItem)
+				return PASS
 			}
 		}
 
 		if matches > 0 && matches == checkLength {
-			fmt.Printf("requested resource: %s matched with policy resource: %s \n", requestedItem, policyItem)
-			return true
+			log.Debugf("requested resource: %s matched with policy resource: %s \n", requestedItem, policyItem)
+			return PASS
 		}
 	}
-	return false
+	return NO_DECISION
 }
 
 func (p *VAMPSPolicy) IsValid() bool {
@@ -137,7 +144,8 @@ func getUserPolicies(userID int) ([]VAMPSPolicy, error) {
 
 func isAuthorized2(tenantID int, userID int, r *http.Request) (bool, error) {
 	resourcePrefix := commons.ServerConfigurations.Prefix
-	requestedResource := resourcePrefix + SPLIT_SYMBOL + r.URL.Path
+
+	requestedResource := strings.ToLower(resourcePrefix + strings.Replace(r.URL.Path, "/", ".", -1))
 	requestedAction := strings.ToLower(requestedResource + SPLIT_SYMBOL + r.Method)
 
 	userPolicies, err := getUserPolicies(userID)
@@ -146,11 +154,12 @@ func isAuthorized2(tenantID int, userID int, r *http.Request) (bool, error) {
 	}
 	isAuthorized := false
 	for _, userPolicy := range userPolicies {
-		if userPolicy.evaluate(requestedAction, requestedResource) {
-			isAuthorized = true
-		} else {
+		result := userPolicy.evaluate(requestedAction, requestedResource)
+		if result == FAIL {
 			isAuthorized = false
 			break
+		} else if result == PASS {
+			isAuthorized = true
 		}
 	}
 	return isAuthorized, nil
