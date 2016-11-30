@@ -143,12 +143,14 @@ func filter(request *http.Request, columns []string, columnsMap map[string]strin
  *  @return int count
  */
 func getRecordCount(dbMap *gorp.DbMap, query string) (int64, error) {
-	var recordsCount int64
-	smtOut, err := dbMap.Db.Prepare(query)
-	defer smtOut.Close()
-	err = smtOut.QueryRow().Scan(&recordsCount)
+	recordsCount, err := dbMap.SelectNullInt(query)
 	if err != nil {
 		log.Error("Error occured while getting the records count for Query : " + query + (err.Error()))
 	}
-	return recordsCount, err
+
+	if recordsCount.Valid {
+		return recordsCount.Int64, err
+	} else {
+		return 0, err
+	}
 }
