@@ -6,6 +6,10 @@ import (
 	"strconv"
 	"text/template"
 
+	"fmt"
+
+	"errors"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/gorp.v1"
@@ -78,10 +82,14 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 		}
 	}
 	viper.New()
-	viper.SetConfigFile(parseConfigTemplate(configFileUrl, ServerConfigurations.Home))
-	err := viper.ReadInConfig() // Find and read the config file
+	configUrl, err := parseConfigTemplate(configFileUrl, ServerConfigurations.Home)
 	if err != nil {
-		log.Error("Error while reading server configuration file: %s err: %s \n", configFileUrl, err)
+		log.Fatalf("unable to initialize configurations stac trace: %s", err.Error())
+	}
+	viper.SetConfigFile(configUrl)
+	err = viper.ReadInConfig() // Find and read the config file
+	if err != nil {
+		log.Error("error while reading server configuration file: %s err: %s \n", configFileUrl, err)
 	}
 
 	configsMap := viper.GetStringMap("serverConfigs")
@@ -138,30 +146,42 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 }
 
 //fill the configuration file template with the the template parameters
-func parseConfigTemplate(configFileUrl, serverHome string) string {
+func parseConfigTemplate(configFileUrl, serverHome string) (string, error) {
 	parsedConfigFolder := filepath.FromSlash(ServerConfigurations.Home + FILE_PATH_SEPARATOR + "configs" +
 		FILE_PATH_SEPARATOR + ".tmp")
 	parsedConfigFile := filepath.FromSlash(parsedConfigFolder + FILE_PATH_SEPARATOR + CONFIG_FILE_NAME)
-	template, err := template.ParseFiles(filepath.FromSlash(configFileUrl))
-	if err != nil {
-		log.Errorln("Unable to parse the config file template url :"+configFileUrl, err.Error())
-	}
+
 	if _, err := os.Stat(parsedConfigFolder); os.IsNotExist(err) {
-		os.Mkdir(parsedConfigFolder, os.ModePerm)
+		err = os.Mkdir(parsedConfigFolder, os.ModePerm)
+		if err != nil {
+			errMsg := fmt.Sprintf("unable to create the configuration folder in path %s stack trace %s",
+				parsedConfigFolder, err.Error())
+			return parsedConfigFile, errors.New(errMsg)
+		}
 	}
 	parsedFile, err := os.Create(parsedConfigFile)
 	if err != nil {
-		log.Errorln("Unable to create the parsed configuration file in path : "+parsedConfigFile, err)
+		errMsg := fmt.Sprintf("unable to create the configuration file in path %s stack trace %s", parsedConfigFile,
+			err.Error())
+		return parsedConfigFile, errors.New(errMsg)
+	}
+	template, err := template.ParseFiles(filepath.FromSlash(configFileUrl))
+	if err != nil {
+		errMsg := fmt.Sprintf("unable to parse the config file template %s stack trace %s", configFileUrl,
+			err.Error())
+		return parsedConfigFile, errors.New(errMsg)
 	}
 	data := struct {
 		ServerHome string
 	}{serverHome}
 	err = template.Execute(parsedFile, data)
+
 	if err != nil {
-		log.Errorln("Unable to execute the parsed object", err)
+		errMsg := fmt.Sprintf("unable to execute the template stack trace %s", err.Error())
+		return parsedConfigFile, errors.New(errMsg)
 	}
 	parsedFile.Close()
-	return parsedConfigFile
+	return parsedConfigFile, nil
 }
 
 func GetServerHome() string {
@@ -170,7 +190,7 @@ func GetServerHome() string {
 	if len(home) <= 0 {
 		home, err := filepath.Abs(filepath.Dir(os.Args[0]))
 		if err != nil {
-			log.Fatal("Error while determining the server home. Please set the SERVER_HOME varaible and restart.")
+			log.Fatal("error while determining the server home. Please set the SERVER_HOME varaible and restart.")
 		}
 		os.Setenv(SERVER_HOME, home)
 	}
