@@ -30,6 +30,7 @@ type SystemUser struct {
 type Subscriber struct {
 	SubscriberID    int64              `db:"subscriberid"json:"subscriberid"`
 	TenantID        int                `db:"tenantid"`
+	VenueID         commons.NullInt64  `db:"venueid"json:"venueid"`
 	Username        string             `db:"username"json:"username"`
 	Password        string             `db:"password"json:"password"`
 	Email           string             `db:"email"json:"email"`
