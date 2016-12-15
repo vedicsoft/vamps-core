@@ -24,7 +24,12 @@ type AppHandler func(http.ResponseWriter, *http.Request) *AppError
 
 func (fn AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if e := fn(w, r); e != nil {
-		log.Error("msg:" + e.Message + " err:" + e.Error.Error() + " code:" + strconv.Itoa(e.Code))
+		log.WithFields(log.Fields{
+			"tenantid": r.Header.Get("tenantid"),
+			"username": r.Header.Get("username"),
+			"api":      r.URL.Path,
+			"code":     strconv.Itoa(e.Code),
+		}).Error(e.Error.Error())
 		http.Error(w, e.Message, e.Code)
 	}
 }
