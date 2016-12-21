@@ -12,6 +12,8 @@ import (
 
 	"log"
 
+	"net/http"
+
 	"github.com/spf13/viper"
 	"gopkg.in/gorp.v1"
 )
@@ -70,6 +72,55 @@ func GetDBConnection(dbIdentifier string) *gorp.DbMap {
 
 func (config *serverConfigs) GetString(identifier string) string {
 	return (*config).ConfigMap[identifier].(string)
+}
+
+func FetchFromVenues(request *http.Request, database string, table string, totalRecordCountQuery string,
+	columns []string, columnsMap map[string]string, result interface{}, tenantID int,
+	venueIDs []int) (int64, int64, error) {
+	dbMap := GetDBConnection(database)
+	var err error
+	query := "SELECT "
+
+	for index, element := range columns {
+		query += element
+		if index+1 != len(columns) {
+			query += ","
+		}
+	}
+	constructedFilterQuery := ""
+	constructedFilterQuery += " FROM " + table
+	filter := filter(request, columns, columnsMap)
+
+	if tenantID > 0 {
+		if len(filter) > 0 {
+			filter += " AND tenantid=" + strconv.Itoa(tenantID)
+		} else {
+			filter += " WHERE tenantid=" + strconv.Itoa(tenantID)
+		}
+	}
+
+	if len(venueIDs) > 0 && venueIDs[0] != -1 {
+		filter += " AND venueid IN ("
+		for k, v := range venueIDs {
+			filter += strconv.Itoa(v)
+			if k < len(venueIDs)-1 {
+				filter += ","
+			} else if k == len(venueIDs)-1 {
+				filter += ")"
+			}
+		}
+	}
+
+	constructedFilterQuery += filter
+	query += constructedFilterQuery
+	query += order(request, columns)
+	query += limit(request)
+
+	_, err = dbMap.Select(result, query)
+
+	filteredRecordCount, _ := getRecordCount(dbMap, "SELECT COUNT(*) "+constructedFilterQuery)
+	totalRecordsCount, _ := getRecordCount(dbMap, totalRecordCountQuery)
+	return filteredRecordCount, totalRecordsCount, err
 }
 
 func InitConfigurations(configFileUrl string) serverConfigs {
