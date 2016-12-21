@@ -10,7 +10,8 @@ import (
 
 	"errors"
 
-	log "github.com/Sirupsen/logrus"
+	"log"
+
 	"github.com/spf13/viper"
 	"gopkg.in/gorp.v1"
 )
@@ -89,7 +90,7 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 	viper.SetConfigFile(configUrl)
 	err = viper.ReadInConfig() // Find and read the config file
 	if err != nil {
-		log.Error("error while reading server configuration file: %s err: %s \n", configFileUrl, err)
+		log.Fatalf("error while reading server configuration file: %s err: %s \n", configFileUrl, err)
 	}
 
 	configsMap := viper.GetStringMap("serverConfigs")
