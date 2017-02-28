@@ -31,6 +31,20 @@ func Login(requestUser *models.SystemUser) (int, []byte, error) {
 	return http.StatusUnauthorized, []byte(""), nil
 }
 
+func CustomToken(requestUser *models.SystemUser, expirationHours int) []byte {
+	authEngine := InitJWTAuthenticationEngine()
+	token, err := authEngine.GenerateCustomToken(requestUser, expirationHours)
+	if err != nil {
+		panic(err)
+	}
+	requestUser.TenantId = getTenantId(requestUser)
+	response, err := json.Marshal(TokenAuthentication{token, requestUser.TenantId})
+	if err != nil {
+		panic(err)
+	}
+	return response
+}
+
 func RefreshToken(requestUser *models.SystemUser) []byte {
 	authEngine := InitJWTAuthenticationEngine()
 	token, err := authEngine.GenerateToken(requestUser)

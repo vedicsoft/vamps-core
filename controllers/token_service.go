@@ -60,6 +60,25 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser) 
 	return tokenString, nil
 }
 
+func (backend *JWTAuthenticationBackend) GenerateCustomToken(user *models.SystemUser, expirationHours int) (string, error) {
+	token := jwt.New(jwt.SigningMethodRS512)
+	token.Claims["exp"] = time.Now().Add(time.Hour * time.Duration(expirationHours)).Unix()
+	token.Claims["iat"] = time.Now().Unix()
+	token.Claims["sub"] = user.Username
+	token.Claims["tenantid"] = user.TenantId
+	token.Claims["userid"] = getUserId(user)
+	scopes, err := getUserScopes(user)
+	if err != nil {
+		return "", errors.New("could not load user scopes stack trace: " + err.Error())
+	}
+	token.Claims["scopes"] = scopes
+	tokenString, err := token.SignedString(backend.privateKey)
+	if err != nil {
+		return "", errors.New("unable to sign the jwt stack trace: " + err.Error())
+	}
+	return tokenString, nil
+}
+
 func getUserId(user *models.SystemUser) int64 {
 	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
 	var userId sql.NullInt64

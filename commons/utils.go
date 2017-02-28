@@ -16,6 +16,11 @@ func GetTenantId(r *http.Request) (int, error) {
 	return tenantId, err
 }
 
+func GetUserName(r *http.Request) (string) {
+	username := r.Header.Get("username")
+	return username
+}
+
 func GetUserID(r *http.Request) (int, error) {
 	userID, err := strconv.Atoi(r.Header.Get("userid"))
 	return userID, err

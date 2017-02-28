@@ -20,4 +20,11 @@ var AuthenticationRoutes = models.Routes{
 		Secured:     true,
 		HandlerFunc: dashboard_handlers.Logout,
 	},
+	models.Route{
+		Name:        "Get Customm Token",
+		Method:      "GET",
+		Pattern:     "/customtoken",
+		Secured:     true,
+		HandlerFunc: dashboard_handlers.GetCustomToken,
+	},
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/controllers"
 	"github.com/vedicsoft/vamps-core/models"
+	"strconv"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) *commons.AppError {
@@ -33,6 +34,26 @@ func Login(w http.ResponseWriter, r *http.Request) *commons.AppError {
 		w.WriteHeader(responseStatus)
 		w.Write(token)
 	}
+	return nil
+}
+
+func GetCustomToken(w http.ResponseWriter, r *http.Request) *commons.AppError {
+	user := new(models.SystemUser)
+	expiration, err := strconv.Atoi(r.URL.Query().Get("expiration"))
+	if err != nil {
+		return &commons.AppError{err, "Error happen while getting expiration value", 400}
+	}
+	tenantId, err := commons.GetTenantId(r)
+	if err != nil {
+		return &commons.AppError{err, "Error happen while getting tenantid", 400}
+	}
+	username := commons.GetUserName(r)
+	userId, _ := commons.GetUserID(r)
+	user.TenantId = int64(tenantId)
+	user.Username = username
+	user.UserId = int64(userId)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(controllers.CustomToken(user, expiration))
 	return nil
 }
 
