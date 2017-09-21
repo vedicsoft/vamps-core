@@ -9,6 +9,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"gopkg.in/gorp.v1"
 	"gopkg.in/mgo.v2"
+	"net/url"
 )
 
 const DIALECT_MYSQL string = "mysql"
@@ -56,7 +57,7 @@ func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
 			break
 		case DIALECT_MONGO:
 			//mongoConnectionUrl = "mongodb://"+ dbConfig.Username+":"+ dbConfig.Password+"@"+dbConfig.Address
-			mongoConnectionUrl = "mongodb://" + dbConfig.Username + ":" + dbConfig.Password + "@" + dbConfig.Address
+			mongoConnectionUrl = "mongodb://" + dbConfig.Username + ":" + url.QueryEscape(dbConfig.Password) + "@" + dbConfig.Address
 			continue
 		}
 		db, err := sql.Open(dbConfig.Dialect, connectionURL)
