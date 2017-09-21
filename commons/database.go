@@ -56,7 +56,7 @@ func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
 			break
 		case DIALECT_MONGO:
 			//mongoConnectionUrl = "mongodb://"+ dbConfig.Username+":"+ dbConfig.Password+"@"+dbConfig.Address
-			mongoConnectionUrl = "mongodb://" + dbConfig.Username + ":" + dbConfig.Password + "@" + dbConfig.Address
+			mongoConnectionUrl = "mongodb://" + dbConfig.Username + ":" + dbConfig.Password + "@" + dbConfig.Address + "?authMechanism=SCRAM-SHA-1"
 			continue
 		}
 		db, err := sql.Open(dbConfig.Dialect, connectionURL)
