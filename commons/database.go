@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"encoding/json"
 
+	"net/url"
+
 	log "github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 	"gopkg.in/gorp.v1"
 	"gopkg.in/mgo.v2"
-	"net/url"
 )
 
 const DIALECT_MYSQL string = "mysql"
