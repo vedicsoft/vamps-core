@@ -11,6 +11,7 @@ const SUMMARY_DB string = "summary"
 const RADIUS_DB string = "radius"
 const USER_STORE_DB string = "userstore"
 const WALLET_DB string = "wallet"
+const LOYALTY_DB string = "loyalty"
 
 const JWT_PRIVATE_KEY_FILE string = "JWT_PRIVATE_KEY_PATH"
 const JWT_PUBLIC_KEY_FILE string = "JWT_PUBLIC_KEY_PATH"
