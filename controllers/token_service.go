@@ -53,6 +53,8 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser) 
 		return "", errors.New("could not load user scopes stack trace: " + err.Error())
 	}
 	token.Claims["scopes"] = scopes
+	types := GetTypesOfPoliciesByUserID(user.UserId)
+	token.Claims["types"] = types
 	tokenString, err := token.SignedString(backend.privateKey)
 	if err != nil {
 		return "", errors.New("unable to sign the jwt stack trace: " + err.Error())
@@ -72,6 +74,8 @@ func (backend *JWTAuthenticationBackend) GenerateCustomToken(user *models.System
 		return "", errors.New("could not load user scopes stack trace: " + err.Error())
 	}
 	token.Claims["scopes"] = scopes
+	types := GetTypesOfPoliciesByUserID(user.UserId)
+	token.Claims["types"] = types
 	tokenString, err := token.SignedString(backend.privateKey)
 	if err != nil {
 		return "", errors.New("unable to sign the jwt stack trace: " + err.Error())
@@ -214,4 +218,59 @@ func getPublicKey() *rsa.PublicKey {
 	}
 
 	return rsaPub
+}
+
+const GET_ROLES_BY_USERID = `SELECT roleid FROM vs_user_roles where userid = ?`
+
+func GetTypesOfPoliciesByUserID(userid int64) []string {
+	println("GetTypesOfPoliciesByUserID")
+	var roles []int
+	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
+	_, err := dbMap.Select(&roles, GET_ROLES_BY_USERID, userid)
+	if err != nil {
+		println(err.Error())
+	}
+	return GetPoliciesByRoleID(roles)
+}
+
+const GET_POLICIES_BY_ROLEID = `SELECT policyid FROM vs_role_policies where roleid = ?`
+
+func GetPoliciesByRoleID(roleids []int) []string {
+	println("GetPoliciesByRoleID")
+	var policies []int
+	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
+	for _, roleid := range roleids {
+		_, err := dbMap.Select(&policies, GET_POLICIES_BY_ROLEID, roleid)
+		if err != nil {
+			println(err.Error())
+		}
+	}
+	return GetTypesOfPolicies(unique(policies))
+}
+
+func unique(intSlice []int) []int {
+	keys := make(map[int]bool)
+	list := []int{}
+	for _, entry := range intSlice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}
+
+const GET_TYPES_OF_POLICIES = `SELECT type FROM vamps.vs_policies where policyid = ?`
+
+func GetTypesOfPolicies(policyIDs []int) []string {
+	println("GetTypesOfPolicies")
+	var types []string
+	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
+	for _, policyID := range policyIDs {
+		_, err := dbMap.Select(&types, GET_TYPES_OF_POLICIES, policyID)
+		if err != nil {
+			println(err.Error())
+		}
+	}
+	return types
 }

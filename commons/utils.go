@@ -16,7 +16,7 @@ func GetTenantId(r *http.Request) (int, error) {
 	return tenantId, err
 }
 
-func GetUserName(r *http.Request) (string) {
+func GetUserName(r *http.Request) string {
 	username := r.Header.Get("username")
 	return username
 }

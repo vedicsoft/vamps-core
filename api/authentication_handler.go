@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"strings"
 
+	"strconv"
+
 	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/controllers"
 	"github.com/vedicsoft/vamps-core/models"
-	"strconv"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) *commons.AppError {
