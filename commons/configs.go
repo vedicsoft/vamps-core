@@ -44,6 +44,7 @@ type serverConfigs struct {
 	DBConfigMap        map[string]DBConfigs
 	ConfigMap          map[string]interface{}
 	RedisConfigs       RedisConfigs
+	ExternalServices   map[string]ExternalServicesConfigs
 }
 
 type DBConfigs struct {
@@ -53,6 +54,11 @@ type DBConfigs struct {
 	DBName     string
 	Address    string
 	Parameters string
+}
+
+type ExternalServicesConfigs struct {
+	Service   string
+	Path      string
 }
 
 type RedisConfigs struct {
@@ -194,6 +200,18 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 	redisConfigsMap := viper.GetStringMap("redisConfigs")
 	ServerConfigurations.RedisConfigs.Address = redisConfigsMap["address"].(string)
 	ServerConfigurations.RedisConfigs.Password = redisConfigsMap["password"].(string)
+
+	//Exporting variables for other external services Ex: SAP, PMS, HAVC
+	ServerConfigurations.ExternalServices = make(map[string]ExternalServicesConfigs)
+	services := viper.Get("exConfigs").([]interface{})
+	for i, _ := range services {
+		service := services[i].(map[interface{}]interface{})
+		ServerConfigurations.ExternalServices[service["service"].(string)] = ExternalServicesConfigs{
+			Service:    service["service"].(string),
+			Path:     service["path"].(string),
+		}
+	}
+
 	return ServerConfigurations
 }
 
