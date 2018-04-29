@@ -8,12 +8,30 @@ import (
 	"errors"
 	"strconv"
 
+	"fmt"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/vedicsoft/vamps-core/commons"
 )
 
-const GET_USER_POLICIES = `SELECT policy FROM vs_policies WHERE policyid IN( SELECT policyid from vs_role_policies WHERE
-							roleid IN (SELECT roleid FROM vs_user_roles WHERE userid=?))`
+const GET_USER_POLICIES = `SELECT DISTINCT
+				    (policyid) as id, policy as policyjson
+				FROM
+				    vs_policies
+				WHERE
+				    policyid IN (SELECT
+					    policyid
+					from
+					    vs_role_policies
+					WHERE
+					    roleid IN (SELECT
+						    roleid
+						FROM
+						    vs_user_roles
+						WHERE
+						    userid = ?))
+					and tenantid = ?
+					and ((type = "system") OR (type = "application"))`
 
 const SPLIT_SYMBOL string = "."
 const ALL_SYMBOL string = "*"
@@ -119,19 +137,29 @@ func (p *VAMPSPolicy) IsValid() bool {
 	return false
 }
 
-func getUserPolicies(userID int) ([]VAMPSPolicy, error) {
+// get user policies under user id
+// get user polices under its roles.
+// get user policies under his attached grouped
+
+func getUserPolicies(userID int, tenantId int, t string) ([]VAMPSPolicy, error) {
 	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
 	var policies []VAMPSPolicy
-	var strPolicies []string
-	_, err := dbMap.Select(&strPolicies, GET_USER_POLICIES, userID)
+
+	type IAMPolicy struct {
+		ID     int    `db:"id"json:"id"`
+		Policy string `db:"policyjson"json:"policyjson"`
+	}
+	var strPolicies []IAMPolicy
+
+	_, err := dbMap.Select(&strPolicies, GET_USER_POLICIES, userID, tenantId)
 	if err != nil {
 		errMsg := "error occurred while getting user policies for user:  stack trace: " + err.Error()
 		return policies, errors.New(errMsg)
 	}
 	policies = make([]VAMPSPolicy, len(strPolicies))
 	for i, strPolicy := range strPolicies {
-		if len(strPolicy) > 0 {
-			err = json.Unmarshal([]byte(strPolicy), &policies[i])
+		if len(strPolicy.Policy) > 0 {
+			err = json.Unmarshal([]byte(strPolicy.Policy), &policies[i])
 			if err != nil {
 				return policies, errors.New("error occurred while unmarshalling policy json: " + err.Error())
 			}
@@ -145,13 +173,19 @@ func getUserPolicies(userID int) ([]VAMPSPolicy, error) {
 func isAuthorized2(tenantID int, userID int, r *http.Request) (bool, error) {
 	//resourcePrefix := commons.ServerConfigurations.Prefix
 
+	// Application Policies
 	requestedResource := strings.ToLower(strings.TrimPrefix(strings.Replace(r.URL.Path, "/", ".", -1), "."))
 	requestedAction := strings.ToLower(requestedResource + SPLIT_SYMBOL + r.Method)
 
-	userPolicies, err := getUserPolicies(userID)
+	var t = "general"
+	fmt.Println(t)
+	// get user policies according to the user id
+	userPolicies, err := getUserPolicies(userID, tenantID, t)
 	if err != nil {
 		return false, errors.New("unable to get user policies  stack trace:" + err.Error())
 	}
+	fmt.Println(userPolicies)
+
 	isAuthorized := false
 	for _, userPolicy := range userPolicies {
 		result := userPolicy.evaluate(requestedAction, requestedResource)

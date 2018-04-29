@@ -60,6 +60,7 @@ func main() {
 		WriteTimeout:   time.Duration(commons.ServerConfigurations.WriteTimeOut) * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
+
 	log.Info("Starting server on port : " + strconv.Itoa(commons.ServerConfigurations.HttpsPort+
 		commons.ServerConfigurations.PortOffset))
 	log.Fatal("HTTP Server error: ", httpsServer.ListenAndServeTLS(commons.ServerConfigurations.SSLCertificateFile,

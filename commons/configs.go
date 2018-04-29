@@ -6,12 +6,9 @@ import (
 	"strconv"
 	"text/template"
 
-	"fmt"
-
 	"errors"
-
+	"fmt"
 	"log"
-
 	"net/http"
 
 	"github.com/spf13/viper"
@@ -45,6 +42,7 @@ type serverConfigs struct {
 	ConfigMap          map[string]interface{}
 	RedisConfigs       RedisConfigs
 	ExternalServices   map[string]ExternalServicesConfigs
+	TenantConfigs      TenantConfigsInfo
 }
 
 type DBConfigs struct {
@@ -57,8 +55,12 @@ type DBConfigs struct {
 }
 
 type ExternalServicesConfigs struct {
-	Service   string
-	Path      string
+	Service string
+	Path    string
+}
+
+type TenantConfigsInfo struct {
+	DefaultRoles []string
 }
 
 type RedisConfigs struct {
@@ -203,15 +205,33 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 
 	//Exporting variables for other external services Ex: SAP, PMS, HAVC
 	ServerConfigurations.ExternalServices = make(map[string]ExternalServicesConfigs)
-	services := viper.Get("exConfigs").([]interface{})
-	for i, _ := range services {
-		service := services[i].(map[interface{}]interface{})
-		ServerConfigurations.ExternalServices[service["service"].(string)] = ExternalServicesConfigs{
-			Service:    service["service"].(string),
-			Path:     service["path"].(string),
+	var exConfigs = viper.Get("exConfigs")
+	if exConfigs != nil {
+		fmt.Println("test2")
+		services := exConfigs.([]interface{})
+		for i, _ := range services {
+			service := services[i].(map[interface{}]interface{})
+			ServerConfigurations.ExternalServices[service["service"].(string)] = ExternalServicesConfigs{
+				Service: service["service"].(string),
+				Path:    service["path"].(string),
+			}
 		}
 	}
 
+
+	var tenantConfigs = viper.GetStringMap("tenantConfigs")
+	fmt.Println(len(tenantConfigs))
+	if (ServerConfigurations.Prefix == "POLICY"){
+		if len(tenantConfigs) > 0 {
+			fmt.Println("test1")
+			t := tenantConfigs["defaultRoles"].([]interface{})
+			s := make([]string, len(t))
+			for i, v := range t {
+				s[i] = v.(string)
+			}
+			ServerConfigurations.TenantConfigs.DefaultRoles = s
+		}
+	}
 	return ServerConfigurations
 }
 

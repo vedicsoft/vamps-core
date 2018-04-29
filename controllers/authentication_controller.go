@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"fmt"
+
 	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/vedicsoft/vamps-core/commons"
@@ -94,17 +96,19 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 	})
 }
 
+// Check valid token or not and extract request header
 func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler {
+	fmt.Println("test")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authBackend := InitJWTAuthenticationEngine()
-		token, err := jwt.ParseFromRequest(
+		authBackend := InitJWTAuthenticationEngine() //
+		token, err := jwt.ParseFromRequest(          // parse token from the request with checking private key and public key
 			r,
 			func(token *jwt.Token) (interface{}, error) {
 				return authBackend.PublicKey, nil
 			})
 		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
 			log.Debug("Authentication failed " + err.Error())
-			w.WriteHeader(http.StatusForbidden)
+			w.WriteHeader(http.StatusForbidden) // 403
 			return
 		} else {
 			sClaims, _ := json.Marshal(token.Claims["scopes"])
@@ -114,15 +118,15 @@ func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler
 			r.Header.Set("username", token.Claims["sub"].(string))
 			r.Header.Set("userid", strconv.FormatFloat(userID.(float64), 'f', 0, 64))
 			r.Header.Set("tenantid", strconv.FormatFloat(tenantID.(float64), 'f', 0, 64))
-			a, err := isAuthorized2(int(tenantID.(float64)), int(userID.(float64)), r)
+			a, err := isAuthorized2(int(tenantID.(float64)), int(userID.(float64)), r) // check authorization policy for the user
 			if err != nil {
 				log.Debug("authorization failed due to error " + err.Error())
-				w.WriteHeader(http.StatusUnauthorized)
+				w.WriteHeader(http.StatusUnauthorized) // 401
 				return
 			}
 			if !a {
 				log.Debug("authorization failed for user " + strconv.Itoa(int(userID.(float64))))
-				w.WriteHeader(http.StatusUnauthorized)
+				w.WriteHeader(http.StatusUnauthorized) //401
 				return
 			}
 		}

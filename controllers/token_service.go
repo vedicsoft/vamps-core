@@ -163,7 +163,6 @@ func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
 }
 
 func getPrivateKey() *rsa.PrivateKey {
-
 	privateKeyFile, err := os.Open(commons.ServerConfigurations.JWTPrivateKeyFile)
 	if err != nil {
 		panic(err)
