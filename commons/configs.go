@@ -218,10 +218,9 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 		}
 	}
 
-
 	var tenantConfigs = viper.GetStringMap("tenantConfigs")
 	fmt.Println(len(tenantConfigs))
-	if (ServerConfigurations.Prefix == "POLICY"){
+	if ServerConfigurations.Prefix == "POLICY" {
 		if len(tenantConfigs) > 0 {
 			fmt.Println("test1")
 			t := tenantConfigs["defaultRoles"].([]interface{})
