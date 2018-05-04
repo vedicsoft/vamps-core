@@ -16,6 +16,7 @@ import (
 	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/models"
 	"github.com/vedicsoft/vamps-core/redis"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -48,13 +49,16 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser) 
 	token.Claims["sub"] = user.Username
 	token.Claims["tenantid"] = user.TenantId
 	token.Claims["userid"] = getUserId(user)
-	scopes, err := getUserScopes(user)
+	roles, err := getUserSystemRoles(user)
 	if err != nil {
 		return "", errors.New("could not load user scopes stack trace: " + err.Error())
 	}
-	token.Claims["scopes"] = scopes
-	types := GetTypesOfPoliciesByUserID(user.UserId)
-	token.Claims["types"] = types
+	token.Claims["roles"] = roles
+	groups, err := getUserGroups(user)
+	if err != nil {
+		return "", errors.New("could not load user scopes stack trace: " + err.Error())
+	}
+	token.Claims["groups"] = groups
 	tokenString, err := token.SignedString(backend.privateKey)
 	if err != nil {
 		return "", errors.New("unable to sign the jwt stack trace: " + err.Error())
@@ -69,13 +73,16 @@ func (backend *JWTAuthenticationBackend) GenerateCustomToken(user *models.System
 	token.Claims["sub"] = user.Username
 	token.Claims["tenantid"] = user.TenantId
 	token.Claims["userid"] = getUserId(user)
-	scopes, err := getUserScopes(user)
+	roles, err := getUserSystemRoles(user)
 	if err != nil {
 		return "", errors.New("could not load user scopes stack trace: " + err.Error())
 	}
-	token.Claims["scopes"] = scopes
-	types := GetTypesOfPoliciesByUserID(user.UserId)
-	token.Claims["types"] = types
+	token.Claims["roles"] = roles
+	groups, err := getUserGroups(user)
+	if err != nil {
+		return "", errors.New("could not load user scopes stack trace: " + err.Error())
+	}
+	token.Claims["groups"] = groups
 	tokenString, err := token.SignedString(backend.privateKey)
 	if err != nil {
 		return "", errors.New("unable to sign the jwt stack trace: " + err.Error())
@@ -98,7 +105,7 @@ func getUserId(user *models.SystemUser) int64 {
 	}
 }
 
-func getUserScopes(user *models.SystemUser) ([]string, error) {
+func getUserSystemRoles(user *models.SystemUser) ([]string, error) {
 	const GET_USER_ROLES string = `SELECT vs_roles.name from vs_roles WHERE vs_roles.roleid IN (SELECT
 								   vs_user_roles.roleid FROM vs_user_roles WHERE
 								   vs_user_roles.userid=?) AND vs_roles.type='system'`
@@ -111,6 +118,21 @@ func getUserScopes(user *models.SystemUser) ([]string, error) {
 	}
 	return roles, err
 }
+
+func getUserGroups(user *models.SystemUser) ([]string, error) {
+	const GET_USER_GROUPS string = `SELECT vs_groups.name  from vs_groups WHERE vs_groups.id IN (SELECT vs_group_users.groupid FROM vs_group_users WHERE vs_group_users.userid= ?)`
+	var groups []string
+	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
+	var err error
+	_, err = dbMap.Select(&groups, GET_USER_GROUPS, user.UserId)
+	if err != nil {
+		return groups, err
+	}
+	return groups, err
+}
+
+
+
 
 func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) bool {
 	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
@@ -217,59 +239,4 @@ func getPublicKey() *rsa.PublicKey {
 	}
 
 	return rsaPub
-}
-
-const GET_ROLES_BY_USERID = `SELECT roleid FROM vs_user_roles where userid = ?`
-
-func GetTypesOfPoliciesByUserID(userid int64) []string {
-	println("GetTypesOfPoliciesByUserID")
-	var roles []int
-	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
-	_, err := dbMap.Select(&roles, GET_ROLES_BY_USERID, userid)
-	if err != nil {
-		println(err.Error())
-	}
-	return GetPoliciesByRoleID(roles)
-}
-
-const GET_POLICIES_BY_ROLEID = `SELECT policyid FROM vs_role_policies where roleid = ?`
-
-func GetPoliciesByRoleID(roleids []int) []string {
-	println("GetPoliciesByRoleID")
-	var policies []int
-	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
-	for _, roleid := range roleids {
-		_, err := dbMap.Select(&policies, GET_POLICIES_BY_ROLEID, roleid)
-		if err != nil {
-			println(err.Error())
-		}
-	}
-	return GetTypesOfPolicies(unique(policies))
-}
-
-func unique(intSlice []int) []int {
-	keys := make(map[int]bool)
-	list := []int{}
-	for _, entry := range intSlice {
-		if _, value := keys[entry]; !value {
-			keys[entry] = true
-			list = append(list, entry)
-		}
-	}
-	return list
-}
-
-const GET_TYPES_OF_POLICIES = `SELECT type FROM vamps.vs_policies where policyid = ?`
-
-func GetTypesOfPolicies(policyIDs []int) []string {
-	println("GetTypesOfPolicies")
-	var types []string
-	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
-	for _, policyID := range policyIDs {
-		_, err := dbMap.Select(&types, GET_TYPES_OF_POLICIES, policyID)
-		if err != nil {
-			println(err.Error())
-		}
-	}
-	return types
 }
