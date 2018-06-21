@@ -11,6 +11,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"gopkg.in/gorp.v1"
 	"gopkg.in/mgo.v2"
+	"github.com/Shopify/sarama"
 )
 
 const DIALECT_MYSQL string = "mysql"
@@ -23,12 +24,11 @@ type DBConnection struct {
 }
 
 var dbConnections map[string]DBConnection
+var kConsumerConn sarama.Consumer
+var kProducerConn sarama.AsyncProducer
+
 var mongoConnectionUrl string
 var mgoSession *mgo.Session
-
-func GetDBDetailedConnection(dbName string) DBConnection {
-	return dbConnections[dbName]
-}
 
 func GetMongoSession() (*mgo.Session, error) {
 	if mgoSession == nil {
@@ -67,6 +67,40 @@ func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
 				" with dialect:" + dbConfig.Dialect + " stack:" + err.Error())
 		}
 		dbConnections[dbName] = DBConnection{connectionURL, &gorp.DbMap{Db: db, Dialect: dialect}}
+	}
+}
+
+func ConstructKafkaConnection(kafkaConfigs map[string]KafkaConfig)  {
+	for connType, kafkaConfig := range kafkaConfigs {
+		switch connType {
+		case "producer":
+			config := sarama.NewConfig()
+			// Return specifies what channels will be populated.
+			// If they are set to true, you must read from
+			// config.Producer.Return.Successes = true
+			// The total number of times to retry sending a message (default 3).
+			config.Producer.Retry.Max = kafkaConfig.MaxRetry
+			// The level of acknowledgement reliability needed from the broker.
+			config.Producer.RequiredAcks = sarama.WaitForAll
+			brokers := kafkaConfig.Service
+			producer, err := sarama.NewAsyncProducer(brokers, config)
+			if err != nil {
+				log.Error("Error occurred while constructing a the DB connection")
+			}
+			kProducerConn = producer
+			break
+		case "consumer":
+			config := sarama.NewConfig()
+			config.Producer.Retry.Max = kafkaConfig.MaxRetry
+			config.Producer.RequiredAcks = sarama.WaitForAll
+			brokers := kafkaConfig.Service
+			consumer, err := sarama.NewConsumer(brokers, config)
+			if err != nil {
+				log.Error("Error occurred while constructing")
+			}
+			kConsumerConn = consumer
+			break
+		}
 	}
 }
 

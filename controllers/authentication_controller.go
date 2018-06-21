@@ -92,8 +92,8 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 			w.WriteHeader(http.StatusForbidden)
 			return
 		} else {
-			sClaims, _ := json.Marshal(token.Claims["scopes"])
-			r.Header.Set("scopes", string(sClaims))
+			sClaims, _ := json.Marshal(token.Claims["roles"])
+			r.Header.Set("roles", string(sClaims))
 			r.Header.Set("username", token.Claims["sub"].(string))
 			r.Header.Set("userid", strconv.FormatFloat((token.Claims["userid"]).(float64), 'f', 0, 64))
 			if domainTenant != "" {
@@ -132,10 +132,10 @@ func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler
 			w.WriteHeader(http.StatusForbidden) // 403
 			return
 		} else {
-			sClaims, _ := json.Marshal(token.Claims["scopes"])
+			sClaims, _ := json.Marshal(token.Claims["roles"])
 			userID := token.Claims["userid"]
 			tenantID := token.Claims["tenantid"]
-			r.Header.Set("scopes", string(sClaims))
+			r.Header.Set("roles", string(sClaims))
 			r.Header.Set("username", token.Claims["sub"].(string))
 			r.Header.Set("userid", strconv.FormatFloat(userID.(float64), 'f', 0, 64))
 			if domainTenant != "" {

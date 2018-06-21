@@ -13,6 +13,7 @@ import (
 
 	"github.com/spf13/viper"
 	"gopkg.in/gorp.v1"
+	"github.com/Shopify/sarama"
 )
 
 type serverConfigs struct {
@@ -39,10 +40,16 @@ type serverConfigs struct {
 	LogsDirectory      string
 	LogLevel           string
 	DBConfigMap        map[string]DBConfigs
+	KafkaConfigs       map[string]KafkaConfig
 	ConfigMap          map[string]interface{}
 	RedisConfigs       RedisConfigs
 	ExternalServices   map[string]ExternalServicesConfigs
 	TenantConfigs      TenantConfigsInfo
+}
+
+type KafkaConfig struct {
+	Service []string
+	MaxRetry int
 }
 
 type DBConfigs struct {
@@ -77,6 +84,17 @@ func init() {
 func GetDBConnection(dbIdentifier string) *gorp.DbMap {
 	return dbConnections[dbIdentifier].dbMap
 }
+
+func GetKafkaProducerConn() sarama.AsyncProducer {
+	return kProducerConn
+}
+
+func GetKafkaConsumerConn() sarama.Consumer {
+	return kConsumerConn
+}
+
+
+
 
 func (config *serverConfigs) GetString(identifier string) string {
 	return (*config).ConfigMap[identifier].(string)
@@ -214,6 +232,24 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 			ServerConfigurations.ExternalServices[service["service"].(string)] = ExternalServicesConfigs{
 				Service: service["service"].(string),
 				Path:    service["path"].(string),
+			}
+		}
+	}
+
+	ServerConfigurations.KafkaConfigs = make(map[string]KafkaConfig)
+	kafkaConfigs := viper.Get("kafkaConfigs").([]interface{})
+	if len(kafkaConfigs) > 0 {
+		fmt.Println(kafkaConfigs)
+		for i, _ := range kafkaConfigs {
+			configs := kafkaConfigs[i].(map[interface{}]interface{})
+			t := configs["services"].([]interface{})
+			s := make([]string, len(t))
+			for i, v := range t {
+				s[i] = v.(string)
+			}
+			ServerConfigurations.KafkaConfigs[configs["name"].(string)] = KafkaConfig{
+				Service:    s,
+				MaxRetry:  configs["maxRetry"].(int),
 			}
 		}
 	}
