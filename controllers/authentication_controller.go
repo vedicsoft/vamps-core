@@ -75,12 +75,6 @@ func Logout(req *http.Request) error {
 
 func RequireTokenAuthentication(inner http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var domainTenant string
-		var err error
-		if t := r.Header.Get("tenantid"); t != "" {
-			domainTenant = t
-		}
-		fmt.Println(domainTenant)
 		authBackend := InitJWTAuthenticationEngine()
 		token, err := jwt.ParseFromRequest(
 			r,
@@ -96,12 +90,6 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 			r.Header.Set("roles", string(sClaims))
 			r.Header.Set("username", token.Claims["sub"].(string))
 			r.Header.Set("userid", strconv.FormatFloat((token.Claims["userid"]).(float64), 'f', 0, 64))
-			if domainTenant != "" {
-				r.Header.Set("tenantid", domainTenant)
-			}else {
-				r.Header.Set("tenantid", strconv.FormatFloat((token.Claims["tenantid"]).(float64), 'f', 0, 64))
-			}
-
 		}
 		inner.ServeHTTP(w, r)
 	})
