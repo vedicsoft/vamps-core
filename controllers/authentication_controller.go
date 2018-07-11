@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"fmt"
-
 	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/vedicsoft/vamps-core/commons"
@@ -90,6 +88,7 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 			r.Header.Set("roles", string(sClaims))
 			r.Header.Set("username", token.Claims["sub"].(string))
 			r.Header.Set("userid", strconv.FormatFloat((token.Claims["userid"]).(float64), 'f', 0, 64))
+			r.Header.Set("tenantid", strconv.FormatFloat((token.Claims["tenantid"]).(float64), 'f', 0, 64))
 		}
 		inner.ServeHTTP(w, r)
 	})
@@ -97,18 +96,13 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 
 // Check valid token or not and extract request header
 func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler {
-	fmt.Println("test")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var domainTenant string
 		var err error
 		// This for superadmin purpose
 		// To create tenant users for each tenants
 		// To create tenant user groups for each users
 		// To create tenant user roles
 		// To create user polices
-		if t := r.Header.Get("tenantid"); t != "" {
-			domainTenant = t
-		}
 		authBackend := InitJWTAuthenticationEngine() //
 		token, err := jwt.ParseFromRequest(          // parse token from the request with checking private key and public key
 			r,
@@ -126,11 +120,7 @@ func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler
 			r.Header.Set("roles", string(sClaims))
 			r.Header.Set("username", token.Claims["sub"].(string))
 			r.Header.Set("userid", strconv.FormatFloat(userID.(float64), 'f', 0, 64))
-			if domainTenant != "" {
-				r.Header.Set("tenantid", domainTenant)
-			}else {
-				r.Header.Set("tenantid", strconv.FormatFloat((token.Claims["tenantid"]).(float64), 'f', 0, 64))
-			}
+			r.Header.Set("tenantid", strconv.FormatFloat((token.Claims["tenantid"]).(float64), 'f', 0, 64))
 
 			a, err := isAuthorized2(int(tenantID.(float64)), int(userID.(float64)), r) // check authorization policy for the user
 			if err != nil {
