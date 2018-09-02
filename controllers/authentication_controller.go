@@ -6,25 +6,29 @@ import (
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/models"
+	"github.com/dgrijalva/jwt-go"
 )
 
-type TokenAuthentication struct {
-	Token    string `json:"token" form:"token"`
-	TenantId int64  `json:"tenantid" form:"tenantid"`
+type TokenContext struct {
+	Token          string `json:"token" form:"token"`
+	TenantId       int64  `json:"tenantid" form:"tenantid"`
+	GrantType      string   `json:"grantType,omitempty"`
+	UserID         int64    `json:"userID,omitempty"`
+	ExpirationTime int64    `json:"expirationTime,omitempty"`
+	Scopes         []string `json:"scopes,omitempty"`
 }
 
 func Login(requestUser *models.SystemUser) (int, []byte, error) {
 	authEngine := InitJWTAuthenticationEngine()
 	requestUser.TenantId = getTenantId(requestUser)
 	if authEngine.Authenticate(requestUser) {
-		token, err := authEngine.GenerateToken(requestUser)
+		token, err := authEngine.GenerateToken(requestUser, commons.ServerConfigurations.JWTExpirationDelta)
 		if err != nil {
 			return http.StatusInternalServerError, []byte(""), err
 		} else {
-			response, _ := json.Marshal(TokenAuthentication{token, requestUser.TenantId})
+			response, _ := json.Marshal(TokenContext{Token:token, TenantId:requestUser.TenantId})
 			return http.StatusOK, response, nil
 		}
 	}
@@ -33,12 +37,12 @@ func Login(requestUser *models.SystemUser) (int, []byte, error) {
 
 func CustomToken(requestUser *models.SystemUser, expirationHours int) []byte {
 	authEngine := InitJWTAuthenticationEngine()
-	token, err := authEngine.GenerateCustomToken(requestUser, expirationHours)
+	token, err := authEngine.GenerateToken(requestUser, expirationHours)
 	if err != nil {
 		panic(err)
 	}
 	requestUser.TenantId = getTenantId(requestUser)
-	response, err := json.Marshal(TokenAuthentication{token, requestUser.TenantId})
+	response, err := json.Marshal(TokenContext{Token:token, TenantId:requestUser.TenantId})
 	if err != nil {
 		panic(err)
 	}
@@ -47,12 +51,12 @@ func CustomToken(requestUser *models.SystemUser, expirationHours int) []byte {
 
 func RefreshToken(requestUser *models.SystemUser) []byte {
 	authEngine := InitJWTAuthenticationEngine()
-	token, err := authEngine.GenerateToken(requestUser)
+	token, err := authEngine.GenerateToken(requestUser, commons.ServerConfigurations.JWTExpirationDelta)
 	if err != nil {
 		panic(err)
 	}
 	requestUser.TenantId = getTenantId(requestUser)
-	response, err := json.Marshal(TokenAuthentication{token, requestUser.TenantId})
+	response, err := json.Marshal(TokenContext{Token:token, TenantId:requestUser.TenantId})
 	if err != nil {
 		panic(err)
 	}
@@ -61,34 +65,28 @@ func RefreshToken(requestUser *models.SystemUser) []byte {
 
 func Logout(req *http.Request) error {
 	authEngine := InitJWTAuthenticationEngine()
-	tokenRequest, err := jwt.ParseFromRequest(req, func(token *jwt.Token) (interface{}, error) {
-		return authEngine.PublicKey, nil
-	})
-	if err != nil {
-		return err
-	}
-	tokenString := req.Header.Get("Authorization")
-	return authEngine.Logout(tokenString, tokenRequest)
+	return authEngine.InvalidateJWT(req)
 }
 
 func RequireTokenAuthentication(inner http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authBackend := InitJWTAuthenticationEngine()
-		token, err := jwt.ParseFromRequest(
-			r,
-			func(token *jwt.Token) (interface{}, error) {
-				return authBackend.PublicKey, nil
-			})
+		token, err := authBackend.ProcessToken(r)
 		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
 			log.Debug("Authentication failed " + err.Error())
 			w.WriteHeader(http.StatusForbidden)
 			return
 		} else {
-			sClaims, _ := json.Marshal(token.Claims["roles"])
-			r.Header.Set("roles", string(sClaims))
-			r.Header.Set("username", token.Claims["sub"].(string))
-			r.Header.Set("userid", strconv.FormatFloat((token.Claims["userid"]).(float64), 'f', 0, 64))
-			r.Header.Set("tenantid", strconv.FormatFloat((token.Claims["tenantid"]).(float64), 'f', 0, 64))
+			if claims, ok := token.Claims.(jwt.MapClaims); ok {
+				sClaims, _ := json.Marshal(claims["roles"])
+				r.Header.Set("roles", string(sClaims))
+				r.Header.Set("username", claims["sub"].(string))
+				r.Header.Set("userid", strconv.FormatFloat((claims["userid"]).(float64), 'f', 0, 64))
+				r.Header.Set("tenantid", strconv.FormatFloat((claims["tenantid"]).(float64), 'f', 0, 64))
+			}else{
+				w.WriteHeader(http.StatusForbidden)
+				return
+			}
 		}
 		inner.ServeHTTP(w, r)
 	})
@@ -104,33 +102,26 @@ func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler
 		// To create tenant user roles
 		// To create user polices
 		authBackend := InitJWTAuthenticationEngine() //
-		token, err := jwt.ParseFromRequest(          // parse token from the request with checking private key and public key
-			r,
-			func(token *jwt.Token) (interface{}, error) {
-				return authBackend.PublicKey, nil
-			})
-		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
-			log.Debug("Authentication failed " + err.Error())
+		token, err := authBackend.ProcessToken(r)
+		if err != nil || !token.Valid {
 			w.WriteHeader(http.StatusForbidden) // 403
 			return
 		} else {
-			sClaims, _ := json.Marshal(token.Claims["roles"])
-			userID := token.Claims["userid"]
-			tenantID := token.Claims["tenantid"]
-			r.Header.Set("roles", string(sClaims))
-			r.Header.Set("username", token.Claims["sub"].(string))
-			r.Header.Set("userid", strconv.FormatFloat(userID.(float64), 'f', 0, 64))
-			r.Header.Set("tenantid", strconv.FormatFloat((token.Claims["tenantid"]).(float64), 'f', 0, 64))
-
-			a, err := isAuthorized2(int(tenantID.(float64)), int(userID.(float64)), r) // check authorization policy for the user
-			if err != nil {
-				log.Debug("authorization failed due to error " + err.Error())
+			if claims, ok := token.Claims.(jwt.MapClaims); ok {
+				sClaims, _ := json.Marshal(claims["roles"])
+				userID := claims["userid"].(float64)
+				tenantID := claims["tenantid"].(float64)
+				r.Header.Set("roles", string(sClaims))
+				r.Header.Set("username", claims["sub"].(string))
+				r.Header.Set("userid", strconv.FormatFloat(userID, 'f', 0, 64))
+				r.Header.Set("tenantid", strconv.FormatFloat(tenantID, 'f', 0, 64))
+				a, err := isAuthorized2(int(tenantID), int(userID), r) // check authorization policy for the user
+				if err != nil  || !a{
+					w.WriteHeader(http.StatusForbidden) // 403
+					return
+				}
+			}else{
 				w.WriteHeader(http.StatusUnauthorized) // 401
-				return
-			}
-			if !a {
-				log.Debug("authorization failed for user " + strconv.Itoa(int(userID.(float64))))
-				w.WriteHeader(http.StatusUnauthorized) //401
 				return
 			}
 		}

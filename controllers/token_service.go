@@ -18,6 +18,9 @@ import (
 	"github.com/vedicsoft/vamps-core/redis"
 
 	"golang.org/x/crypto/bcrypt"
+	"fmt"
+	"strings"
+	"net/http"
 )
 
 type JWTAuthenticationBackend struct {
@@ -41,49 +44,26 @@ func InitJWTAuthenticationEngine() *JWTAuthenticationBackend {
 	return authBackendInstance
 }
 
-func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser) (string, error) {
-	token := jwt.New(jwt.SigningMethodRS512)
-	i := commons.ServerConfigurations.JWTExpirationDelta
-	token.Claims["exp"] = time.Now().Add(time.Hour * time.Duration(i)).Unix()
-	token.Claims["iat"] = time.Now().Unix()
-	token.Claims["sub"] = user.Username
-	token.Claims["tenantid"] = user.TenantId
-	token.Claims["userid"] = getUserId(user)
+func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser, expInHours int) (string, error) {
+	exp := time.Now().Add(time.Hour * time.Duration(expInHours)).Unix()
 	roles, err := getUserSystemRoles(user)
 	if err != nil {
 		return "", errors.New("could not load user scopes stack trace: " + err.Error())
 	}
-	token.Claims["roles"] = roles
 	groups, err := getUserGroups(user)
 	if err != nil {
 		return "", errors.New("could not load user scopes stack trace: " + err.Error())
 	}
-	token.Claims["groups"] = groups
-	tokenString, err := token.SignedString(backend.privateKey)
-	if err != nil {
-		return "", errors.New("unable to sign the jwt stack trace: " + err.Error())
-	}
-	return tokenString, nil
-}
-
-func (backend *JWTAuthenticationBackend) GenerateCustomToken(user *models.SystemUser, expirationHours int) (string, error) {
-	token := jwt.New(jwt.SigningMethodRS512)
-	token.Claims["exp"] = time.Now().Add(time.Hour * time.Duration(expirationHours)).Unix()
-	token.Claims["iat"] = time.Now().Unix()
-	token.Claims["sub"] = user.Username
-	token.Claims["tenantid"] = user.TenantId
-	token.Claims["userid"] = getUserId(user)
-	roles, err := getUserSystemRoles(user)
-	if err != nil {
-		return "", errors.New("could not load user scopes stack trace: " + err.Error())
-	}
-	token.Claims["roles"] = roles
-	groups, err := getUserGroups(user)
-	if err != nil {
-		return "", errors.New("could not load user scopes stack trace: " + err.Error())
-	}
-	token.Claims["groups"] = groups
-	tokenString, err := token.SignedString(backend.privateKey)
+	t := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
+		"iat":    time.Now().Unix(),
+		"exp":    exp,
+		"sub":    user.Username,
+		"tenantid": user.TenantId,
+		"userid":     getUserId(user),
+		"roles":     roles,
+		"groups":    groups,
+	})
+	tokenString, err := t.SignedString(backend.privateKey)
 	if err != nil {
 		return "", errors.New("unable to sign the jwt stack trace: " + err.Error())
 	}
@@ -131,9 +111,6 @@ func getUserGroups(user *models.SystemUser) ([]string, error) {
 	return groups, err
 }
 
-
-
-
 func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) bool {
 	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
 	var hashedPassword sql.NullString
@@ -167,8 +144,24 @@ func (backend *JWTAuthenticationBackend) getTokenRemainingValidity(timestamp int
 	return expireOffset
 }
 
-func (backend *JWTAuthenticationBackend) Logout(tokenString string, token *jwt.Token) error {
-	return redis.SetValue(tokenString, tokenString, backend.getTokenRemainingValidity(token.Claims["exp"]))
+func (backend *JWTAuthenticationBackend) InvalidateJWT(r *http.Request) error {
+	t, err := backend.ProcessToken(r)
+	if err != nil || !t.Valid {
+		return errors.New("invalid token")
+	}
+	// get remaining token validity
+	if claims, ok := t.Claims.(jwt.MapClaims); ok {
+		if validity, ok := claims["exp"].(float64); ok {
+			tm := time.Unix(int64(validity), 0)
+			remainer := tm.Sub(time.Now())
+			if remainer > 0 {
+				return redis.SetValue(t.Raw, t.Raw, remainer.Seconds() + expireOffset)
+			} else {
+				return nil
+			}
+		}
+	}
+	return nil
 }
 
 func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
@@ -182,6 +175,60 @@ func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
 	}
 	log.Debug("Found a blacklisted token")
 	return true
+}
+
+func (backend *JWTAuthenticationBackend) ProcessToken(r *http.Request) (*jwt.Token, error) {
+	// 1. extract token from request
+	tokenString, err := extractToken(r)
+	if err != nil {
+		return nil, err
+	}
+	// 2. verify
+	if backend.privateKey != nil {
+		t, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+			return backend.privateKey, nil
+		})
+		if err != nil || !t.Valid {
+			return nil, err
+		}
+		// 3. Check the black list
+		if !backend.IsInBlacklist(tokenString) {
+			t.Valid = false
+			return nil, errors.New("black listed token")
+		}
+	}
+	return nil, errors.New("public key is not initialized")
+}
+
+func extractToken(r *http.Request) (string, error) {
+	header := r.Header.Get("Authorization")
+	ts, err := getAuthToken("Bearer", header)
+	if err != nil {
+		// unable to find the token from the header
+		tc, err := r.Cookie("access_token")
+		if err == nil {
+			return ts, errors.New("access token is not present in the request")
+		} else {
+			return tc.Raw, nil
+		}
+	} else {
+		return ts, err
+	}
+}
+
+//returns the token string from the header value
+//Input header format should be "<tokenType> <token>"
+func getAuthToken(tokenType, header string) (string, error) {
+	tmp := strings.Split(header, " ")
+	if len(tmp) == 2 && tmp[0] == tokenType {
+		//jwt token authentication
+		return tmp[1], nil
+	} else {
+		return "", errors.New("unable to extract the token")
+	}
 }
 
 func getPrivateKey() *rsa.PrivateKey {

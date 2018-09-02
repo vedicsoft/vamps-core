@@ -20,3 +20,10 @@ const JWT_EXPIRATION_DELTA string = "JWT_EXPIRATION_DELTA"
 
 const FILE_PATH_SEPARATOR string = "/"
 const CONFIG_FILE string = "CONFIG_FILE"
+
+const HTTP_HEADER_USER_AGENT        string = "User-Agent"
+const HTTP_HEADER_AUTHORIZATION     string = "Authorization"
+
+const HTTP_COOKIE_ACCESS_TOKEN     string = "access_token"
+const ACCESS_TOKEN_EXPIRATION_TIME string = "access_token_exp"
+const TOKEN_TYPE_BEATER                   = "Bearer"
