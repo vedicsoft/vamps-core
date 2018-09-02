@@ -1,0 +1,12 @@
+# core
+localhost:{$CORE_CADDY_PORT}/app {
+    root  webapps/app
+    gzip
+    ext    .html
+    log    logs/caddyaccess.log
+    tls {$CORE_CERTIFICATE_FILE} {$CORE_KEY_FILE}
+    proxy  /api https://localhost:{$CORE_HTTPS_PORT} {
+        without /api
+       insecure_skip_verify
+    }
+}

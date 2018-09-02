@@ -1,0 +1,4 @@
+*.db
+*.pid
+*.rdb
+*.log

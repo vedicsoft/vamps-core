@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"time"
 
@@ -40,14 +39,6 @@ func main() {
 	defer serverLogFile.Close()
 
 	commons.ConstructConnectionPool(commons.ServerConfigurations.DBConfigMap)
-
-	// Starting caddy server to server static files
-	args := []string{"bin/caddy", "--conf=" + commons.ServerConfigurations.CaddyFile, "-pidfile=bin/caddy.pid"}
-
-	if err := exec.Command("nohup", args...).Start(); err != nil {
-		log.Fatalln("Error occourred while starting caddy server : ", err.Error())
-		os.Exit(1)
-	}
 
 	//Starting the API server
 	router := routes.NewRouter()
