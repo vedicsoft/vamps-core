@@ -27,7 +27,10 @@ func GetUserID(r *http.Request) (int, error) {
 }
 
 func GetTenantIDFromDomain(tenantDomain string) (int, error) {
-	dbMap := GetDBConnection(PLATFORM_DB)
+	dbMap, err := GetDBConnection(USER_STORE)
+	if err != nil {
+		return 0, err
+	}
 	tenantID, err := dbMap.SelectNullInt(GET_TENANT_ID_FROM_DOMAIN, tenantDomain)
 	if err != nil {
 		errMsg := "error occurred while getting tenant id for domain: " + tenantDomain + "  stack trace:" + err.Error()
@@ -47,7 +50,7 @@ func NormalizeMAC(mac string) (string, error) {
 	if len(mac) > 0 {
 		if len(mac) == 12 {
 			return strings.ToUpper(mac[:2] + "-" + mac[2:4] + "-" + mac[4:6] + "-" + mac[6:8] + "-" +
-				mac[8:10] + "-" + mac[10:12]), nil
+			mac[8:10] + "-" + mac[10:12]), nil
 		} else {
 			return strings.ToUpper(strings.Replace(mac, ":", "-", -1)), nil
 		}

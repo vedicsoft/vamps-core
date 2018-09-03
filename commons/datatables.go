@@ -27,8 +27,10 @@ import (
  */
 func Fetch(request *http.Request, database string, table string, totalRecordCountQuery string, columns []string, columnsMap map[string]string,
 	result interface{}, tenantID int) (int64, int64, error) {
-	dbMap := GetDBConnection(database)
-	var err error
+	dbMap ,err:= GetDBConnection(database)
+	if err != nil {
+		return 0, 0, err
+	}
 	query := "SELECT "
 
 	for index, element := range columns {

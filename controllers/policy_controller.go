@@ -142,16 +142,18 @@ func (p *VAMPSPolicy) IsValid() bool {
 // get user policies under his attached grouped
 
 func getUserPolicies(userID int, tenantId int, t string) ([]VAMPSPolicy, error) {
-	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
 	var policies []VAMPSPolicy
-
+	dbMap, err:= commons.GetDBConnection(commons.PLATFORM_DB)
+	if err != nil {
+		return policies, err
+	}
 	type IAMPolicy struct {
 		ID     int    `db:"id"json:"id"`
 		Policy string `db:"policyjson"json:"policyjson"`
 	}
 	var strPolicies []IAMPolicy
 
-	_, err := dbMap.Select(&strPolicies, GET_USER_POLICIES, userID, tenantId)
+	_, err = dbMap.Select(&strPolicies, GET_USER_POLICIES, userID, tenantId)
 	if err != nil {
 		errMsg := "error occurred while getting user policies for user:  stack trace: " + err.Error()
 		return policies, errors.New(errMsg)

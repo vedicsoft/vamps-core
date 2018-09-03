@@ -23,7 +23,11 @@ type TokenContext struct {
 func Login(requestUser *models.SystemUser) (int, []byte, error) {
 	authEngine := InitJWTAuthenticationEngine()
 	requestUser.TenantId = getTenantId(requestUser)
-	if authEngine.Authenticate(requestUser) {
+	authenticaed, err := authEngine.Authenticate(requestUser)
+	if err != nil {
+		return http.StatusInternalServerError, []byte(""), err
+	}
+	if authenticaed {
 		token, err := authEngine.GenerateToken(requestUser, commons.ServerConfigurations.JWTExpirationDelta)
 		if err != nil {
 			return http.StatusInternalServerError, []byte(""), err
@@ -130,7 +134,8 @@ func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler
 }
 
 func getTenantId(user *models.SystemUser) int64 {
-	dbMap := commons.GetDBConnection(commons.USER_STORE_DB)
+	dbMap, err := commons.GetDBConnection(commons.USER_STORE)
+	checkErr(err, "failed to get userstore")
 	tenantId, err := dbMap.SelectInt("SELECT tenantid FROM vs_tenants WHERE domain=?", user.TenantDomain)
 	checkErr(err, "Select failed")
 	return tenantId

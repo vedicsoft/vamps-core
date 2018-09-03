@@ -59,7 +59,7 @@ func (s *Store) RegisterDB() error {
 		if err != nil {
 			return err
 		}
-		createdStores[s.Type] = &gorp.DbMap{Db:db, Dialect: s.Dialect}
+		createdStores[s.Type] = &gorp.DbMap{Db:db, Dialect: gorp.MySQLDialect{"InnoDB", "UTF8"}}
 	case DIALECT_POSTGRES:
 	//TO DO
 	}
@@ -102,7 +102,7 @@ func (s *Store) Migrate() error {
 
 func GetDBConnection(storeType string) (*gorp.DbMap, error) {
 	if store, ok := createdStores[storeType]; ok {
-		return store.Db, nil
+		return store, nil
 	} else {
 		return nil, errors.New(fmt.Sprintf("store not initialized"))
 	}

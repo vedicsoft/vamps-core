@@ -24,7 +24,6 @@ type serverConfigs struct {
 	LogsDirectory      string
 	LogLevel           string
 	DBConfigMap        map[string]DBConfigs
-	KafkaConfigs       map[string]KafkaConfig
 	ConfigMap          map[string]interface{}
 	RedisConfigs       RedisConfigs
 	ExternalServices   map[string]ExternalServicesConfigs

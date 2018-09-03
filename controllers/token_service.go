@@ -48,18 +48,22 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser, 
 	exp := time.Now().Add(time.Hour * time.Duration(expInHours)).Unix()
 	roles, err := getUserSystemRoles(user)
 	if err != nil {
-		return "", errors.New("could not load user scopes stack trace: " + err.Error())
+		return "", errors.New("could not load user roles err: " + err.Error())
 	}
 	groups, err := getUserGroups(user)
 	if err != nil {
-		return "", errors.New("could not load user scopes stack trace: " + err.Error())
+		return "", errors.New("could not load usergroups err: " + err.Error())
+	}
+	uID, err := getUserId(user)
+	if err != nil {
+		return "", errors.New("could not load userId err: " + err.Error())
 	}
 	t := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
 		"iat":    time.Now().Unix(),
 		"exp":    exp,
 		"sub":    user.Username,
 		"tenantid": user.TenantId,
-"userid":     getUserId(user),
+		"userid":   uID,
 		"roles":     roles,
 		"groups":    groups,
 	})
@@ -70,18 +74,23 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser, 
 	return tokenString, nil
 }
 
-func getUserId(user *models.SystemUser) int64 {
-	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
+func getUserId(user *models.SystemUser) (int64, error) {
+	dbMap, err := commons.GetDBConnection(commons.PLATFORM_DB)
+	if err != nil {
+		return 0, err
+	}
 	var userId sql.NullInt64
 	smtOut, err := dbMap.Db.Prepare("SELECT userid FROM vs_users WHERE username=? AND tenantid=?")
+	if err != nil {
+		return 0, err
+	}
 	defer smtOut.Close()
 	err = smtOut.QueryRow(user.Username, user.TenantId).Scan(&userId)
 	if err != nil {
-		log.Debug("User authentication failed " + user.Username)
-		return -1
+		return 0, err
 	} else {
 		user.UserId = userId.Int64
-		return userId.Int64
+		return userId.Int64, err
 	}
 }
 
@@ -90,8 +99,10 @@ func getUserSystemRoles(user *models.SystemUser) ([]string, error) {
 								   vs_user_roles.roleid FROM vs_user_roles WHERE
 								   vs_user_roles.userid=?) AND vs_roles.type='system'`
 	var roles []string
-	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
-	var err error
+	dbMap, err := commons.GetDBConnection(commons.USER_STORE)
+	if err != nil {
+		return roles, err
+	}
 	_, err = dbMap.Select(&roles, GET_USER_ROLES, user.UserId)
 	if err != nil {
 		return roles, err
@@ -100,10 +111,13 @@ func getUserSystemRoles(user *models.SystemUser) ([]string, error) {
 }
 
 func getUserGroups(user *models.SystemUser) ([]string, error) {
-	const GET_USER_GROUPS string = `SELECT vs_groups.name  from vs_groups WHERE vs_groups.id IN (SELECT vs_group_users.groupid FROM vs_group_users WHERE vs_group_users.userid= ?)`
+	const GET_USER_GROUPS string = `SELECT vs_groups.name  from vs_groups WHERE vs_groups.id IN
+	(SELECT vs_group_users.groupid FROM vs_group_users WHERE vs_group_users.userid= ?)`
 	var groups []string
-	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
-	var err error
+	dbMap, err := commons.GetDBConnection(commons.USER_STORE)
+	if err != nil {
+		return groups, err
+	}
 	_, err = dbMap.Select(&groups, GET_USER_GROUPS, user.UserId)
 	if err != nil {
 		return groups, err
@@ -111,26 +125,29 @@ func getUserGroups(user *models.SystemUser) ([]string, error) {
 	return groups, err
 }
 
-func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) bool {
-	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
+func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) (bool, error) {
+	dbMap, err := commons.GetDBConnection(commons.USER_STORE)
+	if err != nil {
+		return false, err
+	}
 	var hashedPassword sql.NullString
 	smtOut, err := dbMap.Db.Prepare("SELECT password FROM vs_users where username=? AND tenantid=? AND status='active'")
+	if err != nil {
+		return false, err
+	}
 	defer smtOut.Close()
-
 	err = smtOut.QueryRow(user.Username, user.TenantId).Scan(&hashedPassword)
 	if err == nil && hashedPassword.Valid {
 		if len(hashedPassword.String) > 0 {
 			err = bcrypt.CompareHashAndPassword([]byte(hashedPassword.String), []byte(user.Password))
 			if err == nil {
-				log.Debug("User authenticated successfully " + user.Username)
-				return true
+				return true, nil
 			}
 		}
 	} else {
-		log.Debug("User authentication failed for user " + user.Username)
-		return false
+		return false, err
 	}
-	return false
+	return false, err
 }
 
 func (backend *JWTAuthenticationBackend) getTokenRemainingValidity(timestamp interface{}) int {

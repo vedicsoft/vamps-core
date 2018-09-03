@@ -30,3 +30,4 @@ import:
   version: v1.10.1
   subpackages:
   - config
+  - config/xml
