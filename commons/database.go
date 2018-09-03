@@ -4,31 +4,109 @@ import (
 	"database/sql"
 	"encoding/json"
 
-	"net/url"
-
-	log "github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 	"gopkg.in/gorp.v1"
 	"gopkg.in/mgo.v2"
-	"github.com/Shopify/sarama"
+	"fmt"
+	_ "github.com/lib/pq"
+	"github.com/mattes/migrate"
+	"github.com/mattes/migrate/database/mysql"
+	_ "github.com/mattes/migrate/source/file"
+	"errors"
 )
 
-const DIALECT_MYSQL string = "mysql"
-const DIALECT_SQLITE3 string = "sqlite3"
-const DIALECT_MONGO string = "mongodb"
+const (
+	DIALECT_MYSQL string = "mysql"
+	DIALECT_POSTGRES string = "postgres"
+	DIALECT_SQLITE3 string = "sqlite3"
+	DIALECT_MONGO string = "mongodb"
 
-type DBConnection struct {
-	connectionURL string
-	dbMap         *gorp.DbMap
+	USER_STORE string = "userstore"
+	DATA_STORE string = "datastore"
+	ANALYTICS_STORE string = "analyticsstore"
+)
+
+var (
+	mongoConnectionUrl string
+	mgoSession *mgo.Session
+	createdStores = make(map[string]*gorp.DbMap)
+)
+
+type Store struct {
+	Type          string
+	Dialect       string
+	Host          string
+	Port          string
+	Username      string
+	Password      string
+	DBName        string
+	ShouldMigrate bool
 }
 
-var dbConnections map[string]DBConnection
-var kConsumerConn sarama.Consumer
-var kProducerConn sarama.AsyncProducer
+func (s *Store) RegisterDB() error {
+	switch s.Dialect {
+	case DIALECT_MYSQL:
+		if s.ShouldMigrate {
+			err := s.Migrate()
+			if err != nil {
+				return err
+			}
+		}
+		connURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&" +
+		"multiStatements=true", s.Username, s.Password, s.Host, s.Port, s.DBName)
+		db, err := sql.Open(s.Dialect, connURL)
+		if err != nil {
+			return err
+		}
+		createdStores[s.Type] = &gorp.DbMap{Db:db, Dialect: s.Dialect}
+	case DIALECT_POSTGRES:
+	//TO DO
+	}
+	return nil
+}
 
-var mongoConnectionUrl string
-var mgoSession *mgo.Session
+func (s *Store) Migrate() error {
+	switch s.Dialect {
+	case DIALECT_MYSQL:
+		cURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&" +
+		"multiStatements=true", s.Username, s.Password, s.Host, s.Port, s.DBName)
+		db, err := sql.Open("mysql", cURL)
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+		driver, err := mysql.WithInstance(db, &mysql.Config{
+			MigrationsTable: s.Type + "_migrations",
+		})
+		if err != nil {
+			return errors.New(fmt.Sprintf("failed to initialize DB migration err: %s", err.Error()))
+
+		}
+		defer driver.Close()
+		m, err := migrate.NewWithDatabaseInstance(
+			"file://resources/db_scripts/" + s.Dialect + "/" + s.Type, s.Dialect, driver)
+		if err != nil {
+			return err
+		}
+		defer m.Close()
+		err = m.Up()
+		if err != nil && migrate.ErrNoChange != err {
+			return err
+		}
+	case DIALECT_POSTGRES:
+	// TODO: implement
+	}
+	return nil
+}
+
+func GetDBConnection(storeType string) (*gorp.DbMap, error) {
+	if store, ok := createdStores[storeType]; ok {
+		return store.Db, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("store not initialized"))
+	}
+}
 
 func GetMongoSession() (*mgo.Session, error) {
 	if mgoSession == nil {
@@ -39,69 +117,6 @@ func GetMongoSession() (*mgo.Session, error) {
 		}
 	}
 	return mgoSession.Clone(), nil
-}
-
-func ConstructConnectionPool(dbConfigs map[string]DBConfigs) {
-	dbConnections = make(map[string]DBConnection)
-	var connectionURL string
-	var dialect gorp.Dialect
-	for dbName, dbConfig := range dbConfigs {
-		switch dbConfig.Dialect {
-		case DIALECT_MYSQL:
-			connectionURL = dbConfig.Username + ":" + dbConfig.Password + "@tcp(" + dbConfig.Address + ")/" +
-				dbConfig.DBName + dbConfig.Parameters
-			dialect = gorp.MySQLDialect{"InnoDB", "UTF8"}
-			break
-		case DIALECT_SQLITE3:
-			connectionURL = dbConfig.Address
-			dialect = gorp.SqliteDialect{}
-			break
-		case DIALECT_MONGO:
-			//mongoConnectionUrl = "mongodb://"+ dbConfig.Username+":"+ dbConfig.Password+"@"+dbConfig.Address
-			mongoConnectionUrl = "mongodb://" + dbConfig.Username + ":" + url.QueryEscape(dbConfig.Password) + "@" + dbConfig.Address
-			continue
-		}
-		db, err := sql.Open(dbConfig.Dialect, connectionURL)
-		if err != nil {
-			log.Error("Error occurred while constructing a the DB connection to : " + connectionURL +
-				" with dialect:" + dbConfig.Dialect + " stack:" + err.Error())
-		}
-		dbConnections[dbName] = DBConnection{connectionURL, &gorp.DbMap{Db: db, Dialect: dialect}}
-	}
-}
-
-func ConstructKafkaConnection(kafkaConfigs map[string]KafkaConfig)  {
-	for connType, kafkaConfig := range kafkaConfigs {
-		switch connType {
-		case "producer":
-			config := sarama.NewConfig()
-			// Return specifies what channels will be populated.
-			// If they are set to true, you must read from
-			// config.Producer.Return.Successes = true
-			// The total number of times to retry sending a message (default 3).
-			config.Producer.Retry.Max = kafkaConfig.MaxRetry
-			// The level of acknowledgement reliability needed from the broker.
-			config.Producer.RequiredAcks = sarama.WaitForAll
-			brokers := kafkaConfig.Service
-			producer, err := sarama.NewAsyncProducer(brokers, config)
-			if err != nil {
-				log.Error("Error occurred while constructing a the DB connection")
-			}
-			kProducerConn = producer
-			break
-		case "consumer":
-			config := sarama.NewConfig()
-			config.Producer.Retry.Max = kafkaConfig.MaxRetry
-			config.Producer.RequiredAcks = sarama.WaitForAll
-			brokers := kafkaConfig.Service
-			consumer, err := sarama.NewConsumer(brokers, config)
-			if err != nil {
-				log.Error("Error occurred while constructing")
-			}
-			kConsumerConn = consumer
-			break
-		}
-	}
 }
 
 type NullString struct {

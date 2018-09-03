@@ -1,0 +1,23 @@
+{
+  "policyid": 12345,
+  "committeduplink": 234,
+  "committeddownlink": 345,
+  "reduceddownlink": 234,
+  "reduceduplink": 3456,
+  "datalimit": 344343, // -1 for unlimited
+  "time": {
+    "startdate": "date",
+    "expirydate": "date",
+    "accessduration"  : 2345 // -1 till expiry
+  },
+  "schedule" : {
+    "starttime": "hh:mm",
+    "stoptime": "hh:mm",
+    "daysofweek" : [1,2,3,4,5,6,7]
+  },
+  "network" : {
+    "allowed" : ["ssid1" , "ssid2"],
+    "deny" : [ "ssid3" ]
+  },
+  "devicelimit" : 2
+}

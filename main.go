@@ -11,10 +11,7 @@ import (
 	"github.com/vedicsoft/vamps-core/routes"
 )
 
-var logHandler http.Handler
-
 func main() {
-	os.Chdir(commons.ServerConfigurations.Home)
 	serverLogFile, err := os.OpenFile(commons.ServerConfigurations.LogsDirectory+"/"+commons.SERVER_LOG_FILE_NAME,
 		os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -37,8 +34,6 @@ func main() {
 	}
 
 	defer serverLogFile.Close()
-
-	commons.ConstructConnectionPool(commons.ServerConfigurations.DBConfigMap)
 
 	//Starting the API server
 	router := routes.NewRouter()

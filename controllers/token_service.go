@@ -59,7 +59,7 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser, 
 		"exp":    exp,
 		"sub":    user.Username,
 		"tenantid": user.TenantId,
-		"userid":     getUserId(user),
+"userid":     getUserId(user),
 		"roles":     roles,
 		"groups":    groups,
 	})

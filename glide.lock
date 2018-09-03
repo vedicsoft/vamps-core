@@ -1,6 +1,10 @@
-hash: 480c516121f32fd89e7db2da642da48683bf94916fc84065eecf3ee755a1abbd
-updated: 2018-09-03T01:17:12.938923567+08:00
+hash: c09720813ddcbb25025c663fe337d3982ed05c47eb869f077209ae64d81cd6a7
+updated: 2018-09-03T04:51:40.665092926+08:00
 imports:
+- name: github.com/astaxie/beego
+  version: 053a075344c118a5cc41981b29ef612bb53d20ca
+  subpackages:
+  - config
 - name: github.com/davecgh/go-spew
   version: d8f796af33cc11cb798c1aaeb27a4ebc5099927d
   subpackages:

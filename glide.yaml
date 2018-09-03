@@ -26,3 +26,7 @@ import:
 - package: gopkg.in/gorp.v1
   version: "2.1"
 - package: gopkg.in/mgo.v2
+- package: github.com/astaxie/beego
+  version: v1.10.1
+  subpackages:
+  - config
