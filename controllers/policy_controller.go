@@ -143,7 +143,7 @@ func (p *VAMPSPolicy) IsValid() bool {
 
 func getUserPolicies(userID int, tenantId int, t string) ([]VAMPSPolicy, error) {
 	var policies []VAMPSPolicy
-	dbMap, err:= commons.GetDBConnection(commons.PLATFORM_DB)
+	dbMap, err:= commons.GetDBConnection(commons.USER_STORE)
 	if err != nil {
 		return policies, err
 	}

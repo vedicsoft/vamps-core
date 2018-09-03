@@ -65,7 +65,7 @@ func HasRole(userID int, role string) (bool, error) {
 								  vs_user_roles.roleid FROM vs_user_roles WHERE vs_user_roles.userid=?) AND
 								  vs_roles.name =?`
 	var roles []int
-	dbMap, err := commons.GetDBConnection(commons.PLATFORM_DB)
+	dbMap, err := commons.GetDBConnection(commons.USER_STORE)
 	if err != nil {
 		return false, err
 	}

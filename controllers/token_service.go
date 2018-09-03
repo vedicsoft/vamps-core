@@ -93,7 +93,7 @@ func (backend *JWTBackend) GenerateToken(user *models.SystemUser, expInHours int
 }
 
 func getUserId(user *models.SystemUser) (int64, error) {
-	dbMap, err := commons.GetDBConnection(commons.PLATFORM_DB)
+	dbMap, err := commons.GetDBConnection(commons.USER_STORE)
 	if err != nil {
 		return 0, err
 	}
@@ -129,7 +129,7 @@ func getUserSystemRoles(user *models.SystemUser) ([]string, error) {
 }
 
 func getUserGroups(user *models.SystemUser) ([]string, error) {
-	const GET_USER_GROUPS string = `SELECT vs_groups.name  from vs_groups WHERE vs_groups.id IN
+	const GET_USER_GROUPS string = `SELECT vs_groups.name  from vs_groups WHERE vs_groups.groupid IN
 	(SELECT vs_group_users.groupid FROM vs_group_users WHERE vs_group_users.userid= ?)`
 	var groups []string
 	dbMap, err := commons.GetDBConnection(commons.USER_STORE)

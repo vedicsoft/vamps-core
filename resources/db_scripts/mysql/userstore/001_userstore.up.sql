@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `vs_user_roles` (
 )
   ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `vs_user_groups` (
+CREATE TABLE IF NOT EXISTS `vs_group_users` (
   `userid`  INT,
   `groupid` INT,
   PRIMARY KEY (`userid`, `groupid`),
@@ -128,8 +128,8 @@ CREATE TABLE IF NOT EXISTS `vs_user_policies` (
 -- initial data set
 --
 -- Inserting system admin data data set
-INSERT IGNORE INTO vs_tenants (domain, status)
-VALUES ('super.com', 'active');
+INSERT IGNORE INTO vs_tenants (tenantid, domain, status)
+VALUES (1, 'super.com', 'active');
 
 INSERT IGNORE INTO vs_users (tenantid, username, password, email, status)
-VALUES (1, 'admin', '$2a$10$FesfnIBKqhH2MuF1hmss0umXNrrx28AW1E4re9OCAwib3cIOKBz3C', 'admin@vedicsoft.com', 'active');
+VALUES (1, 'admin', '$2a$10$FesfnIBKqhH2MuF1hmss0umXNrrx28AW1E4re9OCAwib3cIOKBz3C', 'admin@super.com', 'active');

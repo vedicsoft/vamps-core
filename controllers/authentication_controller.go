@@ -16,7 +16,7 @@ type TokenContext struct {
 	TenantId       int64  `json:"tenantid" form:"tenantid"`
 	GrantType      string   `json:"grantType,omitempty"`
 	UserID         int64    `json:"userID,omitempty"`
-	ExpirationTime int64    `json:"expirationTime,omitempty"`
+	ExpirationTime int64    `json:"exp,omitempty"`
 	Scopes         []string `json:"scopes,omitempty"`
 }
 
@@ -77,13 +77,20 @@ func RefreshToken(requestUser *models.SystemUser) []byte {
 }
 
 func Logout(req *http.Request) error {
-	authEngine := InitJWTAuthenticationEngine()
+	authEngine, err := InitJWTAuthenticationEngine()
+	if err != nil {
+		return err
+	}
 	return authEngine.InvalidateJWT(req)
 }
 
 func RequireTokenAuthentication(inner http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authBackend := InitJWTAuthenticationEngine()
+		authBackend, err := InitJWTAuthenticationEngine()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		token, err := authBackend.ProcessToken(r)
 		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
 			log.Debug("Authentication failed " + err.Error())
@@ -114,7 +121,11 @@ func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler
 		// To create tenant user groups for each users
 		// To create tenant user roles
 		// To create user polices
-		authBackend := InitJWTAuthenticationEngine() //
+		authBackend , err:= InitJWTAuthenticationEngine() //
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		token, err := authBackend.ProcessToken(r)
 		if err != nil || !token.Valid {
 			w.WriteHeader(http.StatusForbidden) // 403

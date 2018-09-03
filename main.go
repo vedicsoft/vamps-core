@@ -72,6 +72,8 @@ func main() {
 			"error": err.Error(),
 		}).Fatal("failed to initialize datastore")
 	}
+	os.Setenv("JWT_PRIVATE_KEY_FILE", conf.DefaultString("JWTPrivateKeyFile", "resources/security/private.key"))
+	os.Setenv("JWT_PUBLIC_KEY_FILE", conf.DefaultString("JWTPublicKeyFile",  "resources/security/public.key"))
 	router := routes.NewRouter()
 	httpsServer := &http.Server{
 		Addr: ":" + strconv.Itoa(conf.DefaultInt("httpsPort", 443)),
