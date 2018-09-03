@@ -13,7 +13,6 @@ import (
 	_ "github.com/astaxie/beego/config/xml"
 	"strings"
 	"fmt"
-	"github.com/astaxie/beego"
 	"errors"
 )
 
@@ -28,7 +27,7 @@ func initStore(storeType string, conf config.Configer) error {
 		Password: conf.String(storeType + "::password"),
 		DBName:   conf.String(storeType + "::db"),
 	}
-	if strings.ToLower(beego.BConfig.RunMode) == "dev" {
+	if strings.ToLower(conf.DefaultString("runMode", "dev")) == "dev" {
 		s.ShouldMigrate = true
 	}
 	err := s.RegisterDB()
@@ -59,19 +58,31 @@ func main() {
 		log.SetLevel(log.InfoLevel)
 	}
 
-	//Starting the API server
+	// DB initialization
+	err = initStore("userstore", conf)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err.Error(),
+		}).Fatal("failed to initialize userstore")
+	}
+
+	err = initStore("datastore", conf)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err.Error(),
+		}).Fatal("failed to initialize datastore")
+	}
 	router := routes.NewRouter()
 	httpsServer := &http.Server{
-		Addr: ":" + strconv.Itoa(commons.ServerConfigurations.HttpsPort+
-			commons.ServerConfigurations.PortOffset),
+		Addr: ":" + strconv.Itoa(conf.DefaultInt("httpsPort", 443)),
 		Handler:        router,
-		ReadTimeout:    time.Duration(commons.ServerConfigurations.ReadTimeOut) * time.Second,
-		WriteTimeout:   time.Duration(commons.ServerConfigurations.WriteTimeOut) * time.Second,
+		ReadTimeout:    time.Duration(conf.DefaultInt("readTimeout", 20)) * time.Second,
+		WriteTimeout:   time.Duration(conf.DefaultInt("writeTimeout", 20)) * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Info("Starting server on port : " + strconv.Itoa(commons.ServerConfigurations.HttpsPort+
-		commons.ServerConfigurations.PortOffset))
-	log.Fatal("HTTP Server error: ", httpsServer.ListenAndServeTLS(commons.ServerConfigurations.SSLCertificateFile,
-		commons.ServerConfigurations.SSLKeyFile))
+	log.Info("Starting server on port  " + httpsServer.Addr)
+	log.Fatal("HTTP Server error: ", httpsServer.ListenAndServeTLS(
+		conf.DefaultString("certFile", "resources/security/server.pem"),
+		conf.DefaultString("keyFile", "resources/security/server.key")))
 }

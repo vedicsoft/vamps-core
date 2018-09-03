@@ -1,3 +1,4 @@
+# this file is used only in development to watch golang files and recompile when a change is detected
 settings:
   legacy:
     force: false
@@ -11,8 +12,6 @@ schema:
     run:
       status: true
   watcher:
-    paths:
-    - /
     extensions:
     - go
     - html

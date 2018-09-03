@@ -1,1 +1,0 @@
-#### This folder is used to hold all the test resources required for integration and unit test scenarios
