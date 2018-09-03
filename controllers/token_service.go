@@ -1,11 +1,8 @@
 package controllers
 
 import (
-	"bufio"
 	"crypto/rsa"
-	"crypto/x509"
 	"database/sql"
-	"encoding/pem"
 	"os"
 	"time"
 
@@ -21,9 +18,10 @@ import (
 	"fmt"
 	"strings"
 	"net/http"
+	"io/ioutil"
 )
 
-type JWTAuthenticationBackend struct {
+type JWTBackend struct {
 	privateKey *rsa.PrivateKey
 	PublicKey  *rsa.PublicKey
 }
@@ -32,19 +30,39 @@ const (
 	expireOffset = 3600
 )
 
-var authBackendInstance *JWTAuthenticationBackend = nil
+var (
+	authEngine *JWTBackend = nil
+)
 
-func InitJWTAuthenticationEngine() *JWTAuthenticationBackend {
-	if authBackendInstance == nil {
-		authBackendInstance = &JWTAuthenticationBackend{
-			privateKey: getPrivateKey(),
-			PublicKey:  getPublicKey(),
+func InitJWTAuthenticationEngine() (*JWTBackend, error) {
+	if authEngine == nil {
+		privateKey, err := ioutil.ReadFile(os.Getenv("JWT_PRIVATE_KEY_FILE"))
+		if err != nil {
+			return nil, err
 		}
+		parsedPrivateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKey)
+		if err != nil {
+			return nil, err
+		}
+
+		publicKey, err := ioutil.ReadFile(os.Getenv("JWT_PUBLIC_KEY_FILE"))
+		if err != nil {
+			return nil, err
+		}
+		parsedPublicKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKey)
+		if err != nil {
+			return nil, err
+		}
+		authEngine = &JWTBackend{
+			privateKey: parsedPrivateKey,
+			PublicKey:  parsedPublicKey,
+		}
+		return authEngine, err
 	}
-	return authBackendInstance
+	return authEngine, nil
 }
 
-func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser, expInHours int) (string, error) {
+func (backend *JWTBackend) GenerateToken(user *models.SystemUser, expInHours int) (string, error) {
 	exp := time.Now().Add(time.Hour * time.Duration(expInHours)).Unix()
 	roles, err := getUserSystemRoles(user)
 	if err != nil {
@@ -125,7 +143,7 @@ func getUserGroups(user *models.SystemUser) ([]string, error) {
 	return groups, err
 }
 
-func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) (bool, error) {
+func (backend *JWTBackend) Authenticate(user *models.SystemUser) (bool, error) {
 	dbMap, err := commons.GetDBConnection(commons.USER_STORE)
 	if err != nil {
 		return false, err
@@ -150,7 +168,7 @@ func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) (
 	return false, err
 }
 
-func (backend *JWTAuthenticationBackend) getTokenRemainingValidity(timestamp interface{}) int {
+func (backend *JWTBackend) getTokenRemainingValidity(timestamp interface{}) int {
 	if validity, ok := timestamp.(float64); ok {
 		tm := time.Unix(int64(validity), 0)
 		remainer := tm.Sub(time.Now())
@@ -161,7 +179,7 @@ func (backend *JWTAuthenticationBackend) getTokenRemainingValidity(timestamp int
 	return expireOffset
 }
 
-func (backend *JWTAuthenticationBackend) InvalidateJWT(r *http.Request) error {
+func (backend *JWTBackend) InvalidateJWT(r *http.Request) error {
 	t, err := backend.ProcessToken(r)
 	if err != nil || !t.Valid {
 		return errors.New("invalid token")
@@ -181,7 +199,7 @@ func (backend *JWTAuthenticationBackend) InvalidateJWT(r *http.Request) error {
 	return nil
 }
 
-func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
+func (backend *JWTBackend) IsInBlacklist(token string) bool {
 	redisToken, err := redis.GetValue(token)
 	if err != nil {
 		log.Error("Error occourred while checking for black listed jwt :" + token + " stack :" + err.Error())
@@ -194,7 +212,7 @@ func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
 	return true
 }
 
-func (backend *JWTAuthenticationBackend) ProcessToken(r *http.Request) (*jwt.Token, error) {
+func (backend *JWTBackend) ProcessToken(r *http.Request) (*jwt.Token, error) {
 	// 1. extract token from request
 	tokenString, err := extractToken(r)
 	if err != nil {
@@ -246,61 +264,4 @@ func getAuthToken(tokenType, header string) (string, error) {
 	} else {
 		return "", errors.New("unable to extract the token")
 	}
-}
-
-func getPrivateKey() *rsa.PrivateKey {
-	privateKeyFile, err := os.Open(commons.ServerConfigurations.JWTPrivateKeyFile)
-	if err != nil {
-		panic(err)
-	}
-
-	pemfileinfo, _ := privateKeyFile.Stat()
-	var size int64 = pemfileinfo.Size()
-	pembytes := make([]byte, size)
-
-	buffer := bufio.NewReader(privateKeyFile)
-	_, err = buffer.Read(pembytes)
-
-	data, _ := pem.Decode([]byte(pembytes))
-
-	defer privateKeyFile.Close()
-
-	privateKeyImported, err := x509.ParsePKCS1PrivateKey(data.Bytes)
-
-	if err != nil {
-		panic(err)
-	}
-	return privateKeyImported
-}
-
-func getPublicKey() *rsa.PublicKey {
-	publicKeyFile, err := os.Open(commons.ServerConfigurations.JWTPublicKeyFile)
-	if err != nil {
-		panic(err)
-	}
-
-	pemfileinfo, _ := publicKeyFile.Stat()
-	var size int64 = pemfileinfo.Size()
-	pembytes := make([]byte, size)
-
-	buffer := bufio.NewReader(publicKeyFile)
-	_, err = buffer.Read(pembytes)
-
-	data, _ := pem.Decode([]byte(pembytes))
-
-	defer publicKeyFile.Close()
-
-	publicKeyImported, err := x509.ParsePKIXPublicKey(data.Bytes)
-
-	if err != nil {
-		panic(err)
-	}
-
-	rsaPub, ok := publicKeyImported.(*rsa.PublicKey)
-
-	if !ok {
-		panic(err)
-	}
-
-	return rsaPub
 }

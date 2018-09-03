@@ -21,13 +21,16 @@ type TokenContext struct {
 }
 
 func Login(requestUser *models.SystemUser) (int, []byte, error) {
-	authEngine := InitJWTAuthenticationEngine()
-	requestUser.TenantId = getTenantId(requestUser)
-	authenticaed, err := authEngine.Authenticate(requestUser)
+	authEngine, err := InitJWTAuthenticationEngine()
 	if err != nil {
 		return http.StatusInternalServerError, []byte(""), err
 	}
-	if authenticaed {
+	requestUser.TenantId = getTenantId(requestUser)
+	authenticated, err := authEngine.Authenticate(requestUser)
+	if err != nil {
+		return http.StatusInternalServerError, []byte(""), err
+	}
+	if authenticated {
 		token, err := authEngine.GenerateToken(requestUser, commons.ServerConfigurations.JWTExpirationDelta)
 		if err != nil {
 			return http.StatusInternalServerError, []byte(""), err
@@ -40,7 +43,10 @@ func Login(requestUser *models.SystemUser) (int, []byte, error) {
 }
 
 func CustomToken(requestUser *models.SystemUser, expirationHours int) []byte {
-	authEngine := InitJWTAuthenticationEngine()
+	authEngine, err := InitJWTAuthenticationEngine()
+	if err != nil {
+		panic(err)
+	}
 	token, err := authEngine.GenerateToken(requestUser, expirationHours)
 	if err != nil {
 		panic(err)
@@ -54,7 +60,10 @@ func CustomToken(requestUser *models.SystemUser, expirationHours int) []byte {
 }
 
 func RefreshToken(requestUser *models.SystemUser) []byte {
-	authEngine := InitJWTAuthenticationEngine()
+	authEngine, err := InitJWTAuthenticationEngine()
+	if err != nil {
+		panic(err)
+	}
 	token, err := authEngine.GenerateToken(requestUser, commons.ServerConfigurations.JWTExpirationDelta)
 	if err != nil {
 		panic(err)
