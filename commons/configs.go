@@ -171,7 +171,6 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 	ServerConfigurations.ConfigMap = configsMap
 	ServerConfigurations.Prefix = configsMap["prefix"].(string)
 	SERVER_PREFIX := ServerConfigurations.Prefix
-	fmt.Println(configsMap)
 	ServerConfigurations.IsMaster = configsMap["ismaster"].(bool)
 	ServerConfigurations.PortOffset = configsMap["portoffset"].(int)
 	ServerConfigurations.HttpPort = configsMap["httpport"].(int)

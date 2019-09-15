@@ -41,10 +41,8 @@ while getopts ":t" opt; do
   esac
 done
 
-if [ ${RUN_TEST} = 1 ]; then
-echo "Executing test"
-     go test -v $(go list ./... | grep -v /vendor/)
-fi
+echo "building the project"
+go build .
 
 mv ${PROJECT_NAME} ${PROJECT_ROOT}/server/bin/server.bin
 

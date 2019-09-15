@@ -5,12 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -29,7 +27,6 @@ type JWTResponse struct {
 	TenantId int
 }
 
-var redisProcess *exec.Cmd
 var jwtResponse JWTResponse
 
 func TestMain(m *testing.M) {
@@ -46,7 +43,6 @@ func setup() {
 
 	//create the database in sqlite
 	constructTestDB(serverConfigs.Home)
-	redisProcess = startRedis(serverConfigs.Home)
 	//constructing new routes
 	m = routes.NewRouter()
 	//The response recorder used to record HTTP responses
@@ -58,22 +54,6 @@ func shutdown() {
 	err := os.Remove(commons.GetServerHome() + "/resources/.test/vampstest.db")
 	if err != nil {
 		fmt.Println("Unable to remove the test databsae stack:" + err.Error())
-	}
-
-	// Stopping redis process by reading the pid
-	redisPid, err := ioutil.ReadFile(commons.GetServerHome() + "/resources/.test/redis.pid")
-	err = redisProcess.Process.Kill()
-	redisProcess.Wait()
-
-	redisPid2, err := strconv.Atoi(string(redisPid)[:len(string(redisPid))-1])
-	if err != nil {
-		println(err.Error())
-	}
-	redisProcess2, _ := os.FindProcess(redisPid2)
-	redisProcess2.Kill()
-	redisProcess2.Wait()
-	if err != nil {
-		fmt.Println(err.Error())
 	}
 }
 
@@ -95,18 +75,6 @@ func constructTestDB(serverHome string) {
 	w.Close()
 	c2.Wait()
 	io.Copy(os.Stdout, &b2)
-}
-
-func startRedis(serverHome string) *exec.Cmd {
-	os.Chdir(serverHome + "/resources/.test")
-	// Starting caddy server to server static files
-	args := []string{"redis.default.conf"}
-	cmd := exec.Command("./redis-server", args...)
-	if err := cmd.Start(); err != nil {
-		fmt.Println("Error occourred while starting redis server : ", err.Error())
-		os.Exit(1)
-	}
-	return cmd
 }
 
 func TestLogin(t *testing.T) {
