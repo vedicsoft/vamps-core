@@ -11,9 +11,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Shopify/sarama"
 	"github.com/spf13/viper"
 	"gopkg.in/gorp.v1"
-	"github.com/Shopify/sarama"
 )
 
 type serverConfigs struct {
@@ -48,7 +48,7 @@ type serverConfigs struct {
 }
 
 type KafkaConfig struct {
-	Service []string
+	Service  []string
 	MaxRetry int
 }
 
@@ -92,9 +92,6 @@ func GetKafkaProducerConn() sarama.AsyncProducer {
 func GetKafkaConsumerConn() sarama.Consumer {
 	return kConsumerConn
 }
-
-
-
 
 func (config *serverConfigs) GetString(identifier string) string {
 	return (*config).ConfigMap[identifier].(string)
@@ -174,23 +171,24 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 	ServerConfigurations.ConfigMap = configsMap
 	ServerConfigurations.Prefix = configsMap["prefix"].(string)
 	SERVER_PREFIX := ServerConfigurations.Prefix
-	ServerConfigurations.IsMaster = configsMap["isMaster"].(bool)
-	ServerConfigurations.PortOffset = configsMap["portOffset"].(int)
-	ServerConfigurations.HttpPort = configsMap["httpPort"].(int)
-	ServerConfigurations.HttpsPort = configsMap["httpsPort"].(int)
-	ServerConfigurations.CaddyPort = configsMap["caddyPort"].(int)
-	ServerConfigurations.ReadTimeOut = configsMap["readTimeOut"].(int)
-	ServerConfigurations.WriteTimeOut = configsMap["writeTimeOut"].(int)
-	ServerConfigurations.LogsDirectory = configsMap["logsDirectory"].(string)
-	ServerConfigurations.LogLevel = configsMap["logLevel"].(string)
-	ServerConfigurations.EnableAccessLogs = configsMap["enableAccessLogs"].(bool)
-	ServerConfigurations.CaddyPath = configsMap["caddyPath"].(string)
-	ServerConfigurations.CaddyFile = configsMap["caddyFile"].(string)
-	ServerConfigurations.JWTPrivateKeyFile = configsMap["JWTPrivateKeyFile"].(string)
-	ServerConfigurations.JWTPublicKeyFile = configsMap["JWTPublicKeyFile"].(string)
-	ServerConfigurations.JWTExpirationDelta = configsMap["JWTExpirationDelta"].(int)
-	ServerConfigurations.SSLCertificateFile = configsMap["certificateFile"].(string)
-	ServerConfigurations.SSLKeyFile = configsMap["keyFile"].(string)
+	fmt.Println(configsMap)
+	ServerConfigurations.IsMaster = configsMap["ismaster"].(bool)
+	ServerConfigurations.PortOffset = configsMap["portoffset"].(int)
+	ServerConfigurations.HttpPort = configsMap["httpport"].(int)
+	ServerConfigurations.HttpsPort = configsMap["httpsport"].(int)
+	ServerConfigurations.CaddyPort = configsMap["caddyport"].(int)
+	ServerConfigurations.ReadTimeOut = configsMap["readtimeout"].(int)
+	ServerConfigurations.WriteTimeOut = configsMap["writetimeout"].(int)
+	ServerConfigurations.LogsDirectory = configsMap["logsdirectory"].(string)
+	ServerConfigurations.LogLevel = configsMap["loglevel"].(string)
+	ServerConfigurations.EnableAccessLogs = configsMap["enableaccesslogs"].(bool)
+	ServerConfigurations.CaddyPath = configsMap["caddypath"].(string)
+	ServerConfigurations.CaddyFile = configsMap["caddyfile"].(string)
+	ServerConfigurations.JWTPrivateKeyFile = configsMap["jwtprivatekeyfile"].(string)
+	ServerConfigurations.JWTPublicKeyFile = configsMap["jwtpublickeyfile"].(string)
+	ServerConfigurations.JWTExpirationDelta = configsMap["jwtexpirationdelta"].(int)
+	ServerConfigurations.SSLCertificateFile = configsMap["certificatefile"].(string)
+	ServerConfigurations.SSLKeyFile = configsMap["keyfile"].(string)
 
 	//Exporting variables for other services (Caddy)
 	os.Setenv("PATH", os.Getenv("PATH")+":"+ServerConfigurations.Home+"/bin")
@@ -237,9 +235,9 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 	}
 
 	ServerConfigurations.KafkaConfigs = make(map[string]KafkaConfig)
-	kafkaConfigs := viper.Get("kafkaConfigs").([]interface{})
-	if len(kafkaConfigs) > 0 {
-		fmt.Println(kafkaConfigs)
+	kc := viper.Get("kafkaConfigs")
+	if kc != nil {
+		kafkaConfigs := kc.([]interface{})
 		for i, _ := range kafkaConfigs {
 			configs := kafkaConfigs[i].(map[interface{}]interface{})
 			t := configs["services"].([]interface{})
@@ -248,8 +246,8 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 				s[i] = v.(string)
 			}
 			ServerConfigurations.KafkaConfigs[configs["name"].(string)] = KafkaConfig{
-				Service:    s,
-				MaxRetry:  configs["maxRetry"].(int),
+				Service:  s,
+				MaxRetry: configs["maxRetry"].(int),
 			}
 		}
 	}
@@ -258,7 +256,6 @@ func InitConfigurations(configFileUrl string) serverConfigs {
 	fmt.Println(len(tenantConfigs))
 	if ServerConfigurations.Prefix == "POLICY" {
 		if len(tenantConfigs) > 0 {
-			fmt.Println("test1")
 			t := tenantConfigs["defaultRoles"].([]interface{})
 			s := make([]string, len(t))
 			for i, v := range t {

@@ -1,0 +1,26 @@
+package: github.com/vedicsoft/vamps-core
+import:
+- package: github.com/Shopify/sarama
+  version: v1.23.1
+- package: github.com/Sirupsen/logrus
+  version: v1.4.2
+- package: github.com/dgrijalva/jwt-go
+  version: v2.7.0
+- package: github.com/go-sql-driver/mysql
+  version: v1.4.1
+- package: github.com/gorilla/mux
+  version: v1.7.3
+- package: github.com/jcuga/golongpoll
+  version: v1.1.0
+- package: github.com/mattn/go-sqlite3
+  version: v1.11.0
+- package: github.com/spf13/viper
+  version: v1.4.0
+- package: golang.org/x/crypto
+  subpackages:
+  - bcrypt
+- package: gopkg.in/gorp.v1
+  version: "2.1"
+- package: gopkg.in/mgo.v2
+- package: github.com/go-redis/redis
+  version: v6.14.2

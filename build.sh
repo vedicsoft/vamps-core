@@ -25,14 +25,8 @@ export GOBIN="$PROJECT_ROOT"
 rm -rf ${PROJECT_ROOT}/target
 mkdir -p ${PROJECT_ROOT}/target
 
-echo 'Formatting the code base...'
-godep go fmt $(go list ./... | grep -v /vendor/)
-
-echo 'Optimizing the imports...'
-goimports -w $(go list -f {{.Dir}} ./... | grep -v /vendor/)
-
 echo 'Installing dependencies. This might take some time...'
-godep go install $(go list ./... | grep -v /vendor/)
+#glide install
 
 RUN_TEST=1
 while getopts ":t" opt; do
@@ -49,7 +43,7 @@ done
 
 if [ ${RUN_TEST} = 1 ]; then
 echo "Executing test"
-     godep go test -v $(go list ./... | grep -v /vendor/)
+     go test -v $(go list ./... | grep -v /vendor/)
 fi
 
 mv ${PROJECT_NAME} ${PROJECT_ROOT}/server/bin/server.bin

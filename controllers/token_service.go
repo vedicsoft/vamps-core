@@ -12,7 +12,7 @@ import (
 	"errors"
 
 	log "github.com/Sirupsen/logrus"
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/models"
 	"github.com/vedicsoft/vamps-core/redis"
@@ -131,9 +131,6 @@ func getUserGroups(user *models.SystemUser) ([]string, error) {
 	return groups, err
 }
 
-
-
-
 func (backend *JWTAuthenticationBackend) Authenticate(user *models.SystemUser) bool {
 	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
 	var hashedPassword sql.NullString
@@ -168,7 +165,7 @@ func (backend *JWTAuthenticationBackend) getTokenRemainingValidity(timestamp int
 }
 
 func (backend *JWTAuthenticationBackend) Logout(tokenString string, token *jwt.Token) error {
-	return redis.SetValue(tokenString, tokenString, backend.getTokenRemainingValidity(token.Claims["exp"]))
+	return redis.SetValue(tokenString, tokenString, int64(backend.getTokenRemainingValidity(token.Claims["exp"])))
 }
 
 func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
@@ -176,7 +173,7 @@ func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
 	if err != nil {
 		log.Error("Error occourred while checking for black listed jwt :" + token + " stack :" + err.Error())
 	}
-	if redisToken == nil {
+	if len(redisToken) == 0 {
 		log.Debug("Token is not in the black list")
 		return false
 	}

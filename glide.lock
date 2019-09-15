@@ -1,0 +1,171 @@
+hash: c6479546ae223fffee4a9b8dbf14d876fabf82e015f9b2d0f0ed62461ebb5745
+updated: 2019-09-15T16:34:56.91843275+08:00
+imports:
+- name: github.com/DataDog/zstd
+  version: 2347a397da4ee9c6b8226d4aff82c302d0e52773
+- name: github.com/davecgh/go-spew
+  version: d8f796af33cc11cb798c1aaeb27a4ebc5099927d
+  subpackages:
+  - spew
+- name: github.com/dgrijalva/jwt-go
+  version: 268038b363c7a8d7306b8e35bf77a1fde4b0c402
+- name: github.com/eapache/go-resiliency
+  version: b98ce2825f7276cc41027348986a241ef5d62fd8
+  subpackages:
+  - breaker
+- name: github.com/eapache/go-xerial-snappy
+  version: 776d5712da21bc4762676d614db1d8a64f4238b0
+- name: github.com/eapache/queue
+  version: 093482f3f8ce946c05bcba64badd2c82369e084d
+- name: github.com/fsnotify/fsnotify
+  version: 1485a34d5d5723fea214f5710708e19a831720e4
+- name: github.com/go-redis/redis
+  version: b3d9bf10f6666b2ee5100a6f3f84f4caf3b4e37d
+  subpackages:
+  - internal
+  - internal/consistenthash
+  - internal/hashtag
+  - internal/pool
+  - internal/proto
+  - internal/singleflight
+  - internal/util
+- name: github.com/go-sql-driver/mysql
+  version: 72cd26f257d44c1114970e19afddcd812016007e
+- name: github.com/golang/snappy
+  version: ff6b7dc882cf4cfba7ee0b9f7dcc1ac096c554aa
+- name: github.com/gorilla/mux
+  version: 00bdffe0f3c77e27d2cf6f5c70232a2d3e4d9c15
+- name: github.com/hashicorp/go-uuid
+  version: 4f571afc59f3043a65f8fe6bf46d887b10a01d43
+- name: github.com/hashicorp/hcl
+  version: cf7d376da96d9cecec7c7483cec2735efe54a410
+  subpackages:
+  - hcl/ast
+  - hcl/parser
+  - hcl/printer
+  - hcl/scanner
+  - hcl/strconv
+  - hcl/token
+  - json/parser
+  - json/scanner
+  - json/token
+- name: github.com/jcmturner/gofork
+  version: dc7c13fece037a4a36e2b3c69db4991498d30692
+  subpackages:
+  - encoding/asn1
+  - x/crypto/pbkdf2
+- name: github.com/jcuga/golongpoll
+  version: 645f5b7692d8f02ab5537866ae04a00478e91e97
+- name: github.com/konsorten/go-windows-terminal-sequences
+  version: f55edac94c9bbba5d6182a4be46d86a2c9b5b50e
+- name: github.com/magiconair/properties
+  version: de8848e004dd33dc07a2947b3d76f618a7fc7ef1
+- name: github.com/mattn/go-sqlite3
+  version: b612a2feea6aa87c6d052d9086572551df06497e
+- name: github.com/mitchellh/mapstructure
+  version: 3536a929edddb9a5b34bd6861dc4a9647cb459fe
+- name: github.com/nu7hatch/gouuid
+  version: 179d4d0c4d8d407a32af483c2354df1d2c91e6c3
+- name: github.com/pelletier/go-toml
+  version: 26fd12ff5458ed76bb7be556938691838288a855
+- name: github.com/pierrec/lz4
+  version: 0554902aa74a6a41b367c6352ebcc922b26782b1
+  subpackages:
+  - internal/xxh32
+- name: github.com/rcrowley/go-metrics
+  version: cac0b30c2563378d434b5af411844adff8e32960
+- name: github.com/Shopify/sarama
+  version: 46c83074a05474240f9620fb7c70fb0d80ca401a
+- name: github.com/Sirupsen/logrus
+  version: 839c75faf7f98a33d445d181f3018b5c3409a45e
+- name: github.com/spf13/afero
+  version: 588a75ec4f32903aa5e39a2619ba6a4631e28424
+  subpackages:
+  - mem
+- name: github.com/spf13/cast
+  version: c01685bb8421cecb276fa517e91f757215f980b3
+- name: github.com/spf13/jwalterweatherman
+  version: 94f6ae3ed3bceceafa716478c5fbf8d29ca601a1
+- name: github.com/spf13/pflag
+  version: 972238283c0625cf3e881de7699ba8f2524c340a
+- name: github.com/spf13/viper
+  version: b5bf975e5823809fb22c7644d008757f78a4259e
+- name: golang.org/x/crypto
+  version: 227b76d455e791cb042b03e633e2f7fbcfdf74a5
+  subpackages:
+  - bcrypt
+  - blowfish
+  - md4
+  - pbkdf2
+- name: golang.org/x/net
+  version: 24e19bdeb0f2d062d8e2640d50a7aaf2a7f80e7a
+  subpackages:
+  - internal/socks
+  - proxy
+- name: golang.org/x/sys
+  version: c3b328c6e5a763a2bfc82a48b4bd855037210934
+  subpackages:
+  - unix
+- name: golang.org/x/text
+  version: 3d0f7978add91030e5e8976ff65ccdd828286cba
+  subpackages:
+  - transform
+  - unicode/norm
+- name: google.golang.org/appengine
+  version: 5f2a59506353b8d5ba8cbbcd9f3c1f41f1eaf079
+  subpackages:
+  - cloudsql
+- name: gopkg.in/gorp.v1
+  version: 4df78490a9aa9a78b9b02b0c913df8dc1954faee
+- name: gopkg.in/jcmturner/aescts.v1
+  version: f6abebb3171c4c1b1fea279cb7c7325020a26290
+- name: gopkg.in/jcmturner/dnsutils.v1
+  version: 13eeb8d49ffb74d7a75784c35e4d900607a3943c
+- name: gopkg.in/jcmturner/gokrb5.v7
+  version: 363118e62befa8a14ff01031c025026077fe5d6d
+  subpackages:
+  - asn1tools
+  - client
+  - config
+  - credentials
+  - crypto
+  - crypto/common
+  - crypto/etype
+  - crypto/rfc3961
+  - crypto/rfc3962
+  - crypto/rfc4757
+  - crypto/rfc8009
+  - gssapi
+  - iana
+  - iana/addrtype
+  - iana/adtype
+  - iana/asnAppTag
+  - iana/chksumtype
+  - iana/errorcode
+  - iana/etypeID
+  - iana/flags
+  - iana/keyusage
+  - iana/msgtype
+  - iana/nametype
+  - iana/patype
+  - kadmin
+  - keytab
+  - krberror
+  - messages
+  - pac
+  - types
+- name: gopkg.in/jcmturner/rpc.v1
+  version: 99a8ce2fbf8b8087b6ed12a37c61b10f04070043
+  subpackages:
+  - mstypes
+  - ndr
+- name: gopkg.in/mgo.v2
+  version: a6b53ec6cb22a3699387a57a161566f9402ee85b
+  subpackages:
+  - bson
+  - internal/json
+  - internal/sasl
+  - internal/scram
+- name: gopkg.in/yaml.v2
+  version: 51d6538a90f86fe93ac480b35f37b2be17fef232
+testImports: []
