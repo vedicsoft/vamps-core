@@ -44,21 +44,22 @@ func InitJWTAuthenticationEngine() *JWTAuthenticationBackend {
 func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser) (string, error) {
 	token := jwt.New(jwt.SigningMethodRS512)
 	i := commons.ServerConfigurations.JWTExpirationDelta
-	token.Claims["exp"] = time.Now().Add(time.Hour * time.Duration(i)).Unix()
-	token.Claims["iat"] = time.Now().Unix()
-	token.Claims["sub"] = user.Username
-	token.Claims["tenantid"] = user.TenantId
-	token.Claims["userid"] = getUserId(user)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["exp"] = time.Now().Add(time.Hour * time.Duration(i)).Unix()
+	claims["iat"] = time.Now().Unix()
+	claims["sub"] = user.Username
+	claims["tenantid"] = user.TenantId
+	claims["userid"] = getUserId(user)
 	roles, err := getUserSystemRoles(user)
 	if err != nil {
 		return "", errors.New("could not load user scopes stack trace: " + err.Error())
 	}
-	token.Claims["roles"] = roles
+	claims["roles"] = roles
 	groups, err := getUserGroups(user)
 	if err != nil {
 		return "", errors.New("could not load user scopes stack trace: " + err.Error())
 	}
-	token.Claims["groups"] = groups
+	claims["groups"] = groups
 	tokenString, err := token.SignedString(backend.privateKey)
 	if err != nil {
 		return "", errors.New("unable to sign the jwt stack trace: " + err.Error())
@@ -68,21 +69,22 @@ func (backend *JWTAuthenticationBackend) GenerateToken(user *models.SystemUser) 
 
 func (backend *JWTAuthenticationBackend) GenerateCustomToken(user *models.SystemUser, expirationHours int) (string, error) {
 	token := jwt.New(jwt.SigningMethodRS512)
-	token.Claims["exp"] = time.Now().Add(time.Hour * time.Duration(expirationHours)).Unix()
-	token.Claims["iat"] = time.Now().Unix()
-	token.Claims["sub"] = user.Username
-	token.Claims["tenantid"] = user.TenantId
-	token.Claims["userid"] = getUserId(user)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["exp"] = time.Now().Add(time.Hour * time.Duration(expirationHours)).Unix()
+	claims["iat"] = time.Now().Unix()
+	claims["sub"] = user.Username
+	claims["tenantid"] = user.TenantId
+	claims["userid"] = getUserId(user)
 	roles, err := getUserSystemRoles(user)
 	if err != nil {
 		return "", errors.New("could not load user scopes stack trace: " + err.Error())
 	}
-	token.Claims["roles"] = roles
+	claims["roles"] = roles
 	groups, err := getUserGroups(user)
 	if err != nil {
 		return "", errors.New("could not load user scopes stack trace: " + err.Error())
 	}
-	token.Claims["groups"] = groups
+	claims["groups"] = groups
 	tokenString, err := token.SignedString(backend.privateKey)
 	if err != nil {
 		return "", errors.New("unable to sign the jwt stack trace: " + err.Error())
@@ -165,7 +167,8 @@ func (backend *JWTAuthenticationBackend) getTokenRemainingValidity(timestamp int
 }
 
 func (backend *JWTAuthenticationBackend) Logout(tokenString string, token *jwt.Token) error {
-	return redis.SetValue(tokenString, tokenString, int64(backend.getTokenRemainingValidity(token.Claims["exp"])))
+	claims := token.Claims.(jwt.MapClaims)
+	return redis.SetValue(tokenString, tokenString, int64(backend.getTokenRemainingValidity(claims["exp"])))
 }
 
 func (backend *JWTAuthenticationBackend) IsInBlacklist(token string) bool {
