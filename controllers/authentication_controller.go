@@ -8,7 +8,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
-	_ "github.com/dgrijalva/jwt-go/request"
 	"github.com/vedicsoft/vamps-core/commons"
 	"github.com/vedicsoft/vamps-core/models"
 )
@@ -81,7 +80,7 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 			nil,
 			func(token *jwt.Token) (interface{}, error) {
 				return authBackend.PublicKey, nil
-			}, nil)
+			}, request.WithClaims(jwt.StandardClaims{}))
 		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
 			log.Debug("Authentication failed " + err.Error())
 			w.WriteHeader(http.StatusForbidden)
@@ -113,7 +112,7 @@ func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler
 			nil,
 			func(token *jwt.Token) (interface{}, error) {
 				return authBackend.PublicKey, nil
-			}, nil)
+			}, request.WithClaims(jwt.StandardClaims{}))
 		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
 			log.Debug("Authentication failed " + err.Error())
 			w.WriteHeader(http.StatusForbidden) // 403
