@@ -77,7 +77,7 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 		authBackend := InitJWTAuthenticationEngine()
 		token, err := request.ParseFromRequest(
 			r,
-			request.OAuth2Extractor,
+			request.AuthorizationHeaderExtractor,
 			func(token *jwt.Token) (interface{}, error) {
 				return authBackend.PublicKey, nil
 			}, request.WithClaims(jwt.StandardClaims{}))
@@ -109,7 +109,7 @@ func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler
 		authBackend := InitJWTAuthenticationEngine() //
 		token, err := request.ParseFromRequest(      // parse token from the request with checking private key and public key
 			r,
-			request.OAuth2Extractor,
+			request.AuthorizationHeaderExtractor,
 			func(token *jwt.Token) (interface{}, error) {
 				return authBackend.PublicKey, nil
 			}, request.WithClaims(jwt.StandardClaims{}))
