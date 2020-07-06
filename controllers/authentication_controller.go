@@ -80,7 +80,7 @@ func RequireTokenAuthentication(inner http.Handler) http.Handler {
 			request.AuthorizationHeaderExtractor,
 			func(token *jwt.Token) (interface{}, error) {
 				return authBackend.PublicKey, nil
-			}, request.WithClaims(jwt.StandardClaims{}))
+			}, request.WithClaims(nil))
 		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
 			log.Debug("Authentication failed " + err.Error())
 			w.WriteHeader(http.StatusForbidden)
@@ -112,7 +112,7 @@ func RequireTokenAuthenticationAndAuthorization(inner http.Handler) http.Handler
 			request.AuthorizationHeaderExtractor,
 			func(token *jwt.Token) (interface{}, error) {
 				return authBackend.PublicKey, nil
-			}, request.WithClaims(jwt.StandardClaims{}))
+			}, request.WithClaims(nil))
 		if err != nil || !token.Valid || authBackend.IsInBlacklist(r.Header.Get("Authorization")) {
 			log.Debug("Authentication failed " + err.Error())
 			w.WriteHeader(http.StatusForbidden) // 403
