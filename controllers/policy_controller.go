@@ -30,8 +30,7 @@ const GET_USER_POLICIES = `SELECT DISTINCT
 						    vs_user_roles
 						WHERE
 						    userid = ?))
-					and tenantid = ?
-					and ((type = "system") OR (type = "application"))`
+					and tenantid = ?`
 
 const SPLIT_SYMBOL string = "."
 const ALL_SYMBOL string = "*"
@@ -141,7 +140,7 @@ func (p *VAMPSPolicy) IsValid() bool {
 // get user polices under its roles.
 // get user policies under his attached grouped
 
-func getUserPolicies(userID int, tenantId int, t string) ([]VAMPSPolicy, error) {
+func getUserPolicies(userID int, tenantId int) ([]VAMPSPolicy, error) {
 	dbMap := commons.GetDBConnection(commons.PLATFORM_DB)
 	var policies []VAMPSPolicy
 
@@ -177,10 +176,8 @@ func isAuthorized2(tenantID int, userID int, r *http.Request) (bool, error) {
 	requestedResource := strings.ToLower(strings.TrimPrefix(strings.Replace(r.URL.Path, "/", ".", -1), "."))
 	requestedAction := strings.ToLower(requestedResource + SPLIT_SYMBOL + r.Method)
 
-	var t = "general"
-	fmt.Println(t)
 	// get user policies according to the user id
-	userPolicies, err := getUserPolicies(userID, tenantID, t)
+	userPolicies, err := getUserPolicies(userID, tenantID)
 	if err != nil {
 		return false, errors.New("unable to get user policies  stack trace:" + err.Error())
 	}
